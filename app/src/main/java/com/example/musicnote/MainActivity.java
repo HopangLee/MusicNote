@@ -428,7 +428,7 @@ public class MainActivity extends AppCompatActivity
 
         if(isCreating){
             // 롤 허용 범위 설정
-            float error = 0.0175f;
+            float error = 0.02f;
 
             // 여기서 뭐 방위각의 평균을 구해놓는다거나 gps의 평균을 구해놓거나 하면 될듯
             if((mCurrentRoll < -error || mCurrentRoll > error) || (mCurrentPitch < - error || mCurrentPitch > error)){
@@ -484,7 +484,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // 롤 허용 범위 설정
-        float error = 0.01f;
+        float error = 0.0125f;
 
         if((mCurrentRoll < -error || mCurrentRoll > error) || (mCurrentPitch < - error || mCurrentPitch > error)){
             // 설명용
@@ -532,8 +532,8 @@ public class MainActivity extends AppCompatActivity
 
 
                 // 방위각 평균 구하기
-                if(len > 22){
-                    for(int i = 20; i < len; i++){
+                if(len > 17){
+                    for(int i = 15; i < len; i++){
                         if(maxAzim < azimList.get(i)) maxAzim = azimList.get(i);
                         if(minAzim > azimList.get(i)) minAzim = azimList.get(i);
                         averageAzim += azimList.get(i);
@@ -542,7 +542,7 @@ public class MainActivity extends AppCompatActivity
                     averageAzim -= maxAzim;
                     averageAzim -= minAzim;
 
-                    averageAzim /= (azimList.size() - 22);
+                    averageAzim /= (azimList.size() - 17);
                 }
                 else averageAzim = azimList.get(len - 1);
 
@@ -554,6 +554,7 @@ public class MainActivity extends AppCompatActivity
 
                         float dLatitude = (float)(markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
                         float dLongitude = (float)(markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
+                        /*
                         if( i == 0 ) {
                             dLatitude = 2f;
                             dLongitude = 0f;
@@ -565,7 +566,7 @@ public class MainActivity extends AppCompatActivity
                         else{
                             dLatitude = 0f;
                             dLongitude = 2f;
-                        }
+                        }*/
                         float height = -0.5f;
                         Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
 
@@ -608,7 +609,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
             }
-        }, 3000); // 3000 => 3초
+        }, 2000); // 2000 => 2초
     }
 
     public void music(Node node,int i){
