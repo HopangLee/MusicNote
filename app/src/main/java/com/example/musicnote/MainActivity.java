@@ -554,14 +554,6 @@ public class MainActivity extends AppCompatActivity
                 zUnitVec = zUnitVec.normalized().negated();
 
                 yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
-                /*
-                if(mCurrentPitch >= 0){
-                    yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
-                }
-                else{
-                    //yUnitVec = new Vector3((float)(Math.sin(-mCurrentPitch) * -Math.sin(mCurrentAzim)), (float)(Math.sin(-mCurrentPitch) * -Math.cos(mCurrentAzim)), (float)(Math.cos(-mCurrentPitch))).normalized();
-                    yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
-                }*/
 
                 float wx = zUnitVec.x;
                 float wy = zUnitVec.y;
@@ -627,22 +619,31 @@ public class MainActivity extends AppCompatActivity
         Context c = this;
 
         node.setOnTapListener((v, event) -> {
+            /* gps를 이용한 거리
+            float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
+            float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
+            float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
+            */
+
+            // AR자체의 world position을 이용한 거리
             Vector3 vec = Vector3.subtract(node.getWorldPosition(), arSceneView.getScene().getCamera().getWorldPosition());
             float distance = (float)Math.sqrt(Vector3.dot(vec, vec));
 
-            if(musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE){
-                musicUi.setVisibility(View.VISIBLE);
-            }
+            // 터치한 오브젝트와의 거리가 30m이내 일때만 터치 가능
+            if(distance <= 30f) {
+                if (musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE) {
+                    musicUi.setVisibility(View.VISIBLE);
+                }
 
-            if(musicUiclass.isPlaying(i)){
-                musicUiclass.musicStop();
-                Toast.makeText(c, "music stop (거리: "+distance+"m)", Toast.LENGTH_SHORT).show();
-            }
-            else{
-                musicUiclass.musicStop();
-                musicUiclass.setMediaPlayer(i);
-                musicUiclass.musicPlay();
-                Toast.makeText(c, "music start (거리: "+distance+"m)", Toast.LENGTH_SHORT).show();
+                if (musicUiclass.isPlaying(i)) {
+                    musicUiclass.musicStop();
+                    Toast.makeText(c, "music stop (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
+                } else {
+                    musicUiclass.musicStop();
+                    musicUiclass.setMediaPlayer(i);
+                    musicUiclass.musicPlay();
+                    Toast.makeText(c, "music start (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
