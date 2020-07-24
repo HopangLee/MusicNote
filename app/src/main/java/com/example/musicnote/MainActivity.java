@@ -15,11 +15,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.media.Image;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.util.MonthDisplayHelper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +63,8 @@ import com.naver.maps.map.widget.ZoomControlView;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static android.hardware.SensorManager.AXIS_X;
+import static android.hardware.SensorManager.AXIS_Z;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class MainActivity extends AppCompatActivity
@@ -85,11 +86,9 @@ public class MainActivity extends AppCompatActivity
 
     // 위치 관련
     Location mCurrentLocation;
-    LatLng currentPosition;
 
     // 마커 관련
     private Location[] markers = new Location[3];
-    //private boolean[] isCreated = new boolean[3];
 
     // ar 관련
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
@@ -104,10 +103,10 @@ public class MainActivity extends AppCompatActivity
 
     private ModelRenderable andyRenderable;
     private ModelRenderable foxRenderable;
-    private ModelRenderable music1Renderable, music2Renderable;
-    private ModelRenderable cdRenderable;
+    private ModelRenderable bofLogoRenderable;
+    private ModelRenderable orangeNoteRenderable;
+    private ModelRenderable redNoteRenderable;
 
-    private boolean isCreating = false;
     Handler mHandler = new Handler(); // 딜레이 시간
 
     // Device Orientation 관련
@@ -118,12 +117,9 @@ public class MainActivity extends AppCompatActivity
     private float[] mLastMagnetometer = new float[3];
     private boolean mLastAccelerometerSet = false;
     private boolean mLastMagnetometerSet = false;
-    private float[] mR = new float[9];
-    private float[] mOrientation = new float[3];
     private float mCurrentAzim = 0f; // 방위각
     private float mCurrentPitch = 0f; // 피치
     private float mCurrentRoll = 0f; // 롤
-    private ArrayList<Float> azimList = new ArrayList<Float>();
 
     // UI
     private TextView musicTitle;
@@ -279,31 +275,31 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musical_note_v1)
-                .build().thenAccept(renderable -> music1Renderable = renderable)
+                .setSource(this, R.raw.bof)
+                .build().thenAccept(renderable -> bofLogoRenderable = renderable)
                 .exceptionally(
                         throwable -> {
-                            Toast.makeText(this, "Unable to load music note v1 model", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Unable to load bof logo model", Toast.LENGTH_SHORT).show();
                             return null;
                         }
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musical_note_v2)
-                .build().thenAccept(renderable -> music2Renderable = renderable)
+                .setSource(this, R.raw.orange_note)
+                .build().thenAccept(renderable -> orangeNoteRenderable = renderable)
                 .exceptionally(
                         throwable -> {
-                            Toast.makeText(this, "Unable to load music note v2 model", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Unable to load orange note model", Toast.LENGTH_SHORT).show();
                             return null;
                         }
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.cd)
-                .build().thenAccept(renderable -> cdRenderable = renderable)
+                .setSource(this, R.raw.red_note)
+                .build().thenAccept(renderable -> redNoteRenderable = renderable)
                 .exceptionally(
                         throwable -> {
-                            Toast.makeText(this, "Unable to load cd model", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Unable to load red note model", Toast.LENGTH_SHORT).show();
                             return null;
                         }
                 );
@@ -387,12 +383,17 @@ public class MainActivity extends AppCompatActivity
             mLastMagnetometerSet = true;
         }
         if(mLastAccelerometerSet && mLastMagnetometerSet){
-            SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
-            float[] values = SensorManager.getOrientation(mR, mOrientation);
+            float[] rotationMatrix = new float[9];
+            SensorManager.getRotationMatrix(rotationMatrix, null, mLastAccelerometer, mLastMagnetometer);
 
-            mCurrentAzim = values[0]; // 방위각 (라디안)
-            mCurrentPitch = values[1]; // 피치
-            mCurrentRoll = values[2]; // 롤
+            float[] adjustedRotationMatrix = new float[9];
+            SensorManager.remapCoordinateSystem(rotationMatrix, AXIS_X, AXIS_Z, adjustedRotationMatrix);
+            float[] orientation = new float[3];
+            SensorManager.getOrientation(adjustedRotationMatrix, orientation);
+
+            mCurrentAzim = orientation[0]; // 방위각 (라디안)
+            mCurrentPitch = orientation[1]; // 피치
+            mCurrentRoll = orientation[2]; // 롤
         }
     }
 
@@ -402,8 +403,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onSceneUpdate(FrameTime frameTime) {
-        if(mAnchorNode[0] != null && mAnchorNode[1] != null && mAnchorNode[2] != null){
-            for(int i = 0; i < 3; i++) {
+        if (mAnchorNode[0] != null && mAnchorNode[1] != null && mAnchorNode[2] != null) {
+            for (int i = 0; i < 3; i++) {
                 // 혹시라도 오브젝트가 사라졌다면 (트래킹 모드가 해제되어서)
                 if (mAnchorNode[i].getAnchor().getTrackingState() != TrackingState.TRACKING
                         && arSceneView.getArFrame().getCamera().getTrackingState() == TrackingState.TRACKING) {
@@ -418,198 +419,151 @@ public class MainActivity extends AppCompatActivity
 
                     Node node = new Node();
                     node.setRenderable(foxRenderable);
+                    //node.setRenderable(redNoteRenderable);
                     node.setParent(mAnchorNode[i]);
 
-                    music(node,i);
+                    music(node, i);
+                    Toast.makeText(context, i + "번째 오브젝트 재생성", Toast.LENGTH_SHORT).show();
                 }
             }
             return;
         }
 
-        if(isCreating){
-            // 롤 허용 범위 설정
-            float error = 0.02f;
-
-            // 여기서 뭐 방위각의 평균을 구해놓는다거나 gps의 평균을 구해놓거나 하면 될듯
-            if((mCurrentRoll < -error || mCurrentRoll > error) || (mCurrentPitch < - error || mCurrentPitch > error)){
-                // 설명용
-                if(mCurrentRoll < - error){
-                    rollText.setText("오른쪽으로 기울여 주세요 (roll: " + String.format("%.4f", mCurrentRoll) + ")");
-                }
-                else if(mCurrentRoll > error){
-                    rollText.setText("왼쪽으로 기울여 주세요 (roll: " + String.format("%.4f", mCurrentRoll) + ")");
-                }
-
-                if(mCurrentPitch < -error){
-                    pitchText.setText("뒤로 젖혀주세요 (pitch: " + String.format("%.4f", mCurrentPitch) + ")");
-                }
-                else if(mCurrentPitch > error){
-                    pitchText.setText("앞으로 젖혀주세요 (ptich: " + String.format("%.4f", mCurrentPitch) + ")");
-                }
-                // 다시 처음부터
-                // 오브젝트 생성 취소
-                mHandler.removeCallbacksAndMessages(null);
-                isCreating = false;
-                azimList.clear();
-                Toast.makeText(context, "오브젝트 생성 실패: 다시 바닥과 평행하게 만들어주세요", Toast.LENGTH_SHORT).show();
-            }
-            else{
-                rollText.setText("핸드폰을 흔들지 말고 가만히 들어주세요...");
-                pitchText.setText("");
-                azimList.add(mCurrentAzim); // 방위각 평균 모으기
-            }
-            return;
-        }
-
-        if(mCurrentLocation == null) {
+        if (mCurrentLocation == null) {
             Log.d(TAG, "Location is null");
             return;
         }
 
-        if(foxRenderable == null){
+        if (andyRenderable == null || foxRenderable == null || bofLogoRenderable == null || redNoteRenderable == null || orangeNoteRenderable == null) {
             Log.d(TAG, "onUpdate: objectRenderable is null");
             return;
         }
 
-        if(arSceneView.getArFrame() == null){
+        if (arSceneView.getArFrame() == null) {
             Log.d(TAG, "onUpdate: No frame available");
             // No frame available
             return;
         }
 
-        if(arSceneView.getArFrame().getCamera().getTrackingState() != TrackingState.TRACKING){
+        if (arSceneView.getArFrame().getCamera().getTrackingState() != TrackingState.TRACKING) {
             Log.d(TAG, "onUpdate: Tracking not started yet");
             // Tracking not started yet
-            //return;
-        }
-
-        // 롤 허용 범위 설정
-        float error = 0.0125f;
-
-        if((mCurrentRoll < -error || mCurrentRoll > error) || (mCurrentPitch < - error || mCurrentPitch > error)){
-            // 설명용
-            if(mCurrentRoll < - error){
-                rollText.setText("오른쪽으로 기울여 주세요 (roll: " + String.format("%.4f", mCurrentRoll) + ")");
-            }
-            else if(mCurrentRoll > error){
-                rollText.setText("왼쪽으로 기울여 주세요 (roll: " + String.format("%.4f", mCurrentRoll) + ")");
-            }
-
-            if(mCurrentPitch < -error){
-                pitchText.setText("뒤로 젖혀주세요 (pitch: " + String.format("%.4f", mCurrentPitch) + ")");
-            }
-            else if(mCurrentPitch > error){
-                pitchText.setText("앞으로 젖혀주세요 (ptich: " + String.format("%.4f", mCurrentPitch) + ")");
-            }
-
-            Log.d(TAG, "onUpdate: roll or pitch is not zero (roll: " + mCurrentRoll + " 라디안, pitch: " + mCurrentPitch +" 라디안)");
             return;
         }
 
-        isCreating = true;
+        // 오브젝트 생성!
+        for (int i = 0; i < 3; i++) {
+            if (mAnchorNode[i] == null && mCurrentLocation != null) {
+                //Log.d(TAG, "onUpdate: mAnchorNode["+ i +"] is null");
+                // 여기에다가 내 gps의 위도 경도, 마커들의 위도 경도를 이용하여 마커들의 Pose값 구해야함!
 
-        rollText.setText("정지한 후 핸드폰을 흔들지 말고 가만히 들어주세요...");
-        pitchText.setText("");
+                float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
+                float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
+                float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
-        // 방위각을 정확하게 하기위해 핸드폰 대기
+                /*
+                if( i == 0 ) {
+                    dLatitude = 2f;
+                    dLongitude = 0f;
+                }
+                else if ( i == 1 ){
+                   dLatitude = -2f;
+                   dLongitude = 0f;
+                }
+                else{
+                   dLatitude = 0f;
+                   dLongitude = 2f;
+                }*/
 
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(arSceneView.getArFrame().getCamera().getTrackingState() != TrackingState.TRACKING){
-                    isCreating =false;
-                    Toast.makeText(context, "카메라가 추적모드가 아니라서 실패", Toast.LENGTH_SHORT).show();
+
+                if(distance > 10){ // 10m보다 멀면 오브젝트 생성X
                     return;
                 }
 
-                rollText.setText("");
-                pitchText.setText("");
 
-                float averageAzim = 0f;
-                float minAzim = 999f;
-                float maxAzim = -999f;
-                int len = azimList.size();
+                //mCurrentAzim = 0f;
+                //mCurrentPitch = 0.785398f;
+                //mCurrentRoll = 0f;
 
+                float height = -0.5f;
+                Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
 
-                // 방위각 평균 구하기
-                if(len > 17){
-                    for(int i = 15; i < len; i++){
-                        if(maxAzim < azimList.get(i)) maxAzim = azimList.get(i);
-                        if(minAzim > azimList.get(i)) minAzim = azimList.get(i);
-                        averageAzim += azimList.get(i);
-                    }
+                Vector3 xUnitVec;
+                Vector3 yUnitVec;
+                Vector3 zUnitVec;
 
-                    averageAzim -= maxAzim;
-                    averageAzim -= minAzim;
+                zUnitVec = new Vector3((float)(Math.cos(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.cos(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(-Math.sin(mCurrentPitch)));
+                zUnitVec = zUnitVec.normalized().negated();
 
-                    averageAzim /= (azimList.size() - 17);
+                yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
+                /*
+                if(mCurrentPitch >= 0){
+                    yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
                 }
-                else averageAzim = azimList.get(len - 1);
+                else{
+                    //yUnitVec = new Vector3((float)(Math.sin(-mCurrentPitch) * -Math.sin(mCurrentAzim)), (float)(Math.sin(-mCurrentPitch) * -Math.cos(mCurrentAzim)), (float)(Math.cos(-mCurrentPitch))).normalized();
+                    yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
+                }*/
 
-                // 오브젝트 생성!
-                for(int i = 0; i < 3; i++) {
-                    if (mAnchorNode[i] == null && foxRenderable != null && mCurrentLocation != null) {
-                        //Log.d(TAG, "onUpdate: mAnchorNode["+ i +"] is null");
-                        // 여기에다가 내 gps의 위도 경도, 마커들의 위도 경도를 이용하여 마커들의 Pose값 구해야함!
+                float wx = zUnitVec.x;
+                float wy = zUnitVec.y;
+                float wz = zUnitVec.z;
 
-                        float dLatitude = (float)(markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
-                        float dLongitude = (float)(markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
-                        /*
-                        if( i == 0 ) {
-                            dLatitude = 2f;
-                            dLongitude = 0f;
-                        }
-                        else if (i == 1){
-                            dLatitude = -2f;
-                            dLongitude = 0f;
-                        }
-                        else{
-                            dLatitude = 0f;
-                            dLongitude = 2f;
-                        }*/
-                        float height = -0.5f;
-                        Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
+                float yx = yUnitVec.x;
+                float yy = yUnitVec.y;
+                float yz = yUnitVec.z;
 
-                        // 바닥에 놓여있다고 가정하면
-                        Vector3 yUnitVec = new Vector3((float)Math.sin(averageAzim), (float)Math.cos(averageAzim), 0f);
-                        Vector3 zUnitVec = new Vector3(0f, 0f, 1f);
-                        Vector3 xUnitVec = Vector3.cross(yUnitVec, zUnitVec).normalized();
+                float t = 1 - (float)Math.cos(mCurrentRoll);
+                float s = (float)Math.sin(mCurrentRoll);
+                float c = (float)Math.cos(mCurrentRoll);
 
-                        float zPos = Vector3.dot(objVec, zUnitVec);
-                        float xPos = Vector3.dot(objVec, xUnitVec);
-                        float yPos = Vector3.dot(objVec, yUnitVec);
+                float[][] rotMat = {{wx*wx*t+c, wx*wy*t+wz*s, wx*wz*t-wy*s},
+                                    {wy*wx*t-wz*s, wy*wy*t+c, wy*wz*t+wx*s},
+                                    {wz*wx*t+wy*s, wz*wy*t-wx*s, wz*wz*t+c}};
 
-                        Vector3 xAxis = arSceneView.getScene().getCamera().getRight().normalized().scaled(xPos);
-                        Vector3 yAxis = arSceneView.getScene().getCamera().getUp().normalized().scaled(yPos);
-                        Vector3 zAxis = arSceneView.getScene().getCamera().getBack().normalized().scaled(zPos);
-                        Vector3 objectPos = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z);
-                        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
+                yUnitVec = new Vector3(yx*rotMat[0][0] + yy*rotMat[0][1] + yz*rotMat[0][2],
+                                    yx*rotMat[1][0] + yy*rotMat[1][1] + yz*rotMat[1][2],
+                                    yx*rotMat[2][0] + yy*rotMat[2][1] + yz*rotMat[2][2]).normalized();
 
-                        Vector3 position = Vector3.add(cameraPos, objectPos);
-                        mVector[i] = position;
 
-                        // Create an ARCore Anchor at the position.
-                        Pose pose = Pose.makeTranslation(position.x, position.y, position.z);
-                        Anchor anchor = arSceneView.getSession().createAnchor(pose);
+                xUnitVec = Vector3.cross(yUnitVec, zUnitVec).normalized();
 
-                        mAnchorNode[i] = new AnchorNode(anchor);
-                        mAnchorNode[i].setParent(arSceneView.getScene());
+                /*
+                Log.d(TAG, "디버그 xVector <"+xUnitVec.x +", "+xUnitVec.y+", "+ xUnitVec.z +">");
+                Log.d(TAG, "디버그 yVector <"+yUnitVec.x +", "+yUnitVec.y+", "+ yUnitVec.z +">");
+                Log.d(TAG, "디버그 zVector <"+zUnitVec.x +", "+zUnitVec.y+", "+ zUnitVec.z +">");*/
 
-                        Node node = new Node();
+                float xPos = Vector3.dot(objVec, xUnitVec);
+                float yPos = Vector3.dot(objVec, yUnitVec);
+                float zPos = Vector3.dot(objVec, zUnitVec);
 
-                        node.setRenderable(foxRenderable);
-                        //node.setLocalScale(new Vector3(0.85f, 0.85f, 0.85f));
-                        node.setParent(mAnchorNode[i]);
+                Vector3 xAxis = arSceneView.getScene().getCamera().getRight().normalized().scaled(xPos);
+                Vector3 yAxis = arSceneView.getScene().getCamera().getUp().normalized().scaled(yPos);
+                Vector3 zAxis = arSceneView.getScene().getCamera().getBack().normalized().scaled(zPos);
+                Vector3 objectPos = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z);
+                Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
 
-                        music(node,i);
+                Vector3 position = Vector3.add(cameraPos, objectPos);
+                mVector[i] = position;
 
-                        float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
-                        Toast.makeText(context, "오브젝트 생성["+ i+ "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                // Create an ARCore Anchor at the position.
+                Pose pose = Pose.makeTranslation(position.x, position.y, position.z);
+                Anchor anchor = arSceneView.getSession().createAnchor(pose);
 
+                mAnchorNode[i] = new AnchorNode(anchor);
+                mAnchorNode[i].setParent(arSceneView.getScene());
+
+                Node node = new Node();
+
+                node.setRenderable(foxRenderable);
+                //node.setLocalScale(new Vector3(0.75f, 0.75f, 0.75f));
+                node.setParent(mAnchorNode[i]);
+
+                music(node, i);
+
+                Toast.makeText(context, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
             }
-        }, 2000); // 2000 => 2초
+        }
     }
 
     public void music(Node node,int i){

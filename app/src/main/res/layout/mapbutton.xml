@@ -14,7 +14,7 @@
         android:layout_marginTop="1sp"
         android:layout_marginBottom="1sp"
         android:background="#FFFACB"
-        android:text="ROLL"
+        android:text=""
         android:textSize="16sp" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:layout_marginTop="1sp"
         android:layout_marginBottom="1sp"
         android:background="#FFFACB"
-        android:text="PITCH"
+        android:text=""
         android:layout_above="@id/roll"
         android:textSize="16sp" />
 </RelativeLayout>
