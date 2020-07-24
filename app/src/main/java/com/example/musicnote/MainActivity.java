@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity
     private Session session;
     private ArSceneView arSceneView;
     private AnchorNode[] mAnchorNode = new AnchorNode[3];
-    private Vector3[] mVector = new Vector3[3];
 
     private ModelRenderable andyRenderable;
     private ModelRenderable foxRenderable;
@@ -413,16 +412,75 @@ public class MainActivity extends AppCompatActivity
 
                     // Create a new anchor and attach it to the anchorNode.
                     // Create an ARCore Anchor at the position.
-                    Pose pose = Pose.makeTranslation(mVector[i].x, mVector[i].y, mVector[i].z);
+                    float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
+                    float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
+                    float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
+
+                    if(distance > 15){ // 15m보다 멀면 오브젝트 생성X
+                        continue;
+                    }
+
+                    float height = -0.5f;
+                    Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
+
+                    Vector3 xUnitVec;
+                    Vector3 yUnitVec;
+                    Vector3 zUnitVec;
+
+                    zUnitVec = new Vector3((float)(Math.cos(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.cos(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(-Math.sin(mCurrentPitch)));
+                    zUnitVec = zUnitVec.normalized().negated();
+
+                    yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
+
+                    float wx = zUnitVec.x;
+                    float wy = zUnitVec.y;
+                    float wz = zUnitVec.z;
+
+                    float yx = yUnitVec.x;
+                    float yy = yUnitVec.y;
+                    float yz = yUnitVec.z;
+
+                    float t = 1 - (float)Math.cos(mCurrentRoll);
+                    float s = (float)Math.sin(mCurrentRoll);
+                    float c = (float)Math.cos(mCurrentRoll);
+
+                    float[][] rotMat = {{wx*wx*t+c, wx*wy*t+wz*s, wx*wz*t-wy*s},
+                            {wy*wx*t-wz*s, wy*wy*t+c, wy*wz*t+wx*s},
+                            {wz*wx*t+wy*s, wz*wy*t-wx*s, wz*wz*t+c}};
+
+                    yUnitVec = new Vector3(yx*rotMat[0][0] + yy*rotMat[0][1] + yz*rotMat[0][2],
+                            yx*rotMat[1][0] + yy*rotMat[1][1] + yz*rotMat[1][2],
+                            yx*rotMat[2][0] + yy*rotMat[2][1] + yz*rotMat[2][2]).normalized();
+
+                    xUnitVec = Vector3.cross(yUnitVec, zUnitVec).normalized();
+
+                    float xPos = Vector3.dot(objVec, xUnitVec);
+                    float yPos = Vector3.dot(objVec, yUnitVec);
+                    float zPos = Vector3.dot(objVec, zUnitVec);
+
+                    Vector3 xAxis = arSceneView.getScene().getCamera().getRight().normalized().scaled(xPos);
+                    Vector3 yAxis = arSceneView.getScene().getCamera().getUp().normalized().scaled(yPos);
+                    Vector3 zAxis = arSceneView.getScene().getCamera().getBack().normalized().scaled(zPos);
+                    Vector3 objectPos = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z);
+                    Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
+
+                    Vector3 position = Vector3.add(cameraPos, objectPos);
+
+                    // Create an ARCore Anchor at the position.
+                    Pose pose = Pose.makeTranslation(position.x, position.y, position.z);
                     Anchor anchor = arSceneView.getSession().createAnchor(pose);
+
                     mAnchorNode[i].setAnchor(anchor);
+                    mAnchorNode[i].setParent(arSceneView.getScene());
 
                     Node node = new Node();
+
                     node.setRenderable(foxRenderable);
-                    //node.setRenderable(redNoteRenderable);
+                    //node.setLocalScale(new Vector3(0.75f, 0.75f, 0.75f));
                     node.setParent(mAnchorNode[i]);
 
                     music(node, i);
+
                     Toast.makeText(context, i + "번째 오브젝트 재생성", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -476,8 +534,8 @@ public class MainActivity extends AppCompatActivity
                 }*/
 
 
-                if(distance > 10){ // 10m보다 멀면 오브젝트 생성X
-                    return;
+                if(distance > 15){ // 15m보다 멀면 오브젝트 생성X
+                    continue;
                 }
 
 
@@ -544,7 +602,6 @@ public class MainActivity extends AppCompatActivity
                 Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
 
                 Vector3 position = Vector3.add(cameraPos, objectPos);
-                mVector[i] = position;
 
                 // Create an ARCore Anchor at the position.
                 Pose pose = Pose.makeTranslation(position.x, position.y, position.z);
