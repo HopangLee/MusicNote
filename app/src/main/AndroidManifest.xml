@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.musicnote">
-
     <!-- gps permission 관련 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Camera permission 관련 -->
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Camera permission 관련 -->
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-feature android:name="android.hardware.camera.ar" android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.camera.ar"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -17,20 +17,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".PopupActivity2"></activity>
+        <activity android:name=".InfoActivity"></activity>
+        <activity android:name=".IntroActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <!-- //응용프로그램의 진입 -->
+                <category android:name="android.intent.category.LAUNCHER" />
+                <!-- //최상위 어플리케이션으로 표시해야함을 알리는 것 -->
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".PopupActivity"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/popupTheme" />
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="jn7zevbciq"/>
+            android:value="jn7zevbciq" />
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="required" />
 
-        <meta-data android:name="com.google.ar.core" android:value="required"/>
-
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>
