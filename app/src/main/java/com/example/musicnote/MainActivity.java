@@ -16,6 +16,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -366,6 +368,110 @@ public class MainActivity extends AppCompatActivity
         marker3.setWidth(40);
         marker3.setMap(naverMap);
 
+        /*
+        final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location location2 = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        LocationListener gpsLocationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                if (location != null) {
+                    double longitude = location2.getLongitude();
+                    double latitude = location2.getLatitude();
+
+                    double x = latitude - markers[0].getLatitude();
+                    double y = longitude - markers[0].getLongitude();
+                    double distance = (float) Math.sqrt(x * x + y * y);
+
+                    double x1 = latitude- markers[1].getLatitude();
+                    double y1 = longitude - markers[1].getLongitude();
+                    double distance2 = (float) Math.sqrt(x1 * x1 + y1 * y1);
+
+                    double x2 = latitude - markers[2].getLatitude();
+                    double y2 = longitude - markers[2].getLongitude();
+                    double distance3 = (float) Math.sqrt(x2 * x2 + y2 * y2);
+
+                    if (7< distance && distance < 10) {
+                        marker1.setHeight(40);
+                        marker1.setWidth(50);
+                    }
+                    if (5< distance && distance < 7) {
+                        marker1.setHeight(55);
+                        marker1.setWidth(65);
+                    }
+                    if (3<distance && distance < 5) {
+                        marker1.setHeight(65);
+                        marker1.setWidth(70);
+                    }
+                    if (1< distance && distance < 3) {
+                        marker1.setHeight(80);
+                        marker1.setWidth(75);
+                    }
+                    if ( distance < 1) {
+                        marker1.setHeight(90);
+                        marker1.setWidth(80);
+                    }
+
+                    if (7< distance2 && distance2 < 10) {
+                        marker2.setHeight(40);
+                        marker2.setWidth(50);
+                    }
+                    if (5< distance2 && distance2 < 7) {
+                        marker2.setHeight(55);
+                        marker2.setWidth(65);
+                    }
+                    if (3< distance2 && distance2 < 5) {
+                        marker2.setHeight(65);
+                        marker2.setWidth(70);
+                    }
+                    if (1< distance2 && distance2 < 3) {
+                        marker2.setHeight(70);
+                        marker2.setWidth(75);
+                    }
+                    if (distance2 < 1) {
+                        marker2.setHeight(75);
+                        marker2.setWidth(80);
+                    }
+
+                    if (7< distance3 && distance3 < 10) {
+                        marker3.setHeight(40);
+                        marker3.setWidth(50);
+                    }
+
+                    if (5< distance3 && distance3 < 7) {
+                        marker3.setHeight(50);
+                        marker3.setWidth(60);
+                    }
+                    if (3< distance3 && distance3 < 5) {
+                        marker3.setHeight(65);
+                        marker3.setWidth(70);
+                    }
+                    if (1 <distance3 && distance3 < 3) {
+                        marker3.setHeight(70);
+                        marker3.setWidth(75);
+                    }
+                    if (distance3 < 1) {
+                        marker3.setHeight(80);
+                        marker3.setWidth(90);
+                    }
+                }
+            }
+            public void onStatusChanged(String provider, int status, Bundle extras) { }
+            public void onProviderEnabled(String provider) { }
+            public void onProviderDisabled(String provider) { }
+        };
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener);
+        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+        */
+
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
         mNaverMap = naverMap;
         mNaverMap.setLocationSource(mLocationSource);
@@ -504,6 +610,7 @@ public class MainActivity extends AppCompatActivity
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
+        /*
         if( i == 0 ) {
             dLatitude = 3f;
             dLongitude = 0f;
@@ -516,7 +623,7 @@ public class MainActivity extends AppCompatActivity
             dLatitude = 0f;
             dLongitude = 3f;
         }
-
+        */
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
         if(distance > 15){ // 15m보다 멀면 오브젝트 생성X
