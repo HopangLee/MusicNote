@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity
     private NaverMap mNaverMap;
 
     // 위치 관련
-    Location mCurrentLocation;
+    public Location mCurrentLocation;
 
     // 마커 관련
     private Location[] markers = new Location[3];
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity
         marker3.setWidth(40);
         marker3.setMap(naverMap);
 
-        /*
+        /* 오브젝트 크기 리사이즈
         final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -622,8 +622,8 @@ public class MainActivity extends AppCompatActivity
         else{
             dLatitude = 0f;
             dLongitude = 3f;
-        }
-        */
+        }*/
+
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
         if(distance > 15){ // 15m보다 멀면 오브젝트 생성X
