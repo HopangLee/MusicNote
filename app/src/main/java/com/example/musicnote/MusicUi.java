@@ -98,9 +98,11 @@ public class MusicUi{
         }
     }
 
-    public MediaPlayer getMediaPlayer(){
+    public MediaPlayer getCurrentMediaPlayer(){
         return currentMediaPlayer;
     }
+
+    public MediaPlayer getMediaPlayer(int i){return mediaPlayer[i];}
 
     public boolean isPlaying(int i){
         return mediaPlayer[i].isPlaying();

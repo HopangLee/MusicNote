@@ -125,6 +125,15 @@ public class MainActivity extends AppCompatActivity
     private float mCurrentPitch = 0f; // 피치
     private float mCurrentRoll = 0f; // 롤
 
+    // 음악 노트
+    private int[] timerArray =
+            {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
+            11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
+            21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
+            31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000,
+            41000, 42000, 43000, 44000, 45000, 46000, 47000, 48000, 49000, 50000,
+            51000, 52000, 53000, 54000, 55000, 56000, 57000, 58000, 59000, 60000};
+
     // UI
     private TextView musicTitle;
     private ImageView play;
@@ -193,7 +202,7 @@ public class MainActivity extends AppCompatActivity
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (musicUiclass.getMediaPlayer().isPlaying()) { // 음악이 재생되고 있을 때 => 음악을 멈춰야함
+                if (musicUiclass.getCurrentMediaPlayer().isPlaying()) { // 음악이 재생되고 있을 때 => 음악을 멈춰야함
                     musicUiclass.musicPause();
                 } else { // 음악이 멈춰있을 때 => 음악을 재생해야함
                     musicUiclass.musicPlay();
@@ -615,19 +624,19 @@ public class MainActivity extends AppCompatActivity
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
-        /*
+
         if( i == 0 ) {
-            dLatitude = 3f;
+            dLatitude = 5f;
             dLongitude = 0f;
         }
         else if ( i == 1 ){
-            dLatitude = -3f;
+            dLatitude = -5f;
             dLongitude = 0f;
         }
         else{
             dLatitude = 0f;
-            dLongitude = 3f;
-        }*/
+            dLongitude = 5f;
+        }
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
@@ -688,6 +697,10 @@ public class MainActivity extends AppCompatActivity
         mAnchorNode[i] = new AnchorNode(anchor);
         mAnchorNode[i].setParent(arSceneView.getScene());
 
+        AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i], timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView);
+        music(albumNode, i);
+
+        /*
         Node node = new Node();
 
         node.setRenderable(albumRenderable[i]);
@@ -697,16 +710,17 @@ public class MainActivity extends AppCompatActivity
 
 
         music(node, i);
+        */
 
         Toast.makeText(context, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
 
         return true;
     }
 
-    public void music(Node node, int i) {
+    public void music(AlbumNode albumNode, int i) {
         Context c = this;
 
-        node.setOnTapListener((v, event) -> {
+        albumNode.setOnTapListener((v, event) -> {
             /* gps를 이용한 거리
             float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
             float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
@@ -714,7 +728,7 @@ public class MainActivity extends AppCompatActivity
             */
 
             // AR자체의 world position을 이용한 거리
-            Vector3 vec = Vector3.subtract(node.getWorldPosition(), arSceneView.getScene().getCamera().getWorldPosition());
+            Vector3 vec = Vector3.subtract(albumNode.getWorldPosition(), arSceneView.getScene().getCamera().getWorldPosition());
             float distance = (float) Math.sqrt(Vector3.dot(vec, vec));
 
             // 터치한 오브젝트와의 거리가 30m이내 일때만 터치 가능
@@ -725,8 +739,10 @@ public class MainActivity extends AppCompatActivity
 
                 if (musicUiclass.isPlaying(i)) {
                     musicUiclass.musicStop();
+                    albumNode.stopGame();
                     Toast.makeText(c, "music stop (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
-                } else {
+                }
+                else {
                     musicUiclass.musicStop();
                     musicUiclass.setMediaPlayer(i);
                     musicUiclass.musicPlay();
