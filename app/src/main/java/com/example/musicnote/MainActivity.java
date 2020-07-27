@@ -64,6 +64,7 @@ import com.naver.maps.map.widget.CompassView;
 import com.naver.maps.map.widget.LocationButtonView;
 import com.naver.maps.map.widget.ScaleBarView;
 import com.naver.maps.map.widget.ZoomControlView;
+import com.ssomai.android.scalablelayout.ScalableLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity
     private ImageView play;
     private ProgressBar musicBar;
     private MusicUi musicUiclass;
-    private RelativeLayout musicUi;
+    private ScalableLayout musicUi;
     private ImageView album;
 
     // 디버깅 ui 관련
@@ -195,7 +196,8 @@ public class MainActivity extends AppCompatActivity
 
 
         // 음악 관련 세팅
-        musicUi = (RelativeLayout) findViewById(R.id.musicUi);
+        musicUi = (ScalableLayout) findViewById(R.id.musicUi);
+
         musicTitle = (TextView) findViewById(R.id.musicTitle);
         play = (ImageView) findViewById(R.id.play);
         play.setImageResource(android.R.drawable.ic_media_pause);

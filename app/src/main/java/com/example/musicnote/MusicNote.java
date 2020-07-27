@@ -39,9 +39,13 @@ public class MusicNote extends Node {
         // 오브젝트가 카메라를 바라보는 방향 벡터의 theta값 구하기
         if(objToCamera.x == 0) objToCamera.x += 0.0001f; // 만약 x가 0인 경우
         double mtheta = Math.atan(objToCamera.y / objToCamera.x);
+        double mpi = Math.acos(objToCamera.z);
 
-        float theta = (float)(mtheta + rand.nextFloat() * Math.PI - Math.PI/2); // -pi/2 ~ pi/2
+        float theta = (float)(rand.nextFloat() * Math.PI * 2); // 0 ~ 2pi
         float pi = rand.nextFloat() * (float) Math.PI; // 0 ~ pi
+        //float theta = (float)(mtheta + rand.nextFloat() * Math.PI - Math.PI/2);
+        //float pi = (float)(Math.abs(mpi + rand.nextFloat() * Math.PI - Math.PI/2));
+
 
         direction = new Vector3((float)(Math.sin(pi) * Math.cos(theta)), (float)(Math.sin(pi) * Math.sin(theta)), (float)(Math.cos(pi)));
 
@@ -76,6 +80,7 @@ public class MusicNote extends Node {
     }
 
     public void deleteThis(){
+        Log.i("MusicNote", " is removed");
         parent.removeChild(this);
         this.setParent(null);
     }

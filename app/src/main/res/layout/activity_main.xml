@@ -15,6 +15,90 @@
         android:layout_height="match_parent"
         />
 
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:id="@+id/musicUi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_alignParentBottom="true"
+        app:scale_base_height="220"
+        app:scale_base_width="1000"
+        android:visibility="gone"
+        tools:ignore="MissingPrefix">
+
+        <ImageView
+            android:id="@+id/album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:scale_width="200"
+            app:scale_height="200"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/redvelvet_redflavor" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#CC070707"
+            app:scale_width="800"
+            app:scale_height="200"
+            app:scale_left="200"
+            android:adjustViewBounds="true"/>
+
+        <TextView
+            android:id="@+id/nowPlaying"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Now Playing..."
+            android:textAlignment="textStart"
+            android:textColor="#FFFFFF"
+            app:scale_height="50"
+            app:scale_left="250"
+            app:scale_top="50"
+            app:scale_textsize="38"
+            app:scale_width="300" />
+
+        <TextView
+            android:id="@+id/musicTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:text="Title"
+            android:textAlignment="textStart"
+            android:textColor="#FFFFFF"
+            app:scale_height="120"
+            app:scale_left="250"
+            app:scale_textsize="48"
+            app:scale_top="100"
+            app:scale_width="570" />
+
+        <ImageView
+            android:id="@+id/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:scale_width="150"
+            app:scale_height="150"
+            app:scale_top="45"
+            app:scale_left="830"
+            app:srcCompat="@android:drawable/ic_media_play" />
+
+        <ProgressBar
+            android:id="@+id/musicBar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:progress="25"
+            android:progressBackgroundTint="#000000"
+            android:progressTint="#FF6B6B"
+            app:scale_height="20"
+            app:scale_width="1014"
+            app:scale_left="-7"/>
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+
+    <!--
     <RelativeLayout
         android:id="@+id/musicUi"
         android:layout_width="match_parent"
@@ -93,5 +177,5 @@
             android:progressBackgroundTint="#000000"
             android:progressTint="#FF6B6B" />
     </RelativeLayout>
-
+    !-->
 </RelativeLayout>
