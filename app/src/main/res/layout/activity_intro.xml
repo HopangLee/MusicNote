@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@color/colorWhite">
+
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:layout_gravity="center"
+        app:scale_base_height="1800"
+        app:scale_base_width="1000"
+        tools:ignore="MissingPrefix">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/notosanskrregular"
+            android:text="휴대폰 AR로 즐기는 부산원아시아페스티벌"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            app:scale_height="100"
+            app:scale_textsize="45"
+            app:scale_top="-600"
+            app:scale_width="1000" />
+
+        <ImageView
+            android:id="@+id/bof_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@drawable/bof_logo"
+            app:scale_height="300"
+            app:scale_width="500"
+            app:scale_top="-370"
+            app:scale_textsize="10"/>
+
+        <Button
+            android:id="@+id/musicNote_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/btn_bg"
+
+            android:fontFamily="@font/notosanskrregular"
+            android:text="#두근두근_행사장가는길\nAR 음악노트"
+            android:textStyle="bold"
+            app:scale_height="400"
+            app:scale_textsize="60"
+            app:scale_top="100"
+            app:scale_width="950" />
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+
+</LinearLayout>

@@ -109,8 +109,7 @@ public class MainActivity extends AppCompatActivity
     private ModelRenderable andyRenderable;
     private ModelRenderable foxRenderable;
     private ModelRenderable bofLogoRenderable;
-    private ModelRenderable orangeNoteRenderable;
-    private ModelRenderable redNoteRenderable;
+    private ModelRenderable[] musicNotes = new ModelRenderable[2];
 
     private ModelRenderable[] albumRenderable = new ModelRenderable[3]; // album Object들
 
@@ -148,11 +147,11 @@ public class MainActivity extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //팝업창 관련
-        Intent intent = new Intent(getApplicationContext(),PopupActivity.class);
-        startActivityForResult(intent,1);
+        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
+        startActivityForResult(intent, 1);
 
         // Devicd Orientation 관련
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
@@ -174,9 +173,9 @@ public class MainActivity extends AppCompatActivity
         markers[2].setLongitude(127.054201);
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         // 레이아웃 객체 생성
-        LinearLayout ll = (LinearLayout)inflater.inflate(R.layout.navermap, null);
+        LinearLayout ll = (LinearLayout) inflater.inflate(R.layout.navermap, null);
         // 레이아웃 배경 투명도 주기
         ll.setBackgroundColor(Color.parseColor("#00000000"));
         // 레이아웃 위에 겹치기
@@ -187,28 +186,27 @@ public class MainActivity extends AppCompatActivity
 
 
         // 음악 관련 세팅
-        musicUi = (RelativeLayout)findViewById(R.id.musicUi);
-        musicTitle = (TextView)findViewById(R.id.musicTitle);
-        play = (ImageView)findViewById(R.id.play);
+        musicUi = (RelativeLayout) findViewById(R.id.musicUi);
+        musicTitle = (TextView) findViewById(R.id.musicTitle);
+        play = (ImageView) findViewById(R.id.play);
         play.setImageResource(android.R.drawable.ic_media_pause);
-        play.setOnClickListener(new View.OnClickListener(){
+        play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(musicUiclass.getMediaPlayer().isPlaying()){ // 음악이 재생되고 있을 때 => 음악을 멈춰야함
+                if (musicUiclass.getMediaPlayer().isPlaying()) { // 음악이 재생되고 있을 때 => 음악을 멈춰야함
                     musicUiclass.musicPause();
-                }
-                else{ // 음악이 멈춰있을 때 => 음악을 재생해야함
+                } else { // 음악이 멈춰있을 때 => 음악을 재생해야함
                     musicUiclass.musicPlay();
                 }
             }
         });
-        musicBar = (ProgressBar)findViewById(R.id.musicBar);
-        album = (ImageView)findViewById(R.id.album);
-        musicUiclass = new MusicUi(this,this, musicBar, musicTitle, play, album);
+        musicBar = (ProgressBar) findViewById(R.id.musicBar);
+        album = (ImageView) findViewById(R.id.album);
+        musicUiclass = new MusicUi(this, this, musicBar, musicTitle, play, album);
 
         // 레이아웃 디버그용
         // 레이아웃 객체 생성
-        RelativeLayout ll2 = (RelativeLayout)inflater.inflate(R.layout.mapbutton, null);
+        RelativeLayout ll2 = (RelativeLayout) inflater.inflate(R.layout.mapbutton, null);
         // 레이아웃 배경 투명도 주기
         ll2.setBackgroundColor(Color.parseColor("#00000000"));
         // 레이아웃 위에 겹치기
@@ -219,7 +217,7 @@ public class MainActivity extends AppCompatActivity
 
         // 지도 객체 생성
         FragmentManager fm = getSupportFragmentManager();
-        MapFragment mapFragment = (MapFragment)fm.findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) fm.findFragmentById(R.id.map);
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance();
             fm.beginTransaction().add(R.id.map, mapFragment).commit();
@@ -234,15 +232,15 @@ public class MainActivity extends AppCompatActivity
                 new FusedLocationSource(this, PERMISSION_REQUEST_CODE);
 
         // ar 관련
-        arFragment = (ArFragment)getSupportFragmentManager().findFragmentById(R.id.arCamera);
+        arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arCamera);
         session = arFragment.getArSceneView().getSession();
         arSceneView = arFragment.getArSceneView();
         setUpModel();
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
 
         // 디버깅용 ui 설정
-        pitchText = (TextView)findViewById(R.id.pitch);
-        rollText = (TextView)findViewById(R.id.roll);
+        pitchText = (TextView) findViewById(R.id.pitch);
+        rollText = (TextView) findViewById(R.id.roll);
     }
 
     @Override
@@ -262,7 +260,7 @@ public class MainActivity extends AppCompatActivity
         mSensorManager.unregisterListener(this, mMagnetometer);
     }
 
-    private void setUpModel(){
+    private void setUpModel() {
 
         ModelRenderable.builder()
                 .setSource(this, R.raw.andy)
@@ -296,7 +294,7 @@ public class MainActivity extends AppCompatActivity
 
         ModelRenderable.builder()
                 .setSource(this, R.raw.orange_note)
-                .build().thenAccept(renderable -> orangeNoteRenderable = renderable)
+                .build().thenAccept(renderable -> musicNotes[0] = renderable)
                 .exceptionally(
                         throwable -> {
                             Toast.makeText(this, "Unable to load orange note model", Toast.LENGTH_SHORT).show();
@@ -306,7 +304,7 @@ public class MainActivity extends AppCompatActivity
 
         ModelRenderable.builder()
                 .setSource(this, R.raw.red_note)
-                .build().thenAccept(renderable -> redNoteRenderable = renderable)
+                .build().thenAccept(renderable -> musicNotes[1] = renderable)
                 .exceptionally(
                         throwable -> {
                             Toast.makeText(this, "Unable to load red note model", Toast.LENGTH_SHORT).show();
@@ -347,7 +345,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
-        Log.d( TAG, "onMapReady");
+        Log.d(TAG, "onMapReady");
 
         // 마커 세팅
         Marker marker1 = new Marker();
@@ -482,8 +480,8 @@ public class MainActivity extends AppCompatActivity
         uiSettings.setScaleBarEnabled(false); // 기본값 : true
         uiSettings.setZoomControlEnabled(false); // 기본값 : true
         uiSettings.setLocationButtonEnabled(false); // 기본값 : false
-        uiSettings.setLogoGravity(Gravity.LEFT|Gravity.BOTTOM);
-        uiSettings.setLogoMargin(0,0,0, -5);
+        uiSettings.setLogoGravity(Gravity.LEFT | Gravity.BOTTOM);
+        uiSettings.setLogoMargin(0, 0, 0, -5);
 
         CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
         mNaverMap.moveCamera(cameraUpdate);
@@ -519,14 +517,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if(event.sensor == mAccelerometer) {
+        if (event.sensor == mAccelerometer) {
             System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
             mLastAccelerometerSet = true;
-        }else if (event.sensor == mMagnetometer){
+        } else if (event.sensor == mMagnetometer) {
             System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
             mLastMagnetometerSet = true;
         }
-        if(mLastAccelerometerSet && mLastMagnetometerSet){
+        if (mLastAccelerometerSet && mLastMagnetometerSet) {
             float[] rotationMatrix = new float[9];
             SensorManager.getRotationMatrix(rotationMatrix, null, mLastAccelerometer, mLastMagnetometer);
 
@@ -555,13 +553,13 @@ public class MainActivity extends AppCompatActivity
                     // Detach the old anchor
                     //mAnchorNode[i].getAnchor().detach();
                     List<Node> children = new ArrayList<>(mAnchorNode[i].getChildren());
-                    for(Node n : children){
+                    for (Node n : children) {
                         n.setParent(null);
                     }
                     mAnchorNode[i].getAnchor().detach();
 
                     createNode(i);
-                    if(createNode(i) == false) continue;
+                    if (createNode(i) == false) continue;
                 }
             }
             return;
@@ -572,14 +570,21 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        if (bofLogoRenderable == null || redNoteRenderable == null || orangeNoteRenderable == null) {
-            Log.d(TAG, "onUpdate: objectRenderable is null");
+        if (bofLogoRenderable == null) {
+            Log.d(TAG, "onUpdate: bof logo Renderable is null");
             return;
         }
 
-        for(ModelRenderable m : albumRenderable){
-            if(m == null){
-                Log.d(TAG, "onUpdate: objectRenderable is null");
+        for (ModelRenderable m : musicNotes) {
+            if (m == null) {
+                Log.d(TAG, "onUpdate: musicNotes Renderable is null");
+                return;
+            }
+        }
+
+        for (ModelRenderable m : albumRenderable) {
+            if (m == null) {
+                Log.d(TAG, "onUpdate: album Renderable is null");
                 return;
             }
         }
@@ -601,12 +606,12 @@ public class MainActivity extends AppCompatActivity
             if (mAnchorNode[i] == null && mCurrentLocation != null) {
                 //Log.d(TAG, "onUpdate: mAnchorNode["+ i +"] is null");
                 // 여기에다가 내 gps의 위도 경도, 마커들의 위도 경도를 이용하여 마커들의 Pose값 구해야함!
-                if(createNode(i) == false) continue;
+                if (createNode(i) == false) continue;
             }
         }
     }
 
-    public boolean createNode(int i){
+    public boolean createNode(int i) {
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
@@ -626,7 +631,7 @@ public class MainActivity extends AppCompatActivity
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
-        if(distance > 15){ // 15m보다 멀면 오브젝트 생성X
+        if (distance > 15) { // 15m보다 멀면 오브젝트 생성X
             return false;
         }
         float height = -0.5f;
@@ -636,10 +641,10 @@ public class MainActivity extends AppCompatActivity
         Vector3 yUnitVec;
         Vector3 zUnitVec;
 
-        zUnitVec = new Vector3((float)(Math.cos(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.cos(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(-Math.sin(mCurrentPitch)));
+        zUnitVec = new Vector3((float) (Math.cos(mCurrentPitch) * Math.sin(mCurrentAzim)), (float) (Math.cos(mCurrentPitch) * Math.cos(mCurrentAzim)), (float) (-Math.sin(mCurrentPitch)));
         zUnitVec = zUnitVec.normalized().negated();
 
-        yUnitVec = new Vector3((float)(Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float)(Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float)(Math.cos(mCurrentPitch))).normalized();
+        yUnitVec = new Vector3((float) (Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float) (Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float) (Math.cos(mCurrentPitch))).normalized();
 
         float wx = zUnitVec.x;
         float wy = zUnitVec.y;
@@ -649,17 +654,17 @@ public class MainActivity extends AppCompatActivity
         float yy = yUnitVec.y;
         float yz = yUnitVec.z;
 
-        float t = 1 - (float)Math.cos(mCurrentRoll);
-        float s = (float)Math.sin(mCurrentRoll);
-        float c = (float)Math.cos(mCurrentRoll);
+        float t = 1 - (float) Math.cos(mCurrentRoll);
+        float s = (float) Math.sin(mCurrentRoll);
+        float c = (float) Math.cos(mCurrentRoll);
 
-        float[][] rotMat = {{wx*wx*t+c, wx*wy*t+wz*s, wx*wz*t-wy*s},
-                {wy*wx*t-wz*s, wy*wy*t+c, wy*wz*t+wx*s},
-                {wz*wx*t+wy*s, wz*wy*t-wx*s, wz*wz*t+c}};
+        float[][] rotMat = {{wx * wx * t + c, wx * wy * t + wz * s, wx * wz * t - wy * s},
+                {wy * wx * t - wz * s, wy * wy * t + c, wy * wz * t + wx * s},
+                {wz * wx * t + wy * s, wz * wy * t - wx * s, wz * wz * t + c}};
 
-        yUnitVec = new Vector3(yx*rotMat[0][0] + yy*rotMat[0][1] + yz*rotMat[0][2],
-                yx*rotMat[1][0] + yy*rotMat[1][1] + yz*rotMat[1][2],
-                yx*rotMat[2][0] + yy*rotMat[2][1] + yz*rotMat[2][2]).normalized();
+        yUnitVec = new Vector3(yx * rotMat[0][0] + yy * rotMat[0][1] + yz * rotMat[0][2],
+                yx * rotMat[1][0] + yy * rotMat[1][1] + yz * rotMat[1][2],
+                yx * rotMat[2][0] + yy * rotMat[2][1] + yz * rotMat[2][2]).normalized();
 
 
         xUnitVec = Vector3.cross(yUnitVec, zUnitVec).normalized();
@@ -686,19 +691,10 @@ public class MainActivity extends AppCompatActivity
         Node node = new Node();
 
         node.setRenderable(albumRenderable[i]);
-        /*
-        node.setRenderable(bofLogoRenderable);
-
-        Camera camera = arSceneView.getScene().getCamera();
-        Vector3 d = Vector3.add(Vector3.up(), camera.getLeft()).normalized();
-        //d = Vector3.add(d, Vector3.forward().scaled(2)).normalized();
-        Quaternion direction = Quaternion.lookRotation(d, Vector3.up());
-        node.setWorldRotation(direction);
-        Vector3 vec = Vector3.add(cameraPos, camera.getLeft().scaled(5));
-        node.setWorldPosition(vec);*/
 
         node.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         node.setParent(mAnchorNode[i]);
+
 
         music(node, i);
 
@@ -707,7 +703,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void music(Node node,int i){
+    public void music(Node node, int i) {
         Context c = this;
 
         node.setOnTapListener((v, event) -> {
@@ -719,10 +715,10 @@ public class MainActivity extends AppCompatActivity
 
             // AR자체의 world position을 이용한 거리
             Vector3 vec = Vector3.subtract(node.getWorldPosition(), arSceneView.getScene().getCamera().getWorldPosition());
-            float distance = (float)Math.sqrt(Vector3.dot(vec, vec));
+            float distance = (float) Math.sqrt(Vector3.dot(vec, vec));
 
             // 터치한 오브젝트와의 거리가 30m이내 일때만 터치 가능
-            if(distance <= 30f) {
+            if (distance <= 30f) {
                 if (musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE) {
                     musicUi.setVisibility(View.VISIBLE);
                 }
