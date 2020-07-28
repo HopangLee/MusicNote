@@ -562,15 +562,23 @@ public class MainActivity extends AppCompatActivity
                 if (mAnchorNode[i].getAnchor().getTrackingState() != TrackingState.TRACKING
                         && arSceneView.getArFrame().getCamera().getTrackingState() == TrackingState.TRACKING) {
                     // Detach the old anchor
-                    //mAnchorNode[i].getAnchor().detach();
                     List<Node> children = new ArrayList<>(mAnchorNode[i].getChildren());
                     for (Node n : children) {
-                        n.setParent(null);
+                        Log.d(TAG, "find node list");
+                        if(n instanceof  AlbumNode) {
+                            Log.d(TAG, "removed");
+                            mAnchorNode[i].removeChild(n);
+                            n.setParent(null);
+                        }
                     }
+                    arSceneView.getScene().removeChild(mAnchorNode[i]);
                     mAnchorNode[i].getAnchor().detach();
+                    mAnchorNode[i].setParent(null);
+                    mAnchorNode[i] = null;
 
+                    /*
                     createNode(i);
-                    if (createNode(i) == false) continue;
+                    if (createNode(i) == false) continue;*/
                 }
             }
             return;
@@ -702,6 +710,12 @@ public class MainActivity extends AppCompatActivity
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i], timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView);
         music(albumNode, i);
 
+        int index = albumNode.getIndex();
+        for(; albumNode.getTimer(index) < albumNode.getCurrentMediaPosition(); index++){
+            ;
+        }
+        albumNode.setIndex(index);
+
         /*
         Node node = new Node();
 
@@ -748,6 +762,7 @@ public class MainActivity extends AppCompatActivity
                     musicUiclass.musicStop();
                     musicUiclass.setMediaPlayer(i);
                     musicUiclass.musicPlay();
+                    albumNode.startGame();
                     Toast.makeText(c, "music start (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
                 }
             }

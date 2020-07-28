@@ -52,10 +52,8 @@ public class MusicNote extends Node {
         // 터치했을 때 이펙트와 함께 사라짐(점수 오르는 것도?)
         this.setOnTapListener((v, event) ->{
             deleteThis();
-            Log.i("MusicNote", " is touched");
         });
 
-        Log.i("MusicNote", " is created");
     }
 
     // 노트 anchornode를 중심으로 이동
@@ -80,7 +78,6 @@ public class MusicNote extends Node {
     }
 
     public void deleteThis(){
-        Log.i("MusicNote", " is removed");
         parent.removeChild(this);
         this.setParent(null);
     }

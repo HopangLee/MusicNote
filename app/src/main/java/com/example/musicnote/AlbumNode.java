@@ -7,6 +7,7 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
@@ -36,8 +37,12 @@ public class AlbumNode extends Node {
         this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
-        Log.i("AlbumNode", "is created");
 
+        Quaternion quaternion = new Quaternion(0f, 0f, 0f, 0f);
+        this.setWorldRotation(quaternion);
+        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
+        Vector3 objPos = this.getWorldPosition();
+        Vector3 objToCam = Vector3.subtract(cameraPos, objPos);
     }
 
     // 음악을 시작했을 때 돌기 및 거리에 따른 크기 증가 및 시간에 따른 음표 오브젝트 생성
@@ -45,7 +50,6 @@ public class AlbumNode extends Node {
     public void onUpdate(FrameTime frameTime) {
         super.onUpdate(frameTime);
         // Animation hasn't been set up.
-        Log.i("Time : ", time + "ms");
         if(mediaPlayer.isPlaying()) {
             time = mediaPlayer.getCurrentPosition(); // 밀리 세컨드로 받아옴
 
@@ -63,9 +67,31 @@ public class AlbumNode extends Node {
 
     }
 
+    // 뮤직게임 시작
+    public void startGame(){
+        time = 0f;
+        index = 0;
+    }
+
     // 뮤직게임 중지 (음표 오브젝트 생성x)
     public void stopGame(){
         time = 0f;
         index = 0;
+    }
+
+    public void setIndex(int index){
+        this.index = index;
+    }
+
+    public int getIndex(){
+        return index;
+    }
+
+    public int getTimer(int i){
+        return timerArray[i];
+    }
+
+    public int getCurrentMediaPosition(){
+        return mediaPlayer.getCurrentPosition();
     }
 }
