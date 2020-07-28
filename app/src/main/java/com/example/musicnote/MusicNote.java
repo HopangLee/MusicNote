@@ -8,6 +8,7 @@ import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
@@ -19,10 +20,10 @@ public class MusicNote extends Node {
     private float speed; // 속도
     final float AVERAGE = 3f;
     final float MINSPEED = 1f;
-    final float MAXSPEED = 5f;
+    final float MAXSPEED = 4.5f;
     private AnchorNode parent;
 
-    MusicNote(AnchorNode parent, ModelRenderable modelRenderable){
+    MusicNote(AnchorNode parent, ModelRenderable modelRenderable, ArSceneView arSceneView){
         this.setRenderable(modelRenderable);
         this.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
         this.setParent(parent);
@@ -34,10 +35,18 @@ public class MusicNote extends Node {
         speed = Float.max(MINSPEED, speed); // 최소 속도 설정
         speed = Float.min(MAXSPEED, speed); // 최대 속도 설정
 
-        float theta = (float)(rand.nextFloat() * Math.PI * 2); // 0 ~ 2pi
-        float pi = rand.nextFloat() * (float) Math.PI; // 0 ~ pi
+        Vector3 objToCamera = Vector3.subtract(arSceneView.getScene().getCamera().getWorldPosition(), this.getWorldPosition()).normalized();
 
-        direction = new Vector3((float)(Math.sin(pi) * Math.cos(theta)), (float)(Math.sin(pi) * Math.sin(theta)), (float)(Math.cos(pi)));
+        float theta = rand.nextFloat() * (float)Math.PI * 2; // 0 ~ 2pi
+        float pi = rand.nextFloat() * (float)Math.PI/2; // 0 ~ pi/2
+
+        // 반원 중 랜덤 한 벡터
+        Vector3 randVec = new Vector3((float)(Math.sin(pi) * Math.cos(theta)), (float)(Math.sin(pi) * Math.sin(theta)), (float)(Math.cos(pi)));
+        Quaternion quaternion = Quaternion.rotationBetweenVectors(new Vector3(0, 0, 1), randVec);
+
+        direction = Quaternion.rotateVector(quaternion, objToCamera).normalized();
+
+        //direction = new Vector3((float)(Math.sin(pi) * Math.cos(theta)), (float)(Math.sin(pi) * Math.sin(theta)), (float)(Math.cos(pi)));
 
         // 터치했을 때 이펙트와 함께 사라짐(점수 오르는 것도?)
         this.setOnTapListener((v, event) ->{

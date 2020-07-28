@@ -2,6 +2,7 @@ package com.example.musicnote;
 
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
@@ -26,10 +27,11 @@ public class AlbumNode extends Node {
     private int index = 0; // timerArray의 index
     private float delay = 1f; // 생성되고 누르기 전까지의 시간
     private MediaPlayer mediaPlayer;
+    private ArSceneView arSceneView;
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
               int[] timerArray, ModelRenderable[] musicNotes,
-              MediaPlayer mediaPlayer, Vector3 cameraPos,
+              MediaPlayer mediaPlayer, ArSceneView arSceneView,
               Vector3 up){
         this.setRenderable(albumModel);
         this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
@@ -38,7 +40,9 @@ public class AlbumNode extends Node {
         this.timerArray = timerArray;
         this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
+        this.arSceneView = arSceneView;
 
+        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
@@ -58,13 +62,27 @@ public class AlbumNode extends Node {
                 Random rand = new Random();
                 int i = rand.nextInt(musicNotes.length);
 
-                MusicNote m = new MusicNote(parent, musicNotes[i]);
+                MusicNote m = new MusicNote(parent, musicNotes[i], arSceneView);
 
                 index++;
             }
         }
 
+        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
 
+        Vector3 v = Vector3.subtract(cameraPos, this.getWorldPosition());
+        float distance = (float)Math.sqrt(Vector3.dot(v, v));
+
+        // 사용자와 거리가 50m이상 벌어지면 삭제
+        if(distance > 50){
+            parent.removeChild(this);
+            this.setParent(null);
+            arSceneView.getScene().removeChild(parent);
+            parent.getAnchor().detach();
+            parent.setParent(null);
+            parent = null;
+            Log.i("AlbumNode", "object is removed");
+        }
     }
 
     // 뮤직게임 시작

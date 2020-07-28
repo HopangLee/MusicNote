@@ -153,6 +153,9 @@ public class MainActivity extends AppCompatActivity
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //팝업창 관련
+        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
+        startActivityForResult(intent, 1);
 
         // Devicd Orientation 관련
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -164,16 +167,16 @@ public class MainActivity extends AppCompatActivity
 
         // 첫번째 마커
         markers[0] = new Location("point A");
-        markers[0].setLatitude(37.284306);
-        markers[0].setLongitude(127.053579);
+        markers[0].setLatitude(37.285597);
+        markers[0].setLongitude(127.053625);
         // 두번째 마커
         markers[1] = new Location("point B");
-        markers[1].setLatitude(37.284097);
-        markers[1].setLongitude(127.05389);
+        markers[1].setLatitude(37.285235);
+        markers[1].setLongitude(127.053266);
         // 세번째 마커
         markers[2] = new Location("point C");
-        markers[2].setLatitude(37.283888);
-        markers[2].setLongitude(127.054201);
+        markers[2].setLatitude(37.284680);
+        markers[2].setLongitude(127.053117);
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -223,10 +226,6 @@ public class MainActivity extends AppCompatActivity
         // 위치를 반환하는 구현체인 FusedLocationSource 생성
         mLocationSource =
                 new FusedLocationSource(this, PERMISSION_REQUEST_CODE);
-
-        //팝업창 관련
-        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
-        startActivityForResult(intent, 1);
 
         // ar 관련
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arCamera);
@@ -616,7 +615,7 @@ public class MainActivity extends AppCompatActivity
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
-
+        /*
         if( i == 0 ) {
             dLatitude = 5f;
             dLongitude = 0f;
@@ -628,7 +627,7 @@ public class MainActivity extends AppCompatActivity
         else{
             dLatitude = 0f;
             dLongitude = 5f;
-        }
+        }*/
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
@@ -694,7 +693,7 @@ public class MainActivity extends AppCompatActivity
         Vector3 up = new Vector3(Vector3.dot(v, xUnitVec), Vector3.dot(v, yUnitVec), Vector3.dot(v, zUnitVec)).normalized();
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
-                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), cameraPos, up);
+                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView, up);
         music(albumNode, i);
 
         int index = albumNode.getIndex();
@@ -734,8 +733,8 @@ public class MainActivity extends AppCompatActivity
             Vector3 vec = Vector3.subtract(albumNode.getWorldPosition(), arSceneView.getScene().getCamera().getWorldPosition());
             float distance = (float) Math.sqrt(Vector3.dot(vec, vec));
 
-            // 터치한 오브젝트와의 거리가 30m이내 일때만 터치 가능
-            if (distance <= 30f) {
+            // 터치한 오브젝트와의 거리가 20m이내 일때만 터치 가능
+            if (distance <= 20f) {
                 if (musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE) {
                     musicUi.setVisibility(View.VISIBLE);
                 }

@@ -57,10 +57,12 @@ apply plugin: 'com.google.ar.sceneform.plugin'
 
 
 /*
-sceneform.asset('sampledata/logo/BOF logo modeling.obj', // 'Source Asset Path' specified during import.
+sceneform.asset('sampledata/logo/BOF(fbx).fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/logo/BOF logo modeling.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/boflogo')              // '.sfb Output Path' specified during import.
+        'sampledata/logo/BOF(fbx).sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/bof2')              // '.sfb Output Path' specified during import.
+*/
+/*
 sceneform.asset('sampledata/music_note/musicnote modeling.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
         'sampledata/music_note/musicnote modeling.sfa',         // '.sfa Output Path' specified during import.
