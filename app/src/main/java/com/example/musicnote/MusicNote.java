@@ -18,12 +18,14 @@ public class MusicNote extends Node {
 
     private Vector3 direction; // 날아갈 방향
     private float speed; // 속도
-    final float AVERAGE = 3f;
+    final float AVERAGE = 2.5f;
     final float MINSPEED = 1f;
-    final float MAXSPEED = 4.5f;
+    final float MAXSPEED = 4f;
+    final float MINSCALE = 0.25f;
+    final float MAXSCALE = 0.7f;
     private AnchorNode parent;
 
-    MusicNote(AnchorNode parent, ModelRenderable modelRenderable, ArSceneView arSceneView){
+    MusicNote(AnchorNode parent, ModelRenderable modelRenderable, Vector3 cameraPos, Vector3 up){
         this.setRenderable(modelRenderable);
         this.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
         this.setParent(parent);
@@ -35,18 +37,26 @@ public class MusicNote extends Node {
         speed = Float.max(MINSPEED, speed); // 최소 속도 설정
         speed = Float.min(MAXSPEED, speed); // 최대 속도 설정
 
-        Vector3 objToCamera = Vector3.subtract(arSceneView.getScene().getCamera().getWorldPosition(), this.getWorldPosition()).normalized();
+        Vector3 objPos = this.getWorldPosition();
+        Vector3 objToCamera = Vector3.subtract(cameraPos, objPos).normalized();
 
         float theta = rand.nextFloat() * (float)Math.PI * 2; // 0 ~ 2pi
         float pi = rand.nextFloat() * (float)Math.PI/2; // 0 ~ pi/2
 
         // 반원 중 랜덤 한 벡터
         Vector3 randVec = new Vector3((float)(Math.sin(pi) * Math.cos(theta)), (float)(Math.sin(pi) * Math.sin(theta)), (float)(Math.cos(pi)));
-        Quaternion quaternion = Quaternion.rotationBetweenVectors(new Vector3(0, 0, 1), randVec);
+        Quaternion quaternion = Quaternion.rotationBetweenVectors(new Vector3(0f, 0f, 1f), randVec);
 
         direction = Quaternion.rotateVector(quaternion, objToCamera).normalized();
 
-        //direction = new Vector3((float)(Math.sin(pi) * Math.cos(theta)), (float)(Math.sin(pi) * Math.sin(theta)), (float)(Math.cos(pi)));
+        Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
+        Quaternion direction = Quaternion.lookRotation(objToCam, up);
+        this.setWorldRotation(direction);
+
+        float scale = MINSCALE + rand.nextFloat() * (MAXSCALE - MINSCALE);
+        this.setWorldScale(Vector3.one().scaled(scale));
+
+        //Log.i("cameraPos: ", "<"+cameraPos.x+", "+cameraPos.y+", "+cameraPos.z+">");
 
         // 터치했을 때 이펙트와 함께 사라짐(점수 오르는 것도?)
         this.setOnTapListener((v, event) ->{

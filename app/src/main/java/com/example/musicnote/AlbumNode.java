@@ -25,9 +25,9 @@ public class AlbumNode extends Node {
     private int[] timerArray; // 밀리세컨드 단위
     private float time = 0f;
     private int index = 0; // timerArray의 index
-    private float delay = 1f; // 생성되고 누르기 전까지의 시간
     private MediaPlayer mediaPlayer;
     private ArSceneView arSceneView;
+    private Vector3 up;
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
               int[] timerArray, ModelRenderable[] musicNotes,
@@ -41,6 +41,7 @@ public class AlbumNode extends Node {
         this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
+        this.up = up;
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
@@ -53,6 +54,9 @@ public class AlbumNode extends Node {
     @Override
     public void onUpdate(FrameTime frameTime) {
         super.onUpdate(frameTime);
+
+        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
+
         // Animation hasn't been set up.
         if(mediaPlayer.isPlaying()) {
             time = mediaPlayer.getCurrentPosition(); // 밀리 세컨드로 받아옴
@@ -62,13 +66,13 @@ public class AlbumNode extends Node {
                 Random rand = new Random();
                 int i = rand.nextInt(musicNotes.length);
 
-                MusicNote m = new MusicNote(parent, musicNotes[i], arSceneView);
+                MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos, up);
 
                 index++;
             }
         }
 
-        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
+
 
         Vector3 v = Vector3.subtract(cameraPos, this.getWorldPosition());
         float distance = (float)Math.sqrt(Vector3.dot(v, v));

@@ -34,6 +34,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
@@ -72,7 +73,6 @@ import java.util.Map;
 
 import static android.hardware.SensorManager.AXIS_X;
 import static android.hardware.SensorManager.AXIS_Z;
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback,
@@ -103,12 +103,9 @@ public class MainActivity extends AppCompatActivity
 
     // 아래는 ArCamera를 위한 변수 선언
     private ArFragment arFragment;
-    private Session session;
     private ArSceneView arSceneView;
     private AnchorNode[] mAnchorNode = new AnchorNode[3];
 
-    private ModelRenderable andyRenderable;
-    private ModelRenderable foxRenderable;
     private ModelRenderable bofLogoRenderable;
     private ModelRenderable[] musicNotes = new ModelRenderable[2];
 
@@ -229,7 +226,6 @@ public class MainActivity extends AppCompatActivity
 
         // ar 관련
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arCamera);
-        session = arFragment.getArSceneView().getSession();
         arSceneView = arFragment.getArSceneView();
         setUpModel();
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
@@ -253,26 +249,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setUpModel() {
-
-        ModelRenderable.builder()
-                .setSource(this, R.raw.andy)
-                .build().thenAccept(renderable -> andyRenderable = renderable)
-                .exceptionally(
-                        throwable -> {
-                            Toast.makeText(this, "Unable to load andy model", Toast.LENGTH_SHORT).show();
-                            return null;
-                        }
-                );
-
-        ModelRenderable.builder()
-                .setSource(this, R.raw.arcticfox_posed)
-                .build().thenAccept(renderable -> foxRenderable = renderable)
-                .exceptionally(
-                        throwable -> {
-                            Toast.makeText(this, "Unable to load fox model", Toast.LENGTH_SHORT).show();
-                            return null;
-                        }
-                );
 
         ModelRenderable.builder()
                 .setSource(this, R.raw.bof)
@@ -556,10 +532,6 @@ public class MainActivity extends AppCompatActivity
                     mAnchorNode[i].getAnchor().detach();
                     mAnchorNode[i].setParent(null);
                     mAnchorNode[i] = null;
-
-                    /*
-                    createNode(i);
-                    if (createNode(i) == false) continue;*/
                 }
             }
             return;
@@ -615,7 +587,7 @@ public class MainActivity extends AppCompatActivity
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
-        /*
+
         if( i == 0 ) {
             dLatitude = 5f;
             dLongitude = 0f;
@@ -627,7 +599,7 @@ public class MainActivity extends AppCompatActivity
         else{
             dLatitude = 0f;
             dLongitude = 5f;
-        }*/
+        }
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
@@ -702,19 +674,8 @@ public class MainActivity extends AppCompatActivity
         }
         albumNode.setIndex(index);
 
-        /*
-        Node node = new Node();
-
-        node.setRenderable(albumRenderable[i]);
-
-        node.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
-        node.setParent(mAnchorNode[i]);
-
-
-        music(node, i);
-        */
-
-        Toast.makeText(this, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
+        Snackbar.make(mLayout, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
 
         return true;
     }
@@ -742,14 +703,16 @@ public class MainActivity extends AppCompatActivity
                 if (musicUiclass.isPlaying(i)) {
                     musicUiclass.musicStop();
                     albumNode.stopGame();
-                    Toast.makeText(c, "music stop (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(c, "music stop (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mLayout, "music stop (거리: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
                 }
                 else {
                     musicUiclass.musicStop();
                     musicUiclass.setMediaPlayer(i);
                     musicUiclass.musicPlay();
                     albumNode.startGame();
-                    Toast.makeText(c, "music start (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(c, "music start (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mLayout, "music start (거리: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
