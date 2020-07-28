@@ -26,7 +26,6 @@ public class AlbumNode extends Node {
     private int index = 0; // timerArray의 index
     private float delay = 1f; // 생성되고 누르기 전까지의 시간
     private MediaPlayer mediaPlayer;
-    private ArSceneView arSceneView;
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
               int[] timerArray, ModelRenderable[] musicNotes,
@@ -39,7 +38,6 @@ public class AlbumNode extends Node {
         this.timerArray = timerArray;
         this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
-        this.arSceneView = arSceneView;
 
         Vector3 objPos = this.getWorldPosition();
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
@@ -60,7 +58,7 @@ public class AlbumNode extends Node {
                 Random rand = new Random();
                 int i = rand.nextInt(musicNotes.length);
 
-                MusicNote m = new MusicNote(parent, musicNotes[i], arSceneView);
+                MusicNote m = new MusicNote(parent, musicNotes[i]);
 
                 index++;
             }

@@ -143,9 +143,6 @@ public class MainActivity extends AppCompatActivity
     private ScalableLayout musicUi;
     private ImageView album;
 
-    // 디버깅 ui 관련
-    TextView pitchText, rollText;
-    Context context;
 
 
     @Override
@@ -156,9 +153,6 @@ public class MainActivity extends AppCompatActivity
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        //팝업창 관련
-        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
-        startActivityForResult(intent, 1);
 
         // Devicd Orientation 관련
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -167,7 +161,6 @@ public class MainActivity extends AppCompatActivity
 
         // 레이아웃 받아오기
         mLayout = findViewById(R.id.layout_main);
-        context = this;
 
         // 첫번째 마커
         markers[0] = new Location("point A");
@@ -215,17 +208,6 @@ public class MainActivity extends AppCompatActivity
         album = (ImageView) findViewById(R.id.album);
         musicUiclass = new MusicUi(this, this, musicBar, musicTitle, play, album);
 
-        // 레이아웃 디버그용
-        // 레이아웃 객체 생성
-        RelativeLayout ll2 = (RelativeLayout) inflater.inflate(R.layout.mapbutton, null);
-        // 레이아웃 배경 투명도 주기
-        ll2.setBackgroundColor(Color.parseColor("#00000000"));
-        // 레이아웃 위에 겹치기
-        RelativeLayout.LayoutParams paramll2 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT
-        );
-        addContentView(ll2, paramll2);
-
         // 지도 객체 생성
         FragmentManager fm = getSupportFragmentManager();
         MapFragment mapFragment = (MapFragment) fm.findFragmentById(R.id.map);
@@ -242,16 +224,16 @@ public class MainActivity extends AppCompatActivity
         mLocationSource =
                 new FusedLocationSource(this, PERMISSION_REQUEST_CODE);
 
+        //팝업창 관련
+        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
+        startActivityForResult(intent, 1);
+
         // ar 관련
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arCamera);
         session = arFragment.getArSceneView().getSession();
         arSceneView = arFragment.getArSceneView();
         setUpModel();
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
-
-        // 디버깅용 ui 설정
-        pitchText = (TextView) findViewById(R.id.pitch);
-        rollText = (TextView) findViewById(R.id.roll);
     }
 
     @Override
@@ -733,7 +715,7 @@ public class MainActivity extends AppCompatActivity
         music(node, i);
         */
 
-        Toast.makeText(context, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
 
         return true;
     }
