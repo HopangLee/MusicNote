@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity
     private ArFragment arFragment;
     private ArSceneView arSceneView;
     private AnchorNode[] mAnchorNode = new AnchorNode[3];
+    private AnchorNode logoAnchor;
 
     private ModelRenderable bofLogoRenderable;
     private ModelRenderable[] musicNotes = new ModelRenderable[2];
@@ -251,7 +252,7 @@ public class MainActivity extends AppCompatActivity
     private void setUpModel() {
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.bof)
+                .setSource(this, R.raw.boflogo)
                 .build().thenAccept(renderable -> bofLogoRenderable = renderable)
                 .exceptionally(
                         throwable -> {
@@ -674,7 +675,6 @@ public class MainActivity extends AppCompatActivity
         }
         albumNode.setIndex(index);
 
-        //Toast.makeText(this, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Toast.LENGTH_SHORT).show();
         Snackbar.make(mLayout, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
 
         return true;
@@ -703,7 +703,6 @@ public class MainActivity extends AppCompatActivity
                 if (musicUiclass.isPlaying(i)) {
                     musicUiclass.musicStop();
                     albumNode.stopGame();
-                    //Toast.makeText(c, "music stop (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
                     Snackbar.make(mLayout, "music stop (거리: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
                 }
                 else {
@@ -711,7 +710,6 @@ public class MainActivity extends AppCompatActivity
                     musicUiclass.setMediaPlayer(i);
                     musicUiclass.musicPlay();
                     albumNode.startGame();
-                    //Toast.makeText(c, "music start (거리: " + distance + "m)", Toast.LENGTH_SHORT).show();
                     Snackbar.make(mLayout, "music start (거리: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
                 }
             }
