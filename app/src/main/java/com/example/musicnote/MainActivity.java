@@ -707,7 +707,12 @@ public class MainActivity extends AppCompatActivity
         mAnchorNode[i] = new AnchorNode(anchor);
         mAnchorNode[i].setParent(arSceneView.getScene());
 
-        AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i], timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView);
+        // 윗벡터를 구해서 보내주기
+        Vector3 v = new Vector3(0f, 0f, 1f);
+        Vector3 up = new Vector3(Vector3.dot(v, xUnitVec), Vector3.dot(v, yUnitVec), Vector3.dot(v, zUnitVec)).normalized();
+
+        AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
+                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView, up);
         music(albumNode, i);
 
         int index = albumNode.getIndex();

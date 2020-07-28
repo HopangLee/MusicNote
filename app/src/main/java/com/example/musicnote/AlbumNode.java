@@ -28,7 +28,10 @@ public class AlbumNode extends Node {
     private MediaPlayer mediaPlayer;
     private ArSceneView arSceneView;
 
-    AlbumNode(AnchorNode parent, ModelRenderable albumModel, int[] timerArray, ModelRenderable[] musicNotes, MediaPlayer mediaPlayer, ArSceneView arSceneView){
+    AlbumNode(AnchorNode parent, ModelRenderable albumModel,
+              int[] timerArray, ModelRenderable[] musicNotes,
+              MediaPlayer mediaPlayer, ArSceneView arSceneView,
+              Vector3 up){
         this.setRenderable(albumModel);
         this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         this.setParent(parent);
@@ -38,11 +41,11 @@ public class AlbumNode extends Node {
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
 
-        Quaternion quaternion = new Quaternion(0f, 0f, 0f, 0f);
-        this.setWorldRotation(quaternion);
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
-        Vector3 objToCam = Vector3.subtract(cameraPos, objPos);
+        Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
+        Quaternion direction = Quaternion.lookRotation(objToCam, up);
+        this.setWorldRotation(direction);
     }
 
     // 음악을 시작했을 때 돌기 및 거리에 따른 크기 증가 및 시간에 따른 음표 오브젝트 생성
