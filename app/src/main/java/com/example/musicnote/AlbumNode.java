@@ -30,7 +30,7 @@ public class AlbumNode extends Node {
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
               int[] timerArray, ModelRenderable[] musicNotes,
-              MediaPlayer mediaPlayer, ArSceneView arSceneView,
+              MediaPlayer mediaPlayer, Vector3 cameraPos,
               Vector3 up){
         this.setRenderable(albumModel);
         this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
@@ -41,7 +41,6 @@ public class AlbumNode extends Node {
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
 
-        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);

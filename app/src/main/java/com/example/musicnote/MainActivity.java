@@ -712,7 +712,7 @@ public class MainActivity extends AppCompatActivity
         Vector3 up = new Vector3(Vector3.dot(v, xUnitVec), Vector3.dot(v, yUnitVec), Vector3.dot(v, zUnitVec)).normalized();
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
-                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView, up);
+                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), cameraPos, up);
         music(albumNode, i);
 
         int index = albumNode.getIndex();

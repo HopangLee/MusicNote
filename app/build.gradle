@@ -57,13 +57,13 @@ apply plugin: 'com.google.ar.sceneform.plugin'
 
 
 /*
-sceneform.asset('sampledata/sampleGuitar/Violin.obj', // 'Source Asset Path' specified during import.
+sceneform.asset('sampledata/logo/BOF logo modeling.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/sampleGuitar/Violin.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/violin')              // '.sfb Output Path' specified during import.
-sceneform.asset('sampledata/sampleGuitar/Washburn Guitar.obj', // 'Source Asset Path' specified during import.
+        'sampledata/logo/BOF logo modeling.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/boflogo')              // '.sfb Output Path' specified during import.
+sceneform.asset('sampledata/music_note/musicnote modeling.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/sampleGuitar/Washburn Guitar.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/washburnguitar')              // '.sfb Output Path' specified during import.
+        'sampledata/music_note/musicnote modeling.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/musicnote')              // '.sfb Output Path' specified during import.
 */
 
