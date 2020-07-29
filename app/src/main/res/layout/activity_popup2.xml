@@ -1,9 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ConstarintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PopupActivity2">
+    android:background="@drawable/popup_bg03"
+    android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00FFFFFF"
+        app:scale_base_height="219"
+        app:scale_base_width="310"
+        tools:ignore="MissingPrefix">
+
+        <TextView
+            android:id="@+id/textview5"
+            android:layout_width="310dp"
+            android:layout_height="119dp"
+            android:bufferType="spannable"
+            android:gravity="center"
+            android:text="행사장에 도착했습니다!\n\n부산원아시아페스티벌(BOF)에서\n각종 K-Pop 음악들을 즐겨보아요!"
+            android:textColor="#000"
+            app:scale_height="80"
+            app:scale_textsize="15"
+            app:scale_top="33"
+            app:scale_width="310">
+
+        </TextView>
+
+        <Button
+            android:id="@+id/finishbtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/normal_btn_bg"
+            android:fontFamily="@font/notosanskrregular"
+            android:gravity="center"
+            android:text="안내 종료하기"
+            android:textColor="#fff"
+            app:scale_height="44"
+            app:scale_left="16"
+            app:scale_textsize="16"
+            app:scale_top="151"
+            app:scale_width="278" />
+
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+</FrameLayout>

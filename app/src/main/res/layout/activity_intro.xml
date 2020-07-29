@@ -5,12 +5,11 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:background="@color/colorWhite">
+    android:background="#212121">
 
     <com.ssomai.android.scalablelayout.ScalableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
         android:layout_gravity="center"
         app:scale_base_height="1800"
         app:scale_base_width="1000"
@@ -20,43 +19,122 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/notosanskrregular"
-            android:text="휴대폰 AR로 즐기는 부산원아시아페스티벌"
-            android:textAlignment="center"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            app:scale_height="100"
-            app:scale_textsize="45"
-            app:scale_top="-600"
-            app:scale_width="1000" />
+            android:fontFamily="@font/notosanskrmedium"
+            android:text="AR로 즐기는\n부산원아시아\n페스티벌"
+            android:bufferType="spannable"
+            android:textColor="#fff"
+            app:scale_height="245"
+            app:scale_textsize="48"
+            app:scale_top="265"
+            app:scale_width="320"
+            app:scale_left="620"/>
+
+        <TextView
+            android:id="@+id/permissionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이 앱의 카메라 사용을 허가합니다."
+            android:textColor="#fff"
+            android:fontFamily="@font/notosanskrmedium"
+            app:scale_textsize="40"
+            app:buttonTint="#fff"
+            app:scale_width="650"
+            app:scale_height="80"
+            app:scale_left="290"
+            app:scale_top="600">
+        </TextView>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/check1"
+            android:gravity="center"
+            android:textColor="#fff"
+            app:buttonTint="#fff"
+            app:scale_width="80"
+            app:scale_height="70"
+            app:scale_left="200"
+            app:scale_top="620"/>
+
 
         <ImageView
             android:id="@+id/bof_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:scaleType="fitCenter"
             android:src="@drawable/bof_logo"
             app:scale_height="300"
+            app:scale_top="210"
             app:scale_width="500"
-            app:scale_top="-370"
-            app:scale_textsize="10"/>
+            app:scale_left="60"/>
 
-        <Button
-            android:id="@+id/musicNote_btn"
+        <ImageView
+            android:id="@+id/makdaegi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/btn_bg"
+            android:scaleType="fitCenter"
+            android:src="@drawable/makdaegi"
+            app:scale_height="240"
+            app:scale_top="260"
+            app:scale_width="40"
+            app:scale_left="565"/>
 
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Copyright © 성균관대학교 산학협력단 All Rights Reserved."
             android:fontFamily="@font/notosanskrregular"
-            android:text="#두근두근_행사장가는길\nAR 음악노트"
-            android:textStyle="bold"
+            android:textColor="#fff"
+            android:textSize="11dp"
+            android:gravity="center"
+            app:scale_width="1000"
+            app:scale_height="70"
+            app:scale_textsize="33"
+            app:scale_top="1650">
+
+        </TextView>
+
+
+        <ImageButton
+        android:id="@+id/musicnote_btn"
+        android:layout_width="140dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:background="@drawable/musicnote_btn_bg"
+        android:src="@drawable/musicnote_btn_illust"
+        app:scale_height="400"
+        app:scale_top="50"
+        app:scale_width="930" />
+
+        <ImageButton
+            android:id="@+id/gamemeeting_btn"
+            android:layout_width="140dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@drawable/musicnote_btn_bg"
+            android:src="@drawable/musicnote_btn_illust"
             app:scale_height="400"
-            app:scale_textsize="60"
-            app:scale_top="100"
+            app:scale_top="50"
+            app:scale_width="930" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="140dp"
+            android:layout_height="84dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#FF5D4D"
+            android:fontFamily="@font/notosanskrregular"
+            android:clickable="false"
+            android:textStyle="bold"
+            android:text="#두근두근_행사장 가는 길\nAR 음악노트"
+            app:scale_height="400"
+            app:scale_textsize="50"
+            app:scale_top="50"
             app:scale_width="950" />
+
     </com.ssomai.android.scalablelayout.ScalableLayout>
 
 </LinearLayout>
