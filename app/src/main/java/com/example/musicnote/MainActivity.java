@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity
 
     // 마커 관련
     private Location[] markers = new Location[3];
+    private Location logoLocation;
 
     // ar 관련
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
@@ -175,6 +176,11 @@ public class MainActivity extends AppCompatActivity
         markers[2] = new Location("point C");
         markers[2].setLatitude(37.284680);
         markers[2].setLongitude(127.053117);
+
+        // 로고 위치
+        logoLocation = new Location("BOF LOGO");
+        logoLocation.setLatitude(37);
+        logoLocation.setLongitude(127);
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -334,6 +340,12 @@ public class MainActivity extends AppCompatActivity
         marker3.setHeight(50);
         marker3.setWidth(40);
         marker3.setMap(naverMap);
+
+        Marker logo = new Marker();
+        logo.setPosition(new LatLng(logoLocation.getLatitude(), logoLocation.getLongitude()));
+        logo.setHeight(50);
+        logo.setWidth(40);
+        logo.setMap(naverMap);
 
         /* 오브젝트 크기 리사이즈
         final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -514,8 +526,29 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onSceneUpdate(FrameTime frameTime) {
-        if (mAnchorNode[0] != null && mAnchorNode[1] != null && mAnchorNode[2] != null) {
-            for (int i = 0; i < 3; i++) {
+        // 로고 앵커가 사라졌을 시
+        if(logoAnchor != null) {
+            if (logoAnchor.getAnchor().getTrackingState() != TrackingState.TRACKING
+                    && arSceneView.getArFrame().getCamera().getTrackingState() == TrackingState.TRACKING) {
+                // Detach the old anchor
+                List<Node> children = new ArrayList<>(logoAnchor.getChildren());
+                for (Node n : children) {
+                    Log.d(TAG, "find node list");
+                    if (n instanceof BofLogo) {
+                        Log.d(TAG, "removed");
+                        logoAnchor.removeChild(n);
+                        n.setParent(null);
+                    }
+                }
+                arSceneView.getScene().removeChild(logoAnchor);
+                logoAnchor.getAnchor().detach();
+                logoAnchor.setParent(null);
+                logoAnchor = null;
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (mAnchorNode[i] != null) {
                 // 혹시라도 오브젝트가 사라졌다면 (트래킹 모드가 해제되어서)
                 if (mAnchorNode[i].getAnchor().getTrackingState() != TrackingState.TRACKING
                         && arSceneView.getArFrame().getCamera().getTrackingState() == TrackingState.TRACKING) {
@@ -523,7 +556,7 @@ public class MainActivity extends AppCompatActivity
                     List<Node> children = new ArrayList<>(mAnchorNode[i].getChildren());
                     for (Node n : children) {
                         Log.d(TAG, "find node list");
-                        if(n instanceof  AlbumNode) {
+                        if (n instanceof AlbumNode) {
                             Log.d(TAG, "removed");
                             mAnchorNode[i].removeChild(n);
                             n.setParent(null);
@@ -535,6 +568,9 @@ public class MainActivity extends AppCompatActivity
                     mAnchorNode[i] = null;
                 }
             }
+        }
+
+        if(logoAnchor != null && mAnchorNode[0] != null && mAnchorNode[1] != null && mAnchorNode[2] != null){
             return;
         }
 
@@ -576,12 +612,92 @@ public class MainActivity extends AppCompatActivity
 
         // 오브젝트 생성!
         for (int i = 0; i < 3; i++) {
-            if (mAnchorNode[i] == null && mCurrentLocation != null) {
+            if (mAnchorNode[i] == null) {
                 //Log.d(TAG, "onUpdate: mAnchorNode["+ i +"] is null");
                 // 여기에다가 내 gps의 위도 경도, 마커들의 위도 경도를 이용하여 마커들의 Pose값 구해야함!
                 if (createNode(i) == false) continue;
             }
         }
+        // BOF 로고 오브젝트 생성
+        if(logoAnchor == null){
+            createLogo();
+        }
+    }
+
+    public void createLogo(){
+        float dLatitude = (float) (logoLocation.getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
+        float dLongitude = (float) (logoLocation.getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
+
+        dLatitude = 20f;
+        dLongitude = 0f;
+
+        float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
+
+        if (distance > 25) { // 20m보다 멀면 오브젝트 생성X
+            return;
+        }
+
+        float height = +0.5f;
+        Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
+
+        Vector3 xUnitVec;
+        Vector3 yUnitVec;
+        Vector3 zUnitVec;
+
+        zUnitVec = new Vector3((float) (Math.cos(mCurrentPitch) * Math.sin(mCurrentAzim)), (float) (Math.cos(mCurrentPitch) * Math.cos(mCurrentAzim)), (float) (-Math.sin(mCurrentPitch)));
+        zUnitVec = zUnitVec.normalized().negated();
+
+        yUnitVec = new Vector3((float) (Math.sin(mCurrentPitch) * Math.sin(mCurrentAzim)), (float) (Math.sin(mCurrentPitch) * Math.cos(mCurrentAzim)), (float) (Math.cos(mCurrentPitch))).normalized();
+
+        float wx = zUnitVec.x;
+        float wy = zUnitVec.y;
+        float wz = zUnitVec.z;
+
+        float yx = yUnitVec.x;
+        float yy = yUnitVec.y;
+        float yz = yUnitVec.z;
+
+        float t = 1 - (float) Math.cos(mCurrentRoll);
+        float s = (float) Math.sin(mCurrentRoll);
+        float c = (float) Math.cos(mCurrentRoll);
+
+        float[][] rotMat = {{wx * wx * t + c, wx * wy * t + wz * s, wx * wz * t - wy * s},
+                {wy * wx * t - wz * s, wy * wy * t + c, wy * wz * t + wx * s},
+                {wz * wx * t + wy * s, wz * wy * t - wx * s, wz * wz * t + c}};
+
+        yUnitVec = new Vector3(yx * rotMat[0][0] + yy * rotMat[0][1] + yz * rotMat[0][2],
+                yx * rotMat[1][0] + yy * rotMat[1][1] + yz * rotMat[1][2],
+                yx * rotMat[2][0] + yy * rotMat[2][1] + yz * rotMat[2][2]).normalized();
+
+
+        xUnitVec = Vector3.cross(yUnitVec, zUnitVec).normalized();
+
+        float xPos = Vector3.dot(objVec, xUnitVec);
+        float yPos = Vector3.dot(objVec, yUnitVec);
+        float zPos = Vector3.dot(objVec, zUnitVec);
+
+        Vector3 xAxis = arSceneView.getScene().getCamera().getRight().normalized().scaled(xPos);
+        Vector3 yAxis = arSceneView.getScene().getCamera().getUp().normalized().scaled(yPos);
+        Vector3 zAxis = arSceneView.getScene().getCamera().getBack().normalized().scaled(zPos);
+        Vector3 objectPos = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z);
+        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
+
+        Vector3 position = Vector3.add(cameraPos, objectPos);
+
+        // Create an ARCore Anchor at the position.
+        Pose pose = Pose.makeTranslation(position.x, position.y, position.z);
+        Anchor anchor = arSceneView.getSession().createAnchor(pose);
+
+        logoAnchor = new AnchorNode(anchor);
+        logoAnchor.setParent(arSceneView.getScene());
+
+        // 윗벡터를 구해서 보내주기
+        Vector3 v = new Vector3(0f, 0f, 1f);
+        Vector3 up = new Vector3(Vector3.dot(v, xUnitVec), Vector3.dot(v, yUnitVec), Vector3.dot(v, zUnitVec)).normalized();
+
+        BofLogo bofLogo = new BofLogo(logoAnchor, bofLogoRenderable, arSceneView, up);
+
+        Snackbar.make(mLayout, "로고 오브젝트 생성 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
     }
 
     public boolean createNode(int i) {
@@ -589,9 +705,11 @@ public class MainActivity extends AppCompatActivity
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
 
+
         if( i == 0 ) {
             dLatitude = 5f;
             dLongitude = 0f;
+            return false;
         }
         else if ( i == 1 ){
             dLatitude = -5f;
@@ -601,6 +719,7 @@ public class MainActivity extends AppCompatActivity
             dLatitude = 0f;
             dLongitude = 5f;
         }
+
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
