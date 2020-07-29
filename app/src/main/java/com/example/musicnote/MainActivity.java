@@ -236,6 +236,7 @@ public class MainActivity extends AppCompatActivity
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arCamera);
         arSceneView = arFragment.getArSceneView();
         setUpModel();
+
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
     }
 
@@ -695,7 +696,15 @@ public class MainActivity extends AppCompatActivity
 
         // 윗벡터를 구해서 보내주기
         Vector3 v = new Vector3(0f, 0f, 1f);
-        Vector3 up = new Vector3(Vector3.dot(v, xUnitVec), Vector3.dot(v, yUnitVec), Vector3.dot(v, zUnitVec)).normalized();
+        xPos = Vector3.dot(v, xUnitVec);
+        yPos = Vector3.dot(v, yUnitVec);
+        zPos = Vector3.dot(v, zUnitVec);
+
+        xAxis = arSceneView.getScene().getCamera().getRight().normalized().scaled(xPos);
+        yAxis = arSceneView.getScene().getCamera().getUp().normalized().scaled(yPos);
+        zAxis = arSceneView.getScene().getCamera().getBack().normalized().scaled(zPos);
+
+        Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
         BofLogo bofLogo = new BofLogo(logoAnchor, bofLogoRenderable, arSceneView, up);
 
@@ -782,7 +791,15 @@ public class MainActivity extends AppCompatActivity
 
         // 윗벡터를 구해서 보내주기
         Vector3 v = new Vector3(0f, 0f, 1f);
-        Vector3 up = new Vector3(Vector3.dot(v, xUnitVec), Vector3.dot(v, yUnitVec), Vector3.dot(v, zUnitVec)).normalized();
+        xPos = Vector3.dot(v, xUnitVec);
+        yPos = Vector3.dot(v, yUnitVec);
+        zPos = Vector3.dot(v, zUnitVec);
+
+        xAxis = arSceneView.getScene().getCamera().getRight().normalized().scaled(xPos);
+        yAxis = arSceneView.getScene().getCamera().getUp().normalized().scaled(yPos);
+        zAxis = arSceneView.getScene().getCamera().getBack().normalized().scaled(zPos);
+
+        Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
                 timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView, up);

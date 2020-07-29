@@ -59,14 +59,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/notosanskrregular"
-            android:gravity="center"
             android:textAlignment="center"
             android:text="BOF 행사장까지 가는 발걸음이 즐거울 수\n있도록, 화면에 등장하는 K-Pop 앨범을\n터치해 각 음악의 하이라이트를 감상하며\n행사장에 도착할 수 있게 길을 안내해주는\n서비스입니다."
             android:textColor="#000"
-            app:scale_width="700"
-            app:scale_height="300"
+            app:scale_width="750"
+            app:scale_height="400"
             app:scale_textsize="40"
-            app:scale_top="180"
+            app:scale_top="210"
             android:layout_gravity="center"/>
 
         <Button
