@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity
         // 레이아웃 받아오기
         mLayout = findViewById(R.id.layout_main);
 
-        // 첫번째 마커
+        // 첫번째 마커//ddddd
         markers[0] = new Location("point A");
         markers[0].setLatitude(37.285597);
         markers[0].setLongitude(127.053625);
