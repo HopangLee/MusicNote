@@ -65,10 +65,10 @@ sceneform.asset('sampledata/logo/BOF logo fbx.fbx', // 'Source Asset Path' speci
         'sampledata/logo/BOF logo fbx.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/boflogo')              // '.sfb Output Path' specified during import.
 */
-/*
-sceneform.asset('sampledata/music_note/musicnote modeling.obj', // 'Source Asset Path' specified during import.
+
+sceneform.asset('sampledata/music_note/musicnote.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/music_note/musicnote modeling.sfa',         // '.sfa Output Path' specified during import.
+        'sampledata/music_note/musicnote.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/musicnote')              // '.sfb Output Path' specified during import.
-*/
+
 
