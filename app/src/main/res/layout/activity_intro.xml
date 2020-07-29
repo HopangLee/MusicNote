@@ -107,19 +107,8 @@
         app:scale_top="50"
         app:scale_width="930" />
 
-        <ImageButton
-            android:id="@+id/gamemeeting_btn"
-            android:layout_width="140dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:background="@drawable/musicnote_btn_bg"
-            android:src="@drawable/musicnote_btn_illust"
-            app:scale_height="400"
-            app:scale_top="50"
-            app:scale_width="930" />
-
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/musicnote_btn_text"
             android:layout_width="140dp"
             android:layout_height="84dp"
             android:layout_gravity="center"
@@ -134,6 +123,36 @@
             app:scale_textsize="50"
             app:scale_top="50"
             app:scale_width="950" />
+
+        <ImageButton
+            android:id="@+id/gamemeeting_btn"
+            android:layout_width="140dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@drawable/musicnote_btn_bg"
+            android:src="@drawable/gamemeeting_btn_illust"
+            app:scale_height="400"
+            app:scale_top="500"
+            app:scale_width="930" />
+
+        <TextView
+            android:id="@+id/game_btn_text"
+            android:layout_width="140dp"
+            android:layout_height="84dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#FF5D4D"
+            android:fontFamily="@font/notosanskrregular"
+            android:clickable="false"
+            android:textStyle="bold"
+            android:text="#몸은_멀리_마음은_가까이\nAR 겜미팅"
+            app:scale_height="400"
+            app:scale_textsize="50"
+            app:scale_top="500"
+            app:scale_width="950" />
+
+
 
     </com.ssomai.android.scalablelayout.ScalableLayout>
 
