@@ -628,12 +628,13 @@ public class MainActivity extends AppCompatActivity
         float dLatitude = (float) (logoLocation.getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (logoLocation.getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
+        // 테스트 용도
         dLatitude = 20f;
         dLongitude = 0f;
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
-        if (distance > 25) { // 20m보다 멀면 오브젝트 생성X
+        if (distance > 25) { // 25m보다 멀면 오브젝트 생성X
             return;
         }
 
@@ -705,7 +706,7 @@ public class MainActivity extends AppCompatActivity
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
 
-
+        // 테스트 용도
         if( i == 0 ) {
             dLatitude = 5f;
             dLongitude = 0f;

@@ -62,7 +62,6 @@ public class MusicNote extends Node {
         this.setOnTapListener((v, event) ->{
             deleteThis();
         });
-
     }
 
     // 노트 anchornode를 중심으로 이동
