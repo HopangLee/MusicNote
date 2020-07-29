@@ -152,10 +152,11 @@ public class MainActivity extends AppCompatActivity
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        /*
         //팝업창 관련
         Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
         startActivityForResult(intent, 1);
-
+*/
         // Devicd Orientation 관련
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -288,7 +289,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.guitar02)
+                .setSource(this, R.raw.musicnote)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -298,7 +299,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.guitar02)
+                .setSource(this, R.raw.musicnote)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -308,7 +309,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.guitar02)
+                .setSource(this, R.raw.musicnote)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -705,22 +706,20 @@ public class MainActivity extends AppCompatActivity
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
-
         // 테스트 용도
         if( i == 0 ) {
-            dLatitude = 5f;
+            dLatitude = 1f;
             dLongitude = 0f;
             return false;
         }
         else if ( i == 1 ){
-            dLatitude = -5f;
+            dLatitude = -3f;
             dLongitude = 0f;
         }
         else{
             dLatitude = 0f;
-            dLongitude = 5f;
+            dLongitude = 3f;
         }
-
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 

@@ -26,10 +26,9 @@ public class IntroActivity extends AppCompatActivity {
 
         ImageButton musicnote_btn = (ImageButton) findViewById(R.id.musicnote_btn);
         TextView bof_text = (TextView)findViewById(R.id.textView);
-        TextView btn_text = (TextView)findViewById(R.id.textView5);
+        TextView btn_text = (TextView)findViewById(R.id.musicnote_btn_text);
         int color = getResources().getColor(R.color.colorDefault);
         CheckBox checkBox=(CheckBox)findViewById(R.id.check1);
-
 
         checkBox.setOnClickListener(new View.OnClickListener() {
 

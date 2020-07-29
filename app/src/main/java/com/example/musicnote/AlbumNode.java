@@ -34,7 +34,7 @@ public class AlbumNode extends Node {
               MediaPlayer mediaPlayer, ArSceneView arSceneView,
               Vector3 up){
         this.setRenderable(albumModel);
-        this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+        this.setLocalScale(new Vector3(1f, 1f, 1f));
         this.setParent(parent);
         this.parent = parent;
         this.timerArray = timerArray;
