@@ -24,7 +24,7 @@ public class MusicNote extends Node {
     final float MINSCALE = 0.25f;
     final float MAXSCALE = 0.7f;
     private AnchorNode parent;
-
+//아
     MusicNote(AnchorNode parent, ModelRenderable modelRenderable, Vector3 cameraPos, Vector3 up){
         this.setRenderable(modelRenderable);
         this.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
