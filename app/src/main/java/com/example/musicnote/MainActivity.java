@@ -631,6 +631,7 @@ public class MainActivity extends AppCompatActivity
         float dLongitude = (float) (logoLocation.getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
         // 테스트 용도
+
         dLatitude = 20f;
         dLongitude = 0f;
 
@@ -711,13 +712,15 @@ public class MainActivity extends AppCompatActivity
         Snackbar.make(mLayout, "로고 오브젝트 생성 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
     }
 
+    // 앨범 노드 생성~!
     public boolean createNode(int i) {
         float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
         // 테스트 용도
+
         if( i == 0 ) {
-            dLatitude = 1f;
+            dLatitude = 3f;
             dLongitude = 0f;
             return false;
         }

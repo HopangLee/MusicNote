@@ -18,16 +18,16 @@ public class MusicNote extends Node {
 
     private Vector3 direction; // 날아갈 방향
     private float speed; // 속도
-    final float AVERAGE = 2.5f;
+    final float AVERAGE = 2f;
     final float MINSPEED = 1f;
-    final float MAXSPEED = 4f;
-    final float MINSCALE = 0.25f;
-    final float MAXSCALE = 0.7f;
+    final float MAXSPEED = 3f;
+    final float MINSCALE = 0.15f;
+    final float MAXSCALE = 0.4f;
     private AnchorNode parent;
 //아
     MusicNote(AnchorNode parent, ModelRenderable modelRenderable, Vector3 cameraPos, Vector3 up){
         this.setRenderable(modelRenderable);
-        this.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
+        this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         this.setParent(parent);
 
         this.parent = parent;
@@ -54,7 +54,7 @@ public class MusicNote extends Node {
         this.setWorldRotation(direction);
 
         float scale = MINSCALE + rand.nextFloat() * (MAXSCALE - MINSCALE);
-        this.setWorldScale(Vector3.one().scaled(scale));
+        this.setLocalPosition(Vector3.one().scaled(scale));
 
         //Log.i("cameraPos: ", "<"+cameraPos.x+", "+cameraPos.y+", "+cameraPos.z+">");
 

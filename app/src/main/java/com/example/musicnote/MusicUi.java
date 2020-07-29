@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class MusicUi{
@@ -21,8 +24,10 @@ public class MusicUi{
     private ImageView playBtn;
     private ImageView album;
     String[] title = {"How You Like That - 블랙핑크", "DNA - 방탄소년단","빨간맛 - 레드벨벳"};
-    int[] fileRoot = {R.drawable.blackpink_howyoulikethat, R.drawable.bts_dna, R.drawable.redvelvet_redflavor};
-    MediaPlayer[] mediaPlayer = new MediaPlayer[3];
+    final int[] FILEROOT = {R.drawable.blackpink_howyoulikethat, R.drawable.bts_dna, R.drawable.redvelvet_redflavor};
+    final int[] MEDIAROOT = {R.raw.blackpink, R.raw.bts, R.raw.red_velvet};
+    //MediaPlayer[] mediaPlayer = new MediaPlayer[3];
+    List<MediaPlayer> mediaPlayers = new ArrayList<>(3);
 
     private final Activity mActivity;
 
@@ -32,14 +37,16 @@ public class MusicUi{
         this.titleText = titleText;
         this.playBtn = playBtn;
         this.album = album;
-        mediaPlayer[0] = MediaPlayer.create(context, R.raw.blackpink);
-        mediaPlayer[1] = MediaPlayer.create(context, R.raw.bts);
-        mediaPlayer[2] = MediaPlayer.create(context, R.raw.red_velvet);
+
+        for(int r : MEDIAROOT){
+            mediaPlayers.add(MediaPlayer.create(context, r));
+        }
+
         this.mActivity = mActivity;
     }
 
     public void setMediaPlayer(int number){
-        this.currentMediaPlayer = mediaPlayer[number];
+        this.currentMediaPlayer = mediaPlayers.get(number);
         currentMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -49,7 +56,7 @@ public class MusicUi{
         musicBar.setMax(currentMediaPlayer.getDuration());
         musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
         titleText.setText(title[number]);
-        album.setImageResource(fileRoot[number]);
+        album.setImageResource(FILEROOT[number]);
     }
 
     public void musicPlay(){
@@ -102,9 +109,13 @@ public class MusicUi{
         return currentMediaPlayer;
     }
 
-    public MediaPlayer getMediaPlayer(int i){return mediaPlayer[i];}
+    public MediaPlayer getMediaPlayer(int i){return mediaPlayers.get(i);}
 
     public boolean isPlaying(int i){
-        return mediaPlayer[i].isPlaying();
+        return mediaPlayers.get(i).isPlaying();
+    }
+
+    public int getCurrentMediaPlayerIndex(){
+        return mediaPlayers.indexOf(currentMediaPlayer);
     }
 }
