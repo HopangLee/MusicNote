@@ -47,6 +47,14 @@ public class GameSystem extends AnchorNode {
             this.leftTimer = timer[0];
             this.rightTimer = timer[1];
         }
+
+        public int getLeftTimer(int index){
+            return leftTimer[index];
+        }
+
+        public int getRightTimer(int index){
+            return rightTimer[index];
+        }
     }
 
     ArSceneView arSceneView;
@@ -60,7 +68,8 @@ public class GameSystem extends AnchorNode {
     int musicIndex = 0;
     MusicUi musicUi; // 현재 나오는 음악 정보(playing중인지) 및 index를 알기 위해
 
-    int TimerIndex = 0; // 타이머 index
+    int LeftTimerIndex = 0; // 왼쪽 노트 타이머 index
+    int RightTimerIndex = 0; // 오른쪽 노트 타이머 index
     NoteCreateTimer musicCreater = null;
 
     final float DISTANCE = 10f; // 10m (얼마나 앞에서 생성되게 할 것인지)
@@ -127,21 +136,45 @@ public class GameSystem extends AnchorNode {
     @Override
     public void onUpdate(FrameTime frameTime) {
         if (isPlaying){
-            SetPosition(); // Game Systme의 위치를 핸드폰 앞으로 잡기
+            Vector3[] notePos = SetPosition(); // Game System의 위치를 핸드폰 앞으로 잡기 + 음악 노트 생성 위치 벡터 받아오기
+            /*
+             * 지정 시간이 되면 GameNote를 notePos위치에 생성(Local Position)
+             * 아닐 때도 GameNote는 계속 움직여야함
+             */
 
+            if(cuurentMediaPlayer == null){
+                Log.e("ERROR: ", "currentMediaPlayer is null");
+                return;
+            }
+
+            // 왼쪽 노트 타이밍 계산
+            if(musicCreater.getLeftTimer(LeftTimerIndex) >= cuurentMediaPlayer.getCurrentPosition()){
+                // GameNote 생성
+                GameNote note = new GameNote(arSceneView, this, false);
+                LeftTimerIndex++;
+            }
+
+            // 오른쪽 노트 타이밍 계산
+            if(musicCreater.getRightTimer(RightTimerIndex) >= cuurentMediaPlayer.getCurrentPosition()){
+                // GameNote 생성
+                GameNote note = new GameNote(arSceneView, this, true);
+                RightTimerIndex++;
+            }
         }
     }
 
     // 노드 생성 시작 (일정 시간 뒤에 생성되는 걸로)
     public void GameStart(){
+        cuurentMediaPlayer = musicUi.getCurrentMediaPlayer();
+
         if(cuurentMediaPlayer == null){
             Log.e("ERROR: ", "currentMediaPlayer is null");
             return;
         }
 
-        cuurentMediaPlayer = musicUi.getCurrentMediaPlayer();
         musicIndex = musicUi.getCurrentMediaPlayerIndex();
-        TimerIndex = 0;
+        LeftTimerIndex = 0;
+        RightTimerIndex = 0;
         isPlaying = true;
         musicCreater = new NoteCreateTimer(NOTETIMER[musicIndex], SPEED, SCALE, SCORE);
         SetPosition();
@@ -150,7 +183,8 @@ public class GameSystem extends AnchorNode {
     // 게임 정지
     public void GameStop(){
         isPlaying = false;
-        TimerIndex = 0;
+        LeftTimerIndex = 0;
+        RightTimerIndex = 0;
         musicCreater = null;
     }
 
@@ -160,16 +194,14 @@ public class GameSystem extends AnchorNode {
     }
 
     // Game System(this)의 위치 조정
-    public void SetPosition(){
-        float azim = orientation[0];
-        float pitch = orientation[1];
-        float roll = orientation[2];
+    public Vector3[] SetPosition(){
+
 
         Camera camera = arSceneView.getScene().getCamera();
 
         Vector3 cameraPos = camera.getWorldPosition(); // 카메라 위치 받아옴
         Vector3 forward = camera.getForward(); // 핸드폰 앞 벡터 받아옴
-        Vector3 up = getUpVector(azim, pitch, roll); // up Vector를 받아옴
+        Vector3 up = getUpVector(); // up Vector를 받아옴
 
         // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
         Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
@@ -178,18 +210,45 @@ public class GameSystem extends AnchorNode {
 
         this.setWorldPosition(position); // 위치 설정
 
-        SetNotePosition(up, systemPos);
+        return SetNotePosition(up, systemPos);
     }
 
     // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
     public Vector3[] SetNotePosition(Vector3 up, Vector3 pos){
-        //Vector3 dirVec = new Vector3( , pos.z * up.x - pos.x * up.z, pos.x * up.y - pos.y * up.x);
+        Vector3 dirVec = new Vector3( pos.y * up.z - pos.z * up.y, pos.z * up.x - pos.x * up.z, pos.x * up.y - pos.y * up.x).normalized().scaled(INTERVAL/2);
 
-        return null;
+        if(Vector3.equals(Vector3.cross(up, pos).normalized(), dirVec.normalized())){ // dirVec이 왼쪽을 가르키는 벡터라면
+            Log.i("Debug Log: ", "Vector is Left");
+        }
+        else{ // 오른쪽을 가르키는 벡터라면
+            dirVec = dirVec.negated();
+            Log.i("Debug Log: ", "Vector is Right");
+        }
+
+        Vector3[] noteVector = new Vector3[2];
+
+        // LocalPosition으로 return
+        noteVector[0] = dirVec;
+        noteVector[1] = dirVec.negated();
+
+        return noteVector;
+        /*
+        noteVector[0] = Vector3.add(pos, dirVec); // 왼쪽 노트 생성 위치 벡터
+        noteVector[1] = Vector3.add(pos, dirVec.negated()); // 오른쪽 노트 생성 위치 벡터
+
+        return noteVector;
+         * WorldPosition으로 return할 때
+         */
     }
 
-    public Vector3 getUpVector(float azim, float pitch, float roll){
+    public Vector3 getUpVector(){
         // up Vector 구하기
+        float azim = orientation[0];
+        float pitch = orientation[1];
+        float roll = orientation[2];
+
+        Log.i("orientation Debug: ", "azim: "+azim+", pitch: "+pitch+", roll: "+roll);
+
         Vector3 xUnitVec;
         Vector3 yUnitVec;
         Vector3 zUnitVec;
