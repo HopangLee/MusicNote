@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity
     private float mCurrentAzim = 0f; // 방위각
     private float mCurrentPitch = 0f; // 피치
     private float mCurrentRoll = 0f; // 롤
+    private float[] mOrientation = new float[3];
 
     // 음악 노트
     private int[] timerArray =
@@ -519,6 +520,14 @@ public class MainActivity extends AppCompatActivity
             mCurrentAzim = orientation[0]; // 방위각 (라디안)
             mCurrentPitch = orientation[1]; // 피치
             mCurrentRoll = orientation[2]; // 롤
+
+            mOrientation = orientation;
+
+            /*
+            mOrientation[0] = mCurrentAzim;
+            mOrientation[1] = mCurrentPitch;
+            mOrientation[2] = mCurrentRoll;
+            */
         }
     }
 
