@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity
     private float mCurrentAzim = 0f; // 방위각
     private float mCurrentPitch = 0f; // 피치
     private float mCurrentRoll = 0f; // 롤
-    private float[] mOrientation = new float[3];
 
     // 음악 노트
     private int[] timerArray =
@@ -143,7 +142,8 @@ public class MainActivity extends AppCompatActivity
     private ScalableLayout musicUi;
     private ImageView album;
 
-
+    // 게임 관련
+    private GameSystem gameSystem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,6 +196,18 @@ public class MainActivity extends AppCompatActivity
         );
         addContentView(ll, paramll);
 
+        // 게임 ui 관련
+        // 레이아웃을 위에 겹쳐서 올리는 부분
+        LayoutInflater ginflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // 레이아웃 객체 생성
+        LinearLayout gll = (LinearLayout) ginflater.inflate(R.layout.game_ui, null);
+        // 레이아웃 배경 투명도 주기
+        gll.setBackgroundColor(Color.parseColor("#00000000"));
+        // 레이아웃 위에 겹치기
+        LinearLayout.LayoutParams gparamll = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        addContentView(gll, gparamll);
 
         // 음악 관련 세팅
         musicUi = (ScalableLayout) findViewById(R.id.musicUi);
@@ -291,7 +303,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musicnote)
+                .setSource(this, R.raw.nintendo)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -301,7 +313,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musicnote)
+                .setSource(this, R.raw.nintendo)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -311,7 +323,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musicnote)
+                .setSource(this, R.raw.nintendo)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -520,14 +532,6 @@ public class MainActivity extends AppCompatActivity
             mCurrentAzim = orientation[0]; // 방위각 (라디안)
             mCurrentPitch = orientation[1]; // 피치
             mCurrentRoll = orientation[2]; // 롤
-
-            mOrientation = orientation;
-
-            /*
-            mOrientation[0] = mCurrentAzim;
-            mOrientation[1] = mCurrentPitch;
-            mOrientation[2] = mCurrentRoll;
-            */
         }
     }
 
@@ -581,7 +585,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        if(logoAnchor != null && mAnchorNode[0] != null && mAnchorNode[1] != null && mAnchorNode[2] != null){
+        if(gameSystem != null && logoAnchor != null && mAnchorNode[0] != null && mAnchorNode[1] != null && mAnchorNode[2] != null){
             return;
         }
 
@@ -632,6 +636,13 @@ public class MainActivity extends AppCompatActivity
         // BOF 로고 오브젝트 생성
         if(logoAnchor == null){
             createLogo();
+        }
+
+        if(gameSystem == null) {
+            // 게임 시스템 생성
+            gameSystem = new GameSystem(this, arSceneView, musicUiclass, findViewById(R.id.score));
+            musicUiclass.setGameSystem(gameSystem);
+            Log.i("GameSystem create: ", "true");
         }
     }
 
@@ -716,7 +727,7 @@ public class MainActivity extends AppCompatActivity
 
         Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
-        BofLogo bofLogo = new BofLogo(logoAnchor, bofLogoRenderable, arSceneView, up);
+        BofLogo bofLogo = new BofLogo(logoAnchor, bofLogoRenderable, arSceneView);
 
         Snackbar.make(mLayout, "로고 오브젝트 생성 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
     }
@@ -814,7 +825,7 @@ public class MainActivity extends AppCompatActivity
         Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
-                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView, up);
+                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView);
         music(albumNode, i);
 
         int index = albumNode.getIndex();
@@ -832,6 +843,10 @@ public class MainActivity extends AppCompatActivity
         Context c = this;
 
         albumNode.setOnTapListener((v, event) -> {
+            // 디버깅용 터치하면 사라지게
+            //mAnchorNode[i].removeChild(albumNode);
+            //albumNode.setParent(null);
+
             /* gps를 이용한 거리
             float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
             float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;

@@ -27,25 +27,24 @@ public class AlbumNode extends Node {
     private int index = 0; // timerArray의 index
     private MediaPlayer mediaPlayer;
     private ArSceneView arSceneView;
-    private Vector3 up;
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
               int[] timerArray, ModelRenderable[] musicNotes,
-              MediaPlayer mediaPlayer, ArSceneView arSceneView,
-              Vector3 up){
+              MediaPlayer mediaPlayer, ArSceneView arSceneView){
         this.setRenderable(albumModel);
-        this.setLocalScale(new Vector3(1f, 1f, 1f));
+        this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+        this.setLocalPosition(this.getUp().scaled(-2f)); // 스위치로 바꾸는 과정에서 이렇게함
         this.setParent(parent);
         this.parent = parent;
         this.timerArray = timerArray;
         this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
-        this.up = up;
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
-        Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
+        Vector3 objToCam = Vector3.subtract(cameraPos, objPos);
+        Vector3 up = this.getUp();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
     }
@@ -66,13 +65,11 @@ public class AlbumNode extends Node {
                 Random rand = new Random();
                 int i = rand.nextInt(musicNotes.length);
 
-                MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos, up);
+                //MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos);
 
                 index++;
             }
         }
-
-
 
         Vector3 v = Vector3.subtract(cameraPos, this.getWorldPosition());
         float distance = (float)Math.sqrt(Vector3.dot(v, v));

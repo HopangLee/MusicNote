@@ -25,7 +25,7 @@ public class MusicNote extends Node {
     final float MAXSCALE = 0.4f;
     private AnchorNode parent;
 //아
-    MusicNote(AnchorNode parent, ModelRenderable modelRenderable, Vector3 cameraPos, Vector3 up){
+    MusicNote(AnchorNode parent, ModelRenderable modelRenderable, Vector3 cameraPos){
         this.setRenderable(modelRenderable);
         this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         this.setParent(parent);
@@ -39,6 +39,7 @@ public class MusicNote extends Node {
 
         Vector3 objPos = this.getWorldPosition();
         Vector3 objToCamera = Vector3.subtract(cameraPos, objPos).normalized();
+        Vector3 up = this.getUp();
 
         float theta = rand.nextFloat() * (float)Math.PI * 2; // 0 ~ 2pi
         float pi = rand.nextFloat() * (float)Math.PI/2; // 0 ~ pi/2

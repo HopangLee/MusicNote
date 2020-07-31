@@ -12,8 +12,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 
 public class BofLogo extends Node {
     BofLogo(AnchorNode parent, ModelRenderable bofLogoModel,
-            ArSceneView arSceneView,
-            Vector3 up){
+            ArSceneView arSceneView){
         this.setRenderable(bofLogoModel);
         this.setLocalScale(new Vector3(1f, 1f, 1f));
         this.setParent(parent);
@@ -21,6 +20,8 @@ public class BofLogo extends Node {
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
+        Vector3 up = this.getUp();
+
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
     }

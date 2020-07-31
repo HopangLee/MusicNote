@@ -30,8 +30,8 @@ public class MusicUi{
     List<MediaPlayer> mediaPlayers = new ArrayList<>(3);
 
     private final Activity mActivity;
+    private GameSystem gameSystem;
 
-    // 해야할일: MediaPlayer도 MusicUi.java로 옮기기
     MusicUi(Activity mActivity, Context context, ProgressBar musicBar, TextView titleText, ImageView playBtn, ImageView album){
         this.musicBar = musicBar;
         this.titleText = titleText;
@@ -43,6 +43,10 @@ public class MusicUi{
         }
 
         this.mActivity = mActivity;
+    }
+
+    public void setGameSystem(GameSystem gameSystem){
+        this.gameSystem = gameSystem;
     }
 
     public void setMediaPlayer(int number){
@@ -62,6 +66,7 @@ public class MusicUi{
     public void musicPlay(){
         if(currentMediaPlayer != null) {
             currentMediaPlayer.start();
+            gameSystem.GameStart();
             playBtn.setImageResource(android.R.drawable.ic_media_pause);
 
             Thread musicThread = new Thread(new Runnable() {
@@ -92,6 +97,7 @@ public class MusicUi{
     public void musicPause(){
         if(currentMediaPlayer != null) {
             currentMediaPlayer.pause();
+            gameSystem.GamePause();
             playBtn.setImageResource(android.R.drawable.ic_media_play);
         }
     }
@@ -100,6 +106,7 @@ public class MusicUi{
         if(currentMediaPlayer != null) {
             currentMediaPlayer.pause();
             currentMediaPlayer.seekTo(0);
+            gameSystem.GameStop();
             playBtn.setImageResource(android.R.drawable.ic_media_play);
             musicBar.setProgress(0);
         }
