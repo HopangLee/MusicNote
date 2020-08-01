@@ -12,9 +12,14 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+
+import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
 
 // 리듬 노드를 생성하는 GameSystem(Anchor node)
 public class GameSystem extends AnchorNode {
@@ -83,8 +88,8 @@ public class GameSystem extends AnchorNode {
     int currentScore = 0; // 현재까지 얻은 점수
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
-    final int DELAY = 300; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
-    final float SPEED = DISTANCE * 100 / DELAY; // 노트의 이동 속도(m/s)
+    final int DELAY = 2000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
+    final float SPEED = (DISTANCE - 2) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
     final float SCALE = 1f;
     final int SCORE = 50;
@@ -95,6 +100,7 @@ public class GameSystem extends AnchorNode {
 
     ModelRenderable noteRenderable;
     ModelRenderable albumRenderable;
+    ModelRenderable lineRenderable;
     Context context;
 
     // 곡 노트 타이밍 (왼쪽, 오른쪽) (ms) => [곡 인덱스][왼쪽, 오른쪽][노트 index] = 타이머
@@ -146,6 +152,13 @@ public class GameSystem extends AnchorNode {
               102000, 104000, 106000, 108000, 110000, 112000, 114000, 116000, 118000, 120000}}, // 오른쪽 노트
     };
 
+    // 딜레이 고려
+    private Timer timer;
+    private TimerTask timerTask;
+    private int time = 0;
+
+    private Node line;
+
     GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView){
         // Setting
         this.context = context;
@@ -188,7 +201,7 @@ public class GameSystem extends AnchorNode {
             }
 
             // 왼쪽 노트 타이밍 계산
-            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= currentMediaPlayer.getCurrentPosition()){
+            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= time){
                 // GameNote 생성
                 GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, false);
 
@@ -196,13 +209,29 @@ public class GameSystem extends AnchorNode {
             }
 
             // 오른쪽 노트 타이밍 계산
-            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= currentMediaPlayer.getCurrentPosition()){
+            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= time){
                 // GameNote 생성
                 GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, true);
 
                 RightTimerIndex++;
             }
-            Log.i("GameUpdate: ", currentMediaPlayer.getCurrentPosition()+ "ms");
+
+            /*
+            // 왼쪽 노트 타이밍 계산
+            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= currentMediaPlayer.getCurrentPosition() - DELAY){
+                // GameNote 생성
+                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, false);
+
+                LeftTimerIndex++;
+            }
+
+            // 오른쪽 노트 타이밍 계산
+            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= currentMediaPlayer.getCurrentPosition() - DELAY){
+                // GameNote 생성
+                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, true);
+
+                RightTimerIndex++;
+            }*/
         }
     }
 
@@ -224,7 +253,18 @@ public class GameSystem extends AnchorNode {
 
         currentScore = 0;
 
-        Log.i("GameStart: ", "true");
+        createLine();
+
+        time = 0;
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                time += 50; // 0.05초
+            }
+        };
+
+        timer.schedule(timerTask, 50, 50); // 시간 재기
     }
 
     // 게임 정지
@@ -234,11 +274,18 @@ public class GameSystem extends AnchorNode {
         RightTimerIndex = 0;
         currentScore = 0;
         musicCreater = null;
+        timer.cancel();
+        time = 0;
+
+        removeLine();
     }
 
     // 게임 일시 정지
     public void GamePause(){
         isPlaying = !isPlaying;
+        timer.cancel();
+
+        removeLine();
     }
 
     // Game System(this)의 위치 조정
@@ -283,7 +330,7 @@ public class GameSystem extends AnchorNode {
         noteVector[1] = dirVec.negated();
 
         if(isRight){
-            return noteVector[1].scaled(0.5f);
+            return noteVector[1].scaled(0.4f);
         }
         else{
             return noteVector[0].scaled(1.5f);
@@ -293,6 +340,11 @@ public class GameSystem extends AnchorNode {
     public void getScore(int score){
         currentScore += score;
         textView.setText(Integer.toString(currentScore));
+        Log.i("Time: ", currentMediaPlayer.getCurrentPosition()+"ms, "+"Time: "+time);
+    }
+
+    public int getDELAY(){
+        return DELAY;
     }
 
     public void setUpModel(){
@@ -313,5 +365,45 @@ public class GameSystem extends AnchorNode {
                             return null;
                         }
                 );
+
+        ModelRenderable.builder()
+                .setSource(context, R.raw.line)
+                .build().thenAccept(renderable -> lineRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+    }
+
+    public void createLine(){
+        line = new Node();
+        line.setParent(this);
+        line.setLocalScale(new Vector3(0.2f, 0.2f, 0.2f));
+        line.setRenderable(lineRenderable);
+
+        Camera camera = arSceneView.getScene().getCamera();
+
+        Vector3 cameraPos = camera.getWorldPosition(); // 카메라 위치 받아옴
+        Vector3 forward = camera.getForward(); // 핸드폰 앞 벡터 받아옴
+        Vector3 up = line.getUp().normalized(); // 이걸로 해도 되는지 모르겠음 => 잘되네?
+
+        // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
+        Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
+        Vector3 systemPos = Vector3.subtract(forward, upValue).normalized().scaled(5f);
+        Vector3 position = Vector3.add(cameraPos, systemPos);
+        position = Vector3.add(position, line.getUp().scaled(-3.5f));
+
+        line.setWorldPosition(position);
+
+        Vector3 objPos = line.getWorldPosition();
+        Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
+        Quaternion direction = Quaternion.lookRotation(objToCam, up);
+        line.setWorldRotation(direction);
+    }
+
+    public void removeLine(){
+        this.removeChild(line);
+        line.setParent(null);
     }
 }

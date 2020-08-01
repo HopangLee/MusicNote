@@ -14,6 +14,8 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -31,6 +33,8 @@ public class MusicUi{
 
     private final Activity mActivity;
     private GameSystem gameSystem;
+    private Timer mTimer;
+    private TimerTask mTask;
 
     MusicUi(Activity mActivity, Context context, ProgressBar musicBar, TextView titleText, ImageView playBtn, ImageView album){
         this.musicBar = musicBar;
@@ -65,8 +69,17 @@ public class MusicUi{
 
     public void musicPlay(){
         if(currentMediaPlayer != null) {
-            currentMediaPlayer.start();
+            //currentMediaPlayer.start();
             gameSystem.GameStart();
+            mTimer = new Timer();
+            mTask = new TimerTask() {
+                @Override
+                public void run() {
+                    currentMediaPlayer.start();
+                }
+            };
+            mTimer.schedule(mTask, gameSystem.getDELAY());
+
             playBtn.setImageResource(android.R.drawable.ic_media_pause);
 
             Thread musicThread = new Thread(new Runnable() {
@@ -86,7 +99,6 @@ public class MusicUi{
                             }
                         });
                     }
-                    //musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
                 }
 
             });
@@ -96,6 +108,7 @@ public class MusicUi{
 
     public void musicPause(){
         if(currentMediaPlayer != null) {
+            mTimer.cancel();
             currentMediaPlayer.pause();
             gameSystem.GamePause();
             playBtn.setImageResource(android.R.drawable.ic_media_play);
@@ -104,6 +117,7 @@ public class MusicUi{
 
     public void musicStop(){
         if(currentMediaPlayer != null) {
+            mTimer.cancel();
             currentMediaPlayer.pause();
             currentMediaPlayer.seekTo(0);
             gameSystem.GameStop();

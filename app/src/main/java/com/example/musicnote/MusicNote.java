@@ -21,10 +21,10 @@ public class MusicNote extends Node {
     final float AVERAGE = 2f;
     final float MINSPEED = 1f;
     final float MAXSPEED = 3f;
-    final float MINSCALE = 0.15f;
-    final float MAXSCALE = 0.4f;
+    final float MINSCALE = 0.1f;
+    final float MAXSCALE = 0.3f;
     private AnchorNode parent;
-//아
+
     MusicNote(AnchorNode parent, ModelRenderable modelRenderable, Vector3 cameraPos){
         this.setRenderable(modelRenderable);
         this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
@@ -55,7 +55,7 @@ public class MusicNote extends Node {
         this.setWorldRotation(direction);
 
         float scale = MINSCALE + rand.nextFloat() * (MAXSCALE - MINSCALE);
-        this.setLocalPosition(Vector3.one().scaled(scale));
+        this.setLocalScale(Vector3.one().scaled(scale));
 
         //Log.i("cameraPos: ", "<"+cameraPos.x+", "+cameraPos.y+", "+cameraPos.z+">");
 
@@ -73,9 +73,9 @@ public class MusicNote extends Node {
         float deltaTime = frameTime.getDeltaSeconds();
 
         Vector3 moveVec = direction.scaled(speed * deltaTime); // delta 시간 곱해주기
-        Vector3 newVec = Vector3.add(this.getLocalPosition(), moveVec); // 이동 벡터
+        Vector3 newVec = Vector3.add(this.getWorldPosition(), moveVec); // 이동 벡터
 
-        this.setLocalPosition(newVec);
+        this.setWorldPosition(newVec);
 
         // parent로 부터 거리가 20m 이상이 되면 삭제
         Vector3 v = this.getLocalPosition();
