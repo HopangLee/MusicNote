@@ -86,7 +86,6 @@ public class MusicUi{
                             }
                         });
                     }
-                    //musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
                 }
 
             });

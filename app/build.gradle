@@ -65,10 +65,10 @@ sceneform.asset('sampledata/logo/BOF logo fbx.fbx', // 'Source Asset Path' speci
         'sampledata/logo/BOF logo fbx.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/boflogo')              // '.sfb Output Path' specified during import.
 */
-
-sceneform.asset('sampledata/models/switch.fbx', // 'Source Asset Path' specified during import.
+/*
+sceneform.asset('sampledata/models/BlueBlock.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/models/switch.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/nintendo')              // '.sfb Output Path' specified during import.
-
+        'sampledata/models/BlueBlock.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/blueblock')              // '.sfb Output Path' specified during import.
+*/
 

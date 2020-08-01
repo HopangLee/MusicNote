@@ -32,8 +32,13 @@ public class AlbumNode extends Node {
               int[] timerArray, ModelRenderable[] musicNotes,
               MediaPlayer mediaPlayer, ArSceneView arSceneView){
         this.setRenderable(albumModel);
+        /*
         this.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         this.setLocalPosition(this.getUp().scaled(-2f)); // 스위치로 바꾸는 과정에서 이렇게함
+         */
+        this.setLocalScale(new Vector3(1f, 1f, 1f));
+        this.setLocalPosition(this.getUp().scaled(-0.5f));
+
         this.setParent(parent);
         this.parent = parent;
         this.timerArray = timerArray;
@@ -46,13 +51,15 @@ public class AlbumNode extends Node {
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos);
         Vector3 up = this.getUp();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
-        this.setWorldRotation(direction);
+       // this.setWorldRotation(direction);
     }
 
     // 음악을 시작했을 때 돌기 및 거리에 따른 크기 증가 및 시간에 따른 음표 오브젝트 생성
     @Override
     public void onUpdate(FrameTime frameTime) {
         super.onUpdate(frameTime);
+
+        Log.i("distance: ", ""+this.getLocalPosition().x +", "+this.getLocalPosition().y+", "+this.getLocalPosition().z);
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
 
@@ -65,7 +72,7 @@ public class AlbumNode extends Node {
                 Random rand = new Random();
                 int i = rand.nextInt(musicNotes.length);
 
-                //MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos);
+               // MusicNote m = new MusicNote(parent, musicNotes[i], cameraPos);
 
                 index++;
             }

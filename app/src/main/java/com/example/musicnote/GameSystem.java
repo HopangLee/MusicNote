@@ -20,25 +20,21 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 public class GameSystem extends AnchorNode {
     class NoteCreateTimer{
         float speed; // 노트의 움직이는 속도
-        float scale; // 노트의 크기
         int score; // 노트 터치 성공당 점수
         int[] leftTimer; // 왼쪽에서 생성되는 노트의 생성 타이밍
+        int[] middleTimer;
         int[] rightTimer; // 오른쪽에서 생성되는 노트의 생성 타이밍
 
-        NoteCreateTimer(int[][] timer, float speed, float scale, int score){
+        NoteCreateTimer(int[][] timer, float speed, int score){
             this.leftTimer = timer[0];
-            this.rightTimer = timer[1];
+            this.middleTimer = timer[1];
+            this.rightTimer = timer[2];
             this.speed = speed;
-            this.scale = scale;
             this.score = score;
         }
 
         public void setScore(int score){
             this.score = score;
-        }
-
-        public void setScale(float scale){
-            this.scale = scale;
         }
 
         public void setSpeed(float speed){
@@ -47,12 +43,15 @@ public class GameSystem extends AnchorNode {
 
         public void setTimer(int[][] timer){
             this.leftTimer = timer[0];
-            this.rightTimer = timer[1];
+            this.middleTimer = timer[1];
+            this.rightTimer = timer[2];
         }
 
         public int getLeftTimer(int index){
             return leftTimer[index];
         }
+
+        public int getMiddleTimer(int index){ return middleTimer[index]; }
 
         public int getRightTimer(int index){
             return rightTimer[index];
@@ -60,6 +59,10 @@ public class GameSystem extends AnchorNode {
 
         public int getLeftLength(){
             return leftTimer.length;
+        }
+
+        public int getMiddleLength(){
+            return middleTimer.length;
         }
 
         public int getRightLength(){
@@ -77,19 +80,19 @@ public class GameSystem extends AnchorNode {
     MusicUi musicUi; // 현재 나오는 음악 정보(playing중인지) 및 index를 알기 위해
 
     int LeftTimerIndex = 0; // 왼쪽 노트 타이머 index
+    int MiddleTimerIndex = 0;
     int RightTimerIndex = 0; // 오른쪽 노트 타이머 index
     NoteCreateTimer musicCreater = null;
 
     int currentScore = 0; // 현재까지 얻은 점수
 
-    final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
-    final int DELAY = 300; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
-    final float SPEED = DISTANCE * 100 / DELAY; // 노트의 이동 속도(m/s)
-
-    final float SCALE = 1f;
+    final float DISTANCE = 3f; // 3m (얼마나 앞에서 생성되게 할 것인지)
+    final int DELAY = 1000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
+    final float HEIGHT = 2f; // 2m
+    final float SPEED = HEIGHT * 2.5f * 1000 / DELAY; // 노트의 이동 속도(m/s)
     final int SCORE = 50;
 
-    final float INTERVAL = 0.5f; // 0.5m
+    final float INTERVAL = 0.75f; // 0.75m
 
     final TextView textView;
 
@@ -108,6 +111,9 @@ public class GameSystem extends AnchorNode {
               80000, 81000, 83000, 85000, 87000, 89000, 90000, 91000, 93000, 95000, 97000, 99000,
               100000, 101000, 103000, 105000, 107000, 109000, 110000, 111000, 113000, 115000, 117000, 119000,
               120000}, // 왼쪽 노트
+             {00000, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000,
+              50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 95000,
+              100000, 105000, 110000, 115000, 120000}, // 중간 노트
              {2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000,
               22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000,
               42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000,
@@ -123,6 +129,9 @@ public class GameSystem extends AnchorNode {
               80000, 81000, 83000, 85000, 87000, 89000, 90000, 91000, 93000, 95000, 97000, 99000,
               100000, 101000, 103000, 105000, 107000, 109000, 110000, 111000, 113000, 115000, 117000, 119000,
               120000}, // 왼쪽 노트
+             {00000, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000,
+              50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 95000,
+              100000, 105000, 110000, 115000, 120000}, // 중간 노트
              {2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000,
               22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000,
               42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000,
@@ -138,6 +147,9 @@ public class GameSystem extends AnchorNode {
               80000, 81000, 83000, 85000, 87000, 89000, 90000, 91000, 93000, 95000, 97000, 99000,
               100000, 101000, 103000, 105000, 107000, 109000, 110000, 111000, 113000, 115000, 117000, 119000,
               120000}, // 왼쪽 노트
+             {00000, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000,
+              50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 95000,
+              100000, 105000, 110000, 115000, 120000}, // 중간 노트
              {2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000,
               22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000,
               42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000,
@@ -161,8 +173,8 @@ public class GameSystem extends AnchorNode {
         SetPosition();
 
         // 아래 내용: 이래야만 onUpdate작동하는지 확인
-        this.setRenderable(albumRenderable);
-        this.setLocalScale(new Vector3(0.5f, 0.5f , 0.5f));
+        //this.setRenderable(albumRenderable);
+        this.setLocalScale(new Vector3(1f, 1f , 1f));
 
         // 오브젝트 카메라 바라보게 회전
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
@@ -172,7 +184,6 @@ public class GameSystem extends AnchorNode {
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
     }
-
 
     @Override
     public void onUpdate(FrameTime frameTime) {
@@ -190,15 +201,23 @@ public class GameSystem extends AnchorNode {
             // 왼쪽 노트 타이밍 계산
             if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= currentMediaPlayer.getCurrentPosition()){
                 // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, false);
+                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, HEIGHT, SCORE, 0);
 
                 LeftTimerIndex++;
+            }
+
+            // 중간 노트 타이밍 계산
+            if(MiddleTimerIndex < musicCreater.getMiddleLength() && musicCreater.getMiddleTimer(MiddleTimerIndex) <= currentMediaPlayer.getCurrentPosition()){
+                // GameNote 생성
+                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, HEIGHT, SCORE, 1);
+
+                MiddleTimerIndex++;
             }
 
             // 오른쪽 노트 타이밍 계산
             if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= currentMediaPlayer.getCurrentPosition()){
                 // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, true);
+                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, HEIGHT, SCORE, 2);
 
                 RightTimerIndex++;
             }
@@ -217,9 +236,11 @@ public class GameSystem extends AnchorNode {
 
         musicIndex = musicUi.getCurrentMediaPlayerIndex();
         LeftTimerIndex = 0;
+        MiddleTimerIndex = 0;
         RightTimerIndex = 0;
         isPlaying = true;
-        musicCreater = new NoteCreateTimer(NOTETIMER[musicIndex], SPEED, SCALE, SCORE);
+        musicCreater = new NoteCreateTimer(NOTETIMER[musicIndex], SPEED, SCORE);
+
         SetPosition();
 
         currentScore = 0;
@@ -231,6 +252,7 @@ public class GameSystem extends AnchorNode {
     public void GameStop(){
         isPlaying = false;
         LeftTimerIndex = 0;
+        MiddleTimerIndex = 0;
         RightTimerIndex = 0;
         currentScore = 0;
         musicCreater = null;
@@ -247,7 +269,6 @@ public class GameSystem extends AnchorNode {
 
         Vector3 cameraPos = camera.getWorldPosition(); // 카메라 위치 받아옴
         Vector3 forward = camera.getForward(); // 핸드폰 앞 벡터 받아옴
-        //Vector3 up = getUpVector(); // up Vector를 받아옴
         Vector3 up = this.getUp().normalized(); // 이걸로 해도 되는지 모르겠음 => 잘되네?
 
         // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
@@ -262,31 +283,25 @@ public class GameSystem extends AnchorNode {
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
+
+        //position = Vector3.add(position, up.scaled(HEIGHT));
+
+        //position = Vector3.add(position, this.getRight().scaled(0.2275f));
+        //this.setWorldPosition(position); // 위치 설정
     }
 
     // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
-    public Vector3 SetNotePosition(Vector3 up, Vector3 pos, boolean isRight){
-        Vector3 dirVec = new Vector3( pos.y * up.z - pos.z * up.y, pos.z * up.x - pos.x * up.z, pos.x * up.y - pos.y * up.x).normalized().scaled(INTERVAL);
+    public Vector3 SetNotePosition(int position){
 
-        if(Vector3.equals(Vector3.cross(up, pos).normalized(), dirVec.normalized())){ // dirVec이 왼쪽을 가르키는 벡터라면
-            Log.i("Debug Log: ", "Vector is Left");
+        // 테스트 용도 => 이렇게 해도 되는지
+        if(position == 0){ // 왼쪽
+            return this.getLeft().normalized().scaled(INTERVAL);
         }
-        else{ // 오른쪽을 가르키는 벡터라면
-            dirVec = dirVec.negated();
-            Log.i("Debug Log: ", "Vector is Right");
+        else if(position == 1){ // 중간
+            return Vector3.zero();
         }
-
-        Vector3[] noteVector = new Vector3[2];
-
-        // LocalPosition으로 return
-        noteVector[0] = dirVec;
-        noteVector[1] = dirVec.negated();
-
-        if(isRight){
-            return noteVector[1].scaled(0.5f);
-        }
-        else{
-            return noteVector[0].scaled(1.5f);
+        else{ // 오른쪽
+            return this.getRight().normalized().scaled(INTERVAL);
         }
     }
 
