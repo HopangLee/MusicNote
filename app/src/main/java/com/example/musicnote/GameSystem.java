@@ -94,7 +94,7 @@ public class GameSystem extends AnchorNode {
     final float SCALE = 1f;
     final int SCORE = 50;
 
-    final float INTERVAL = 0.5f; // 0.5m
+    final float INTERVAL = 0.75f; // 0.75m
 
     final TextView textView;
 
@@ -190,7 +190,7 @@ public class GameSystem extends AnchorNode {
     public void onUpdate(FrameTime frameTime) {
         super.onUpdate(frameTime);
 
-        time += frameTime.getDeltaSeconds();
+        time += frameTime.getDeltaSeconds() * 1000;
 
         SetPosition(); // Game System의 위치를 핸드폰 앞으로 잡기
         if (isPlaying){
@@ -296,9 +296,9 @@ public class GameSystem extends AnchorNode {
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
-
+        /*
         position = Vector3.add(position, this.getLeft().scaled(0.25f));
-        this.setWorldPosition(position);
+        this.setWorldPosition(position);*/
     }
 
     // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
@@ -329,10 +329,10 @@ public class GameSystem extends AnchorNode {
 
     public Vector3 SetNotePosition(boolean isRight){
         if(isRight){
-            return this.getRight().scaled(INTERVAL);
+            return this.getRight().scaled(INTERVAL/2);
         }
         else{
-            return this.getLeft().scaled(INTERVAL);
+            return this.getLeft().scaled(INTERVAL/2);
         }
     }
 
@@ -397,7 +397,7 @@ public class GameSystem extends AnchorNode {
 
         // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
         Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
-        Vector3 systemPos = Vector3.subtract(forward, upValue).normalized().scaled(5f);
+        Vector3 systemPos = Vector3.subtract(forward, upValue).normalized().scaled(8f);
         Vector3 position = Vector3.add(cameraPos, systemPos);
         position = Vector3.add(position, line.getUp().scaled(-3.5f));
 

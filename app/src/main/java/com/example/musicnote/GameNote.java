@@ -7,6 +7,7 @@ import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.math.Vector3Evaluator;
 import com.google.ar.sceneform.rendering.ModelRenderable;
@@ -28,8 +29,9 @@ public class GameNote extends Node {
         this.score = score;
         this.isRight = isRight;
 
+        this.setLocalRotation(Quaternion.axisAngle(this.getUp(), -90));
         this.setRenderable(noteRenderable);
-        this.setLocalScale(new Vector3(1.2f, 1.2f, 1.2f));
+        this.setLocalScale(new Vector3(1f, 1f, 1f));
         this.setParent(gameSystem);
 
         Vector3 up = this.getUp().normalized();
@@ -82,9 +84,8 @@ public class GameNote extends Node {
         Camera camera = arSceneView.getScene().getCamera();
 
         Vector3 up = this.getUp().normalized();
-        Vector3 camerPos = camera.getWorldPosition();
+        Vector3 cameraPos = camera.getWorldPosition();
         Vector3 parentPos = gameSystem.getWorldPosition();
-        Vector3 pos = Vector3.subtract(parentPos, camerPos);
         Vector3 localPos = gameSystem.SetNotePosition(isRight);
 
         Vector3 forward = camera.getForward();
@@ -101,18 +102,16 @@ public class GameNote extends Node {
 
         Vector3 movePos = Vector3.add(gameSystem.getWorldPosition(), Vector3.add(direction, localPos));
 
-        movePos = Vector3.add(movePos, up.scaled(-1.25f)); // 아래로 좀 내리기
+        movePos = Vector3.add(movePos, up.scaled(-0.5f)); // 아래로 좀 내리기
 
         this.setWorldPosition(movePos);
-
-        //this.setWorldPosition(Vector3.add(camerPos, forward.scaled(3f)));
     }
 
     public void getScore(){
         // 일정 거리보다 가깝다면
-        if(limitDistance - 4f <= distance && distance <= limitDistance) { // 일단 타격 인정 범위
+        if(limitDistance - 4.5f <= distance && distance <= limitDistance - 0.5f) { // 일단 타격 인정 범위
             removeNote();
-            if(limitDistance - 2.5f <= distance && distance <= limitDistance - 1.5f) {
+            if(limitDistance - 3.5f <= distance && distance <= limitDistance - 1.5f) {
                 gameSystem.getScore(score * 2);
             }
             else{
