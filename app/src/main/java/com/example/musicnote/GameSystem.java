@@ -98,7 +98,8 @@ public class GameSystem extends AnchorNode {
 
     final TextView textView;
 
-    ModelRenderable noteRenderable;
+    ModelRenderable blueRenderable;
+    ModelRenderable redRenderable;
     ModelRenderable albumRenderable;
     ModelRenderable lineRenderable;
     Context context;
@@ -153,9 +154,7 @@ public class GameSystem extends AnchorNode {
     };
 
     // 딜레이 고려
-    private Timer timer;
-    private TimerTask timerTask;
-    private int time = 0;
+    private float time = 0;
 
     private Node line;
 
@@ -191,8 +190,9 @@ public class GameSystem extends AnchorNode {
     public void onUpdate(FrameTime frameTime) {
         super.onUpdate(frameTime);
 
-        SetPosition(); // Game System의 위치를 핸드폰 앞으로 잡기
+        time += frameTime.getDeltaSeconds();
 
+        SetPosition(); // Game System의 위치를 핸드폰 앞으로 잡기
         if (isPlaying){
 
             if(currentMediaPlayer == null){
@@ -201,17 +201,17 @@ public class GameSystem extends AnchorNode {
             }
 
             // 왼쪽 노트 타이밍 계산
-            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= time){
+            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) < time){
                 // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, false);
+                GameNote note = new GameNote(arSceneView, this, redRenderable, SPEED, DISTANCE, SCORE, false);
 
                 LeftTimerIndex++;
             }
 
             // 오른쪽 노트 타이밍 계산
-            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= time){
+            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) < time){
                 // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, true);
+                GameNote note = new GameNote(arSceneView, this, blueRenderable, SPEED, DISTANCE, SCORE, true);
 
                 RightTimerIndex++;
             }
@@ -256,15 +256,6 @@ public class GameSystem extends AnchorNode {
         createLine();
 
         time = 0;
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                time += 50; // 0.05초
-            }
-        };
-
-        timer.schedule(timerTask, 50, 50); // 시간 재기
     }
 
     // 게임 정지
@@ -274,7 +265,6 @@ public class GameSystem extends AnchorNode {
         RightTimerIndex = 0;
         currentScore = 0;
         musicCreater = null;
-        timer.cancel();
         time = 0;
 
         removeLine();
@@ -283,8 +273,6 @@ public class GameSystem extends AnchorNode {
     // 게임 일시 정지
     public void GamePause(){
         isPlaying = !isPlaying;
-        timer.cancel();
-
         removeLine();
     }
 
@@ -308,11 +296,13 @@ public class GameSystem extends AnchorNode {
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
+
+        position = Vector3.add(position, this.getLeft().scaled(0.25f));
+        this.setWorldPosition(position);
     }
 
     // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
-    public Vector3 SetNotePosition(Vector3 up, Vector3 pos, boolean isRight){
-    /*
+    public Vector3 SetNotePosition(Vector3 up, Vector3 pos, boolean isRight){ // 안쓰는거
         Vector3 dirVec = new Vector3( pos.y * up.z - pos.z * up.y, pos.z * up.x - pos.x * up.z, pos.x * up.y - pos.y * up.x).normalized().scaled(INTERVAL);
 
         if(Vector3.equals(Vector3.cross(up, pos).normalized(), dirVec.normalized())){ // dirVec이 왼쪽을 가르키는 벡터라면
@@ -335,13 +325,14 @@ public class GameSystem extends AnchorNode {
         else{
             return noteVector[0].scaled(1.5f);
         }
-        */
+    }
 
+    public Vector3 SetNotePosition(boolean isRight){
         if(isRight){
-            return this.getRight().scaled(INTERVAL * 1f * 0.4f);
+            return this.getRight().scaled(INTERVAL);
         }
         else{
-            return this.getLeft().scaled(INTERVAL * 3.1f * 0.4f);
+            return this.getLeft().scaled(INTERVAL);
         }
     }
 
@@ -357,8 +348,16 @@ public class GameSystem extends AnchorNode {
 
     public void setUpModel(){
         ModelRenderable.builder()
-                .setSource(context, R.raw.musicnote)
-                .build().thenAccept(renderable -> noteRenderable = renderable)
+                .setSource(context, R.raw.blueblock)
+                .build().thenAccept(renderable -> blueRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+        ModelRenderable.builder()
+                .setSource(context, R.raw.redblock)
+                .build().thenAccept(renderable -> redRenderable = renderable)
                 .exceptionally(
                         throwable -> {
                             return null;

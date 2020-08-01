@@ -36,7 +36,7 @@ public class GameNote extends Node {
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 parentPos = gameSystem.getWorldPosition();
         Vector3 pos = Vector3.subtract(parentPos, cameraPos);
-        Vector3 localPos = gameSystem.SetNotePosition(up, pos, isRight);
+        Vector3 localPos = gameSystem.SetNotePosition(isRight);
 
         this.setLocalPosition(localPos);
 
@@ -85,7 +85,7 @@ public class GameNote extends Node {
         Vector3 camerPos = camera.getWorldPosition();
         Vector3 parentPos = gameSystem.getWorldPosition();
         Vector3 pos = Vector3.subtract(parentPos, camerPos);
-        Vector3 localPos = gameSystem.SetNotePosition(up, pos, isRight);
+        Vector3 localPos = gameSystem.SetNotePosition(isRight);
 
         Vector3 forward = camera.getForward();
         Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
