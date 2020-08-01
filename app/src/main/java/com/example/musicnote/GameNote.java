@@ -29,7 +29,7 @@ public class GameNote extends Node {
         this.isRight = isRight;
 
         this.setRenderable(noteRenderable);
-        this.setLocalScale(new Vector3(1.7f, 1.7f, 1.7f));
+        this.setLocalScale(new Vector3(1.2f, 1.2f, 1.2f));
         this.setParent(gameSystem);
 
         Vector3 up = this.getUp().normalized();

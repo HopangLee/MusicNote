@@ -294,7 +294,6 @@ public class GameSystem extends AnchorNode {
 
         Vector3 cameraPos = camera.getWorldPosition(); // 카메라 위치 받아옴
         Vector3 forward = camera.getForward(); // 핸드폰 앞 벡터 받아옴
-        //Vector3 up = getUpVector(); // up Vector를 받아옴
         Vector3 up = this.getUp().normalized(); // 이걸로 해도 되는지 모르겠음 => 잘되네?
 
         // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
@@ -313,6 +312,7 @@ public class GameSystem extends AnchorNode {
 
     // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
     public Vector3 SetNotePosition(Vector3 up, Vector3 pos, boolean isRight){
+    /*
         Vector3 dirVec = new Vector3( pos.y * up.z - pos.z * up.y, pos.z * up.x - pos.x * up.z, pos.x * up.y - pos.y * up.x).normalized().scaled(INTERVAL);
 
         if(Vector3.equals(Vector3.cross(up, pos).normalized(), dirVec.normalized())){ // dirVec이 왼쪽을 가르키는 벡터라면
@@ -334,6 +334,14 @@ public class GameSystem extends AnchorNode {
         }
         else{
             return noteVector[0].scaled(1.5f);
+        }
+        */
+
+        if(isRight){
+            return this.getRight().scaled(INTERVAL * 1f * 0.4f);
+        }
+        else{
+            return this.getLeft().scaled(INTERVAL * 3.1f * 0.4f);
         }
     }
 
