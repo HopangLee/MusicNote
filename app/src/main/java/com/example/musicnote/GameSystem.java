@@ -89,19 +89,22 @@ public class GameSystem extends AnchorNode {
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
     final int DELAY = 2000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
-    final float SPEED = (DISTANCE - 2) * 1000 / DELAY; // 노트의 이동 속도(m/s)
+    final float ZONEDISTANCE = 2.5f; // 퍼펙트 존 거리
+    final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
-    final float SCALE = 1f;
+    final float SCALE = 0.75f;
     final int SCORE = 50;
 
-    final float INTERVAL = 0.75f; // 0.75m
+    final float INTERVAL = 0.65f; // 0.65m
 
     final TextView textView;
 
     ModelRenderable blueRenderable;
     ModelRenderable redRenderable;
     ModelRenderable albumRenderable;
+
     ModelRenderable lineRenderable;
+
     Context context;
 
     // 곡 노트 타이밍 (왼쪽, 오른쪽) (ms) => [곡 인덱스][왼쪽, 오른쪽][노트 index] = 타이머
@@ -166,7 +169,6 @@ public class GameSystem extends AnchorNode {
         this.textView = textView;
 
         // Create an ARCore Anchor at the position.
-
         this.setParent(arSceneView.getScene());
 
         setUpModel();
@@ -253,7 +255,7 @@ public class GameSystem extends AnchorNode {
 
         currentScore = 0;
 
-        createLine();
+        //createLine();
 
         time = 0;
     }
@@ -267,13 +269,13 @@ public class GameSystem extends AnchorNode {
         musicCreater = null;
         time = 0;
 
-        removeLine();
+        //removeLine();
     }
 
     // 게임 일시 정지
     public void GamePause(){
         isPlaying = !isPlaying;
-        removeLine();
+        //removeLine();
     }
 
     // Game System(this)의 위치 조정
@@ -409,8 +411,18 @@ public class GameSystem extends AnchorNode {
         line.setWorldRotation(direction);
     }
 
+
     public void removeLine(){
         this.removeChild(line);
         line.setParent(null);
+    }
+
+
+    public float getSCALE(){
+        return SCALE;
+    }
+
+    public float getZONEDISTANCE(){
+        return ZONEDISTANCE;
     }
 }

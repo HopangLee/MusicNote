@@ -59,10 +59,18 @@ dependencies {
 apply plugin: 'com.google.ar.sceneform.plugin'
 
 
-
-sceneform.asset('sampledata/models/CUPIC_ROAD.obj', // 'Source Asset Path' specified during import.
+/*
+sceneform.asset('sampledata/models/blueBlock_sliced.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/models/CUPIC_ROAD.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/line')              // '.sfb Output Path' specified during import.
-
+        'sampledata/models/blueBlock_sliced.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/blueblock_sliced')              // '.sfb Output Path' specified during import.
+sceneform.asset('sampledata/models/BlueBlock.fbx', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/models/BlueBlock.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/blueblock2')              // '.sfb Output Path' specified during import.
+sceneform.asset('sampledata/models/RedBlock.fbx', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/models/RedBlock.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/redblock2')              // '.sfb Output Path' specified during import.
+*/
 

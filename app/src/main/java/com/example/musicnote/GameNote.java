@@ -1,5 +1,6 @@
 package com.example.musicnote;
 
+import android.media.MediaPlayer;
 import android.util.Log;
 
 import com.google.ar.sceneform.AnchorNode;
@@ -21,6 +22,8 @@ public class GameNote extends Node {
     float limitDistance; // 생성될 때 카메라에서 떨어진 거리
     int score;
 
+    MediaPlayer effectSound;
+
     GameNote(ArSceneView arSceneView, GameSystem gameSystem, ModelRenderable noteRenderable, float speed, float distance, int score, boolean isRight){
         this.arSceneView = arSceneView;
         this.gameSystem = gameSystem;
@@ -29,9 +32,11 @@ public class GameNote extends Node {
         this.score = score;
         this.isRight = isRight;
 
+        effectSound = MediaPlayer.create(gameSystem.context, R.raw.ui_menu_button_click_19);
+
         this.setLocalRotation(Quaternion.axisAngle(this.getUp(), -90));
         this.setRenderable(noteRenderable);
-        this.setLocalScale(new Vector3(1f, 1f, 1f));
+        this.setLocalScale(Vector3.one().scaled(gameSystem.getSCALE()));
         this.setParent(gameSystem);
 
         Vector3 up = this.getUp().normalized();
@@ -109,9 +114,13 @@ public class GameNote extends Node {
 
     public void getScore(){
         // 일정 거리보다 가깝다면
-        if(limitDistance - 4.5f <= distance && distance <= limitDistance - 0.5f) { // 일단 타격 인정 범위
+        float perfectLine = gameSystem.getZONEDISTANCE();
+
+        if(limitDistance - (perfectLine + 1.5f) <= distance && distance <= limitDistance - (perfectLine - 1.5f)) { // 일단 타격 인정 범위
+            effectSound.start();
             removeNote();
-            if(limitDistance - 3.5f <= distance && distance <= limitDistance - 1.5f) {
+            if(limitDistance - (perfectLine + 0.5f) <= distance &&
+                    distance <= limitDistance - (perfectLine - 0.5f)) {
                 gameSystem.getScore(score * 2);
             }
             else{
