@@ -23,7 +23,7 @@
         android:layout_alignParentBottom="true"
         app:scale_base_height="220"
         app:scale_base_width="1000"
-        android:visibility="gone"
+
         tools:ignore="MissingPrefix">
 
         <ImageView
@@ -67,10 +67,10 @@
             android:text="Title"
             android:textAlignment="textStart"
             android:textColor="#FFFFFF"
-            app:scale_height="120"
+            app:scale_height="100"
             app:scale_left="250"
             app:scale_textsize="48"
-            app:scale_top="100"
+            app:scale_top="115"
             app:scale_width="570" />
 
         <ImageView

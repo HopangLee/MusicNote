@@ -1,7 +1,12 @@
 package com.example.musicnote;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.view.View;
 
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
@@ -133,4 +138,23 @@ public class GameNote extends Node {
         gameSystem.removeChild(this);
         this.setParent(null);
     }
+
+/*
+    private static class MyGraphicView extends View {
+
+        public MyGraphicView(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas){
+            super.onDraw(canvas);
+            Bitmap picture = BitmapFactory.decodeResource(getResources(), R.drawable.target);
+            int picX = picture.getWidth()/2;
+            int picY = picture.getHeight()/2;
+            canvas.drawBitmap(picture, picX, picY, null);
+            picture.recycle();
+        }
+    }
+*/
 }
