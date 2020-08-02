@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity
         uiSettings.setLogoGravity(Gravity.LEFT | Gravity.BOTTOM);
         uiSettings.setLogoMargin(0, 0, 0, -5);
 
-        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
+        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(14);
         mNaverMap.moveCamera(cameraUpdate);
         mNaverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
         mNaverMap.setLiteModeEnabled(true);

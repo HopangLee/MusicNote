@@ -95,7 +95,7 @@ public class GameSystem extends AnchorNode {
     final float SCALE = 0.75f;
     final int SCORE = 50;
 
-    final float INTERVAL = 0.65f; // 0.65m
+    final float INTERVAL = 0.5f; // 0.5m
 
     final TextView textView;
 
