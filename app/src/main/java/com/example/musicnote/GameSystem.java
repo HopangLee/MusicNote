@@ -3,16 +3,25 @@ package com.example.musicnote;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.view.DragEvent;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
+import com.google.ar.core.HitResult;
 import com.google.ar.core.Pose;
+import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.Scene;
+import com.google.ar.sceneform.collision.Ray;
+import com.google.ar.sceneform.collision.RayHit;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
@@ -22,7 +31,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 // 리듬 노드를 생성하는 GameSystem(Anchor node)
-public class GameSystem extends AnchorNode {
+public class GameSystem extends AnchorNode{
+
     class NoteCreateTimer{
         float speed; // 노트의 움직이는 속도
         float scale; // 노트의 크기
@@ -89,13 +99,13 @@ public class GameSystem extends AnchorNode {
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
     final int DELAY = 2000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
-    final float ZONEDISTANCE = 2.5f; // 퍼펙트 존 거리
+    final float ZONEDISTANCE = 1.75f; // 퍼펙트 존 거리
     final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
     final float SCALE = 0.75f;
     final int SCORE = 50;
 
-    final float INTERVAL = 0.5f; // 0.5m
+    final float INTERVAL = 0.6f; // 0.6m
 
     final TextView textView;
 
@@ -110,7 +120,7 @@ public class GameSystem extends AnchorNode {
     // 곡 노트 타이밍 (왼쪽, 오른쪽) (ms) => [곡 인덱스][왼쪽, 오른쪽][노트 index] = 타이머
     final int[][][] NOTETIMER = {
             // 0번째 곡
-
+            // 수고가 많습니다.. 총총
             {{1000, 3000, 5000, 7000, 9000, 10000, 11000, 13000, 15000, 17000, 19000,
               20000, 21000, 23000, 25000, 27000, 29000, 30000, 31000, 33000, 35000, 37000, 39000,
               40000, 41000, 43000, 45000, 47000, 49000, 50000, 51000, 53000, 55000, 57000, 59000,
@@ -161,6 +171,12 @@ public class GameSystem extends AnchorNode {
 
     private Node line;
 
+    // 드래기 고려
+    float dragStartX;
+    float dragStartY;
+    float dragEndX;
+    float dragEndY;
+
     GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView){
         // Setting
         this.context = context;
@@ -175,7 +191,7 @@ public class GameSystem extends AnchorNode {
         SetPosition();
 
         // 아래 내용: 이래야만 onUpdate작동하는지 확인
-        this.setRenderable(albumRenderable);
+        //this.setRenderable(albumRenderable);
         this.setLocalScale(new Vector3(0.5f, 0.5f , 0.5f));
 
         // 오브젝트 카메라 바라보게 회전
@@ -187,6 +203,28 @@ public class GameSystem extends AnchorNode {
         this.setWorldRotation(direction);
     }
 
+    public void checkCollision(){
+        /*
+         * drag의 시작점과 끝점을 연결하는 벡터를 screen(2d)이 아닌 world coordinate로 바꾸어 그 벡터와
+         * 실제 Game Note와의 충돌을 확인 -> (충돌을 확인하였다면 해당 Game Note의 회전방향과
+         * 충돌한 벡터의 방향을 비교)
+         */
+
+        Vector3 forward = arSceneView.getScene().getCamera().getForward().scaled(ZONEDISTANCE);
+
+        Vector3 dx = this.getRight().scaled(dragEndX - dragStartX);
+        Vector3 dy = this.getUp().scaled(dragEndY - dragStartY);
+
+        Vector3 direction = Vector3.add(dx, dy);
+
+        Ray ray = new Ray(forward, direction);
+
+        HitTestResult result = arSceneView.getScene().hitTest(ray);
+        Node node = result.getNode();
+        if(node != null && node instanceof GameNote){
+            ((GameNote) node).getScore();
+        }
+    }
 
     @Override
     public void onUpdate(FrameTime frameTime) {
@@ -217,23 +255,6 @@ public class GameSystem extends AnchorNode {
 
                 RightTimerIndex++;
             }
-
-            /*
-            // 왼쪽 노트 타이밍 계산
-            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) <= currentMediaPlayer.getCurrentPosition() - DELAY){
-                // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, false);
-
-                LeftTimerIndex++;
-            }
-
-            // 오른쪽 노트 타이밍 계산
-            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) <= currentMediaPlayer.getCurrentPosition() - DELAY){
-                // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, noteRenderable, SPEED, DISTANCE, SCORE, true);
-
-                RightTimerIndex++;
-            }*/
         }
     }
 

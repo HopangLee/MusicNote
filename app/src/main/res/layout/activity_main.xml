@@ -23,7 +23,7 @@
         android:layout_alignParentBottom="true"
         app:scale_base_height="220"
         app:scale_base_width="1000"
-
+        android:visibility="gone"
         tools:ignore="MissingPrefix">
 
         <ImageView

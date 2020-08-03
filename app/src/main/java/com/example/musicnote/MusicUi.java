@@ -76,33 +76,33 @@ public class MusicUi{
                 @Override
                 public void run() {
                     currentMediaPlayer.start();
+                    Thread musicThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() { // Thread 로 작업할 내용을 구현
+                            while(currentMediaPlayer.isPlaying()){
+                                try {
+                                    Thread.sleep(10);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                mActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    musicThread.start(); // 쓰레드 시작
                 }
             };
             mTimer.schedule(mTask, gameSystem.getDELAY());
 
             playBtn.setImageResource(android.R.drawable.ic_media_pause);
 
-            Thread musicThread = new Thread(new Runnable() {
-                @Override
-                public void run() { // Thread 로 작업할 내용을 구현
-                    while(currentMediaPlayer.isPlaying()){
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
 
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
-                            }
-                        });
-                    }
-                }
-
-            });
-            musicThread.start(); // 쓰레드 시작
         }
     }
 

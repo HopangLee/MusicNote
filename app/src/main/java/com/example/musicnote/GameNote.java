@@ -6,19 +6,21 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.math.Vector3Evaluator;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
-public class GameNote extends Node {
+public class GameNote extends Node{
     ArSceneView arSceneView; // 카메라 위치 알기 위함
     GameSystem gameSystem; // up Vector와 parnet의 위치 => SetNotePosition으로 위치 갱신
     boolean isRight; // 오른쪽 생성 노드인지 왼쪽 생성 노드인지 확인 (true => right, false => left)
@@ -64,8 +66,9 @@ public class GameNote extends Node {
         */
 
         this.setOnTapListener((v, event) ->{
-            getScore();
+            // getScore();
         });
+
 
         Log.i("GameNote create: ", "생성!");
     }
@@ -138,23 +141,4 @@ public class GameNote extends Node {
         gameSystem.removeChild(this);
         this.setParent(null);
     }
-
-/*
-    private static class MyGraphicView extends View {
-
-        public MyGraphicView(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas){
-            super.onDraw(canvas);
-            Bitmap picture = BitmapFactory.decodeResource(getResources(), R.drawable.target);
-            int picX = picture.getWidth()/2;
-            int picY = picture.getHeight()/2;
-            canvas.drawBitmap(picture, picX, picY, null);
-            picture.recycle();
-        }
-    }
-*/
 }

@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.util.MonthDisplayHelper;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +78,7 @@ import static android.hardware.SensorManager.AXIS_Z;
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        SensorEventListener {
+        SensorEventListener{
 
     private static final String TAG = "MainActivity";
 
@@ -144,6 +145,7 @@ public class MainActivity extends AppCompatActivity
 
     // 게임 관련
     private GameSystem gameSystem;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
