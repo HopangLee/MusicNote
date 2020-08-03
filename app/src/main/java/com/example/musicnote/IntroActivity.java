@@ -8,6 +8,8 @@ import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -59,8 +61,6 @@ public class IntroActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
                 startActivity(intent);
             }
-
         });
-
     }
 }

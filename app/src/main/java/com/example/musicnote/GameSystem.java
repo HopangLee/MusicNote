@@ -169,14 +169,6 @@ public class GameSystem extends AnchorNode{
     // 딜레이 고려
     private float time = 0;
 
-    private Node line;
-
-    // 드래기 고려
-    float dragStartX;
-    float dragStartY;
-    float dragEndX;
-    float dragEndY;
-
     GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView){
         // Setting
         this.context = context;
@@ -201,29 +193,6 @@ public class GameSystem extends AnchorNode{
         Vector3 up = this.getUp();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
-    }
-
-    public void checkCollision(){
-        /*
-         * drag의 시작점과 끝점을 연결하는 벡터를 screen(2d)이 아닌 world coordinate로 바꾸어 그 벡터와
-         * 실제 Game Note와의 충돌을 확인 -> (충돌을 확인하였다면 해당 Game Note의 회전방향과
-         * 충돌한 벡터의 방향을 비교)
-         */
-
-        Vector3 forward = arSceneView.getScene().getCamera().getForward().scaled(ZONEDISTANCE);
-
-        Vector3 dx = this.getRight().scaled(dragEndX - dragStartX);
-        Vector3 dy = this.getUp().scaled(dragEndY - dragStartY);
-
-        Vector3 direction = Vector3.add(dx, dy);
-
-        Ray ray = new Ray(forward, direction);
-
-        HitTestResult result = arSceneView.getScene().hitTest(ray);
-        Node node = result.getNode();
-        if(node != null && node instanceof GameNote){
-            ((GameNote) node).getScore();
-        }
     }
 
     @Override
@@ -276,8 +245,6 @@ public class GameSystem extends AnchorNode{
 
         currentScore = 0;
 
-        //createLine();
-
         time = 0;
     }
 
@@ -289,14 +256,11 @@ public class GameSystem extends AnchorNode{
         currentScore = 0;
         musicCreater = null;
         time = 0;
-
-        //removeLine();
     }
 
     // 게임 일시 정지
     public void GamePause(){
         isPlaying = !isPlaying;
-        //removeLine();
     }
 
     // Game System(this)의 위치 조정
@@ -395,47 +359,6 @@ public class GameSystem extends AnchorNode{
                             return null;
                         }
                 );
-
-        ModelRenderable.builder()
-                .setSource(context, R.raw.line)
-                .build().thenAccept(renderable -> lineRenderable = renderable)
-                .exceptionally(
-                        throwable -> {
-                            return null;
-                        }
-                );
-    }
-
-    public void createLine(){
-        line = new Node();
-        line.setParent(this);
-        line.setLocalScale(new Vector3(0.2f, 0.2f, 0.2f));
-        line.setRenderable(lineRenderable);
-
-        Camera camera = arSceneView.getScene().getCamera();
-
-        Vector3 cameraPos = camera.getWorldPosition(); // 카메라 위치 받아옴
-        Vector3 forward = camera.getForward(); // 핸드폰 앞 벡터 받아옴
-        Vector3 up = line.getUp().normalized(); // 이걸로 해도 되는지 모르겠음 => 잘되네?
-
-        // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
-        Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
-        Vector3 systemPos = Vector3.subtract(forward, upValue).normalized().scaled(8f);
-        Vector3 position = Vector3.add(cameraPos, systemPos);
-        position = Vector3.add(position, line.getUp().scaled(-3.5f));
-
-        line.setWorldPosition(position);
-
-        Vector3 objPos = line.getWorldPosition();
-        Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
-        Quaternion direction = Quaternion.lookRotation(objToCam, up);
-        line.setWorldRotation(direction);
-    }
-
-
-    public void removeLine(){
-        this.removeChild(line);
-        line.setParent(null);
     }
 
 

@@ -29,6 +29,11 @@ public class GameNote extends Node{
     float limitDistance; // 생성될 때 카메라에서 떨어진 거리
     int score;
 
+    float dragStartX = -1;
+    float dragStartY = -1;
+    float dragEndX;
+    float dragEndY;
+
     MediaPlayer effectSound;
 
     GameNote(ArSceneView arSceneView, GameSystem gameSystem, ModelRenderable noteRenderable, float speed, float distance, int score, boolean isRight){
@@ -46,31 +51,21 @@ public class GameNote extends Node{
         this.setLocalScale(Vector3.one().scaled(gameSystem.getSCALE()));
         this.setParent(gameSystem);
 
-        Vector3 up = this.getUp().normalized();
-        Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
-        Vector3 parentPos = gameSystem.getWorldPosition();
-        Vector3 pos = Vector3.subtract(parentPos, cameraPos);
         Vector3 localPos = gameSystem.SetNotePosition(isRight);
 
         this.setLocalPosition(localPos);
-
-        /*
-        // up vector를 법선벡터로 갖는 평면에 forward Vector 정사영구하기
-        Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
-        Vector3 systemPos = Vector3.subtract(forward, upValue).normalized().scaled(distance);
-        Vector3 position = Vector3.add(cameraPos, systemPos);
-
-        Vector3 worldPos = Vector3.add(position, localPos);
-
-        this.setWorldPosition(worldPos); // 처음 위치 세팅
-        */
 
         this.setOnTapListener((v, event) ->{
             // getScore();
         });
 
+        this.setOnTouchListener((v, event)->{
+            if(event.getAction() == MotionEvent.ACTION_MOVE){
+                getScore();
+            }
+            return super.onTouchEvent(v, event);
+        });
 
-        Log.i("GameNote create: ", "생성!");
     }
 
     @Override
@@ -109,7 +104,6 @@ public class GameNote extends Node{
 
         Vector3 v = this.getLocalPosition();
         float d = (float)Math.sqrt(Vector3.dot(v, v));
-        Log.i("GameNote Update: ", "업데이트! " + distance +"(m), "+"Local distance: " +d);
 
         direction = direction.scaled(distance);
 
@@ -124,7 +118,7 @@ public class GameNote extends Node{
         // 일정 거리보다 가깝다면
         float perfectLine = gameSystem.getZONEDISTANCE();
 
-        if(limitDistance - (perfectLine + 1.5f) <= distance && distance <= limitDistance - (perfectLine - 1.5f)) { // 일단 타격 인정 범위
+        if(limitDistance - (perfectLine + 1f) <= distance && distance <= limitDistance - (perfectLine - 1f)) { // 일단 타격 인정 범위
             effectSound.start();
             removeNote();
             if(limitDistance - (perfectLine + 0.5f) <= distance &&

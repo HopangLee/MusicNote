@@ -25,6 +25,7 @@ import android.util.MonthDisplayHelper;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -212,6 +213,7 @@ public class MainActivity extends AppCompatActivity
         );
         addContentView(gll, gparamll);
 
+
         // 음악 관련 세팅
         musicUi = (ScalableLayout) findViewById(R.id.musicUi);
 
@@ -253,7 +255,8 @@ public class MainActivity extends AppCompatActivity
         arSceneView = arFragment.getArSceneView();
         setUpModel();
 
-        arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
+        //arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
+        arFragment.getArSceneView().getScene().addOnUpdateListener(this::onSceneUpdate);
     }
 
     @Override
