@@ -28,7 +28,8 @@
             app:scale_left="0"
             app:scale_textsize="120"
             app:scale_top="-750"
-            app:scale_width="750" />
+            app:scale_width="750"
+            android:visibility="gone"/>
 
     </com.ssomai.android.scalablelayout.ScalableLayout>
 

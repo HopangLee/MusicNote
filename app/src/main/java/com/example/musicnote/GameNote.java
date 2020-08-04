@@ -56,16 +56,17 @@ public class GameNote extends Node{
         this.setLocalPosition(localPos);
 
         this.setOnTapListener((v, event) ->{
-            // getScore();
+            //getScore(); //이거 주석하고
         });
 
+        /*
         this.setOnTouchListener((v, event)->{
             if(event.getAction() == MotionEvent.ACTION_MOVE){
                 getScore();
             }
             return super.onTouchEvent(v, event);
         });
-
+         */
     }
 
     @Override
@@ -92,8 +93,6 @@ public class GameNote extends Node{
         Camera camera = arSceneView.getScene().getCamera();
 
         Vector3 up = this.getUp().normalized();
-        Vector3 cameraPos = camera.getWorldPosition();
-        Vector3 parentPos = gameSystem.getWorldPosition();
         Vector3 localPos = gameSystem.SetNotePosition(isRight);
 
         Vector3 forward = camera.getForward();

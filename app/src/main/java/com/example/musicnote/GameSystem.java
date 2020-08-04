@@ -25,8 +25,13 @@ import com.google.ar.sceneform.collision.RayHit;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.naver.maps.geometry.Coord;
 
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -107,13 +112,34 @@ public class GameSystem extends AnchorNode{
 
     final float INTERVAL = 0.6f; // 0.6m
 
+    // 터치 관련
+    class Coordinate{
+        Coordinate(){}
+        Coordinate(float x, float y){
+            this.x = x;
+            this.y = y;
+        }
+        float x;
+        float y;
+    }
+    class Touch{
+        List<Coordinate> points;
+        Vector3 direction; // 위, 아래, 우측, 좌측등 8방향
+
+        Touch(){
+            points = new ArrayList<Coordinate>();
+            direction = new Vector3(0f, 0f, 0f);
+        }
+    }
+    Map<Integer, Touch> touchs = new HashMap<>();
+    final float minDistance; // 드래그의 최소 거리
+
+    // 점수 관련
     final TextView textView;
 
     ModelRenderable blueRenderable;
     ModelRenderable redRenderable;
-    ModelRenderable albumRenderable;
 
-    ModelRenderable lineRenderable;
 
     Context context;
 
@@ -176,6 +202,11 @@ public class GameSystem extends AnchorNode{
         this.musicUi = musicUi;
         this.textView = textView;
 
+        minDistance = Math.min(arSceneView.getWidth(), arSceneView.getHeight()) / 8f;
+
+        //touchView.setOnTouchListener(this::onTouch); // 이거 주석 없애고
+        arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
+
         // Create an ARCore Anchor at the position.
         this.setParent(arSceneView.getScene());
 
@@ -183,7 +214,6 @@ public class GameSystem extends AnchorNode{
         SetPosition();
 
         // 아래 내용: 이래야만 onUpdate작동하는지 확인
-        //this.setRenderable(albumRenderable);
         this.setLocalScale(new Vector3(0.5f, 0.5f , 0.5f));
 
         // 오브젝트 카메라 바라보게 회전
@@ -236,6 +266,8 @@ public class GameSystem extends AnchorNode{
             return;
         }
 
+        textView.setVisibility(View.VISIBLE);
+
         musicIndex = musicUi.getCurrentMediaPlayerIndex();
         LeftTimerIndex = 0;
         RightTimerIndex = 0;
@@ -244,12 +276,13 @@ public class GameSystem extends AnchorNode{
         SetPosition();
 
         currentScore = 0;
-
         time = 0;
     }
 
     // 게임 정지
     public void GameStop(){
+        textView.setVisibility(View.GONE);
+
         isPlaying = false;
         LeftTimerIndex = 0;
         RightTimerIndex = 0;
@@ -283,35 +316,6 @@ public class GameSystem extends AnchorNode{
         Vector3 objToCam = Vector3.subtract(cameraPos, objPos).negated();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
-        /*
-        position = Vector3.add(position, this.getLeft().scaled(0.25f));
-        this.setWorldPosition(position);*/
-    }
-
-    // 왼쪽 노트와 오른쪽 노트의 생성 위치를 조정하여 반환 (0: 왼쪽, 1: 오른쪽)
-    public Vector3 SetNotePosition(Vector3 up, Vector3 pos, boolean isRight){ // 안쓰는거
-        Vector3 dirVec = new Vector3( pos.y * up.z - pos.z * up.y, pos.z * up.x - pos.x * up.z, pos.x * up.y - pos.y * up.x).normalized().scaled(INTERVAL);
-
-        if(Vector3.equals(Vector3.cross(up, pos).normalized(), dirVec.normalized())){ // dirVec이 왼쪽을 가르키는 벡터라면
-            Log.i("Debug Log: ", "Vector is Left");
-        }
-        else{ // 오른쪽을 가르키는 벡터라면
-            dirVec = dirVec.negated();
-            Log.i("Debug Log: ", "Vector is Right");
-        }
-
-        Vector3[] noteVector = new Vector3[2];
-
-        // LocalPosition으로 return
-        noteVector[0] = dirVec;
-        noteVector[1] = dirVec.negated();
-
-        if(isRight){
-            return noteVector[1].scaled(0.4f);
-        }
-        else{
-            return noteVector[0].scaled(1.5f);
-        }
     }
 
     public Vector3 SetNotePosition(boolean isRight){
@@ -322,6 +326,97 @@ public class GameSystem extends AnchorNode{
             return this.getLeft().scaled(INTERVAL/2);
         }
     }
+
+
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        boolean ret = false;
+        int touch_count = motionEvent.getPointerCount();
+        if(touch_count > 2) touch_count = 2; // 2개 이상의 포인트를 터치했어도 2개만 본다.
+
+        final int action = motionEvent.getAction();
+        int key;
+
+        switch(action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN: //한 개 포인트에 대한 DOWN을 얻을 때.
+                Log.i("디버그: ", " 터치 다운");
+                key = motionEvent.getPointerId(0);
+                touchs.put(key, new Touch());
+                touchs.get(key).points.add(new Coordinate(motionEvent.getX(), motionEvent.getY()));
+                ret = true;
+                break;
+
+            case MotionEvent.ACTION_POINTER_DOWN: //두 개 이상의 포인트에 대한 DOWN을 얻을 때.
+                Log.i("디버그: ", " 터치 다운 (2개)");
+                for(int i = 0; i < touch_count; i++){
+                    key = motionEvent.getPointerId(i);
+                    touchs.put(key, new Touch());
+                    touchs.get(key).points.add(new Coordinate(motionEvent.getX(i), motionEvent.getY(i)));
+                }
+                ret = true;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                Log.i("디버그: ", " 터치 무브");
+                for(int i = 0; i < touch_count; i++){
+                    key = motionEvent.getPointerId(i);
+                    touchs.get(key).points.add(new Coordinate(motionEvent.getX(i), motionEvent.getY(i)));
+                    checkDirection(key);
+                }
+                ret = true;
+                break;
+
+            case MotionEvent.ACTION_UP:
+                Log.i("디버그: ", " 터치 업");
+                for(int i = 0; i < touch_count; i++){
+                    key = motionEvent.getPointerId(i);
+                    touchs.remove(key);
+                }
+                break;
+        }
+        arSceneView.onTouchEvent(motionEvent);
+        return ret;
+    }
+
+    // 해당 터치의 연속된 기록이 어떤 방향을 나타내고 있는지 => 이상하면 가장 오래된 기록 삭제
+    public void checkDirection(int key){
+        List<Coordinate> coordinates = touchs.get(key).points;
+        int size = coordinates.size();
+        Coordinate startPoint = coordinates.get(0);
+        Coordinate endPoint = coordinates.get(size - 1);
+
+        float x = endPoint.x - startPoint.x;
+        float y = endPoint.y - startPoint.y;
+
+        float distance = (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+        if(distance >= minDistance){
+            checkCollision(startPoint, endPoint);
+            Log.i("디버그: ", " 드래그 -> "+key);
+            while(distance >= minDistance){
+                coordinates.remove(0);
+                int tsize = coordinates.size();
+
+                if(tsize == 0) break;
+
+                Coordinate tempStart = coordinates.get(0);
+                Coordinate tempEnd = coordinates.get(tsize - 1);
+
+                float tx = tempEnd.x - tempStart.x;
+                float ty = tempEnd.y - tempStart.y;
+
+                distance = (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+            }
+        }
+        else{
+            return;
+        }
+    }
+
+    // 충돌 감지
+    public void checkCollision(Coordinate start, Coordinate end){
+
+    }
+
 
     public void getScore(int score){
         currentScore += score;
@@ -345,15 +440,6 @@ public class GameSystem extends AnchorNode{
         ModelRenderable.builder()
                 .setSource(context, R.raw.redblock)
                 .build().thenAccept(renderable -> redRenderable = renderable)
-                .exceptionally(
-                        throwable -> {
-                            return null;
-                        }
-                );
-
-        ModelRenderable.builder()
-                .setSource(context, R.raw.boflogo)
-                .build().thenAccept(renderable -> albumRenderable = renderable)
                 .exceptionally(
                         throwable -> {
                             return null;

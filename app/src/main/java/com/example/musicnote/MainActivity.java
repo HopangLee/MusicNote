@@ -171,21 +171,21 @@ public class MainActivity extends AppCompatActivity
 
         // 첫번째 마커//ddddd
         markers[0] = new Location("point A");
-        markers[0].setLatitude(37.284352);
-        markers[0].setLongitude(127.053471);
+        markers[0].setLatitude(37.284944);
+        markers[0].setLongitude(127.054483);
         // 두번째 마커
         markers[1] = new Location("point B");
-        markers[1].setLatitude(37.284166);
-        markers[1].setLongitude(127.053766);
+        markers[1].setLatitude(37.285698);
+        markers[1].setLongitude(127.055123);
         // 세번째 마커
         markers[2] = new Location("point C");
-        markers[2].setLatitude(37.283880);
-        markers[2].setLongitude(127.054219);
+        markers[2].setLatitude(37.283768);
+        markers[2].setLongitude(127.054366);
 
         // 로고 위치
         logoLocation = new Location("BOF LOGO");
-        logoLocation.setLatitude(37);
-        logoLocation.setLongitude(127);
+        logoLocation.setLatitude(37.286259);
+        logoLocation.setLongitude(127.053147);
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -255,8 +255,8 @@ public class MainActivity extends AppCompatActivity
         arSceneView = arFragment.getArSceneView();
         setUpModel();
 
-        //arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
-        arFragment.getArSceneView().getScene().addOnUpdateListener(this::onSceneUpdate);
+        arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
+        //arFragment.getArSceneView().getScene().addOnUpdateListener(this::onSceneUpdate);
     }
 
     @Override
@@ -346,26 +346,34 @@ public class MainActivity extends AppCompatActivity
         // 마커 세팅
         Marker marker1 = new Marker();
         marker1.setPosition(new LatLng(markers[0].getLatitude(), markers[0].getLongitude()));
-        marker1.setHeight(50);
-        marker1.setWidth(40);
+        marker1.setHeight(70);
+        marker1.setWidth(60);
+        marker1.setIcon(OverlayImage.fromResource(R.drawable.blacklogo));
+        marker1.setAnchor(new PointF(0.5f, 1));
         marker1.setMap(naverMap);
 
         Marker marker2 = new Marker();
         marker2.setPosition(new LatLng(markers[1].getLatitude(), markers[1].getLongitude()));
-        marker2.setHeight(50);
-        marker2.setWidth(40);
+        marker2.setHeight(70);
+        marker2.setWidth(60);
+        marker2.setIcon(OverlayImage.fromResource(R.drawable.btslogo));
+        marker2.setAnchor(new PointF(0.5f, 1));
         marker2.setMap(naverMap);
 
         Marker marker3 = new Marker();
         marker3.setPosition(new LatLng(markers[2].getLatitude(), markers[2].getLongitude()));
-        marker3.setHeight(50);
-        marker3.setWidth(40);
+        marker3.setHeight(70);
+        marker3.setWidth(60);
+        marker3.setIcon(OverlayImage.fromResource(R.drawable.redlogo));
+        marker3.setAnchor(new PointF(0.5f, 1));
         marker3.setMap(naverMap);
 
         Marker logo = new Marker();
         logo.setPosition(new LatLng(logoLocation.getLatitude(), logoLocation.getLongitude()));
-        logo.setHeight(50);
-        logo.setWidth(40);
+        logo.setHeight(60);
+        logo.setWidth(70);
+        logo.setIcon(OverlayImage.fromResource(R.drawable.boflogo));
+        logo.setAnchor(new PointF(0.5f, 0.5f));
         logo.setMap(naverMap);
 
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
@@ -381,12 +389,13 @@ public class MainActivity extends AppCompatActivity
         uiSettings.setLogoGravity(Gravity.LEFT | Gravity.BOTTOM);
         uiSettings.setLogoMargin(0, 0, 0, -5);
 
-        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(14);
+        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(16);
         mNaverMap.moveCamera(cameraUpdate);
         mNaverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
         mNaverMap.setLiteModeEnabled(true);
 
         LocationOverlay locationOverlay = mNaverMap.getLocationOverlay();
+
         locationOverlay.setIconWidth(40);
         locationOverlay.setIconHeight(40);
 
@@ -553,6 +562,7 @@ public class MainActivity extends AppCompatActivity
         float dLongitude = (float) (logoLocation.getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
         // 테스트 용도
+
 
         dLatitude = 20f;
         dLongitude = 0f;
