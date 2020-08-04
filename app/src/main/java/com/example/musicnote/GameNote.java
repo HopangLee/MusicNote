@@ -29,10 +29,8 @@ public class GameNote extends Node{
     float limitDistance; // 생성될 때 카메라에서 떨어진 거리
     int score;
 
-    float dragStartX = -1;
-    float dragStartY = -1;
-    float dragEndX;
-    float dragEndY;
+    // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
+    int direction = -1; // 기본(-1)
 
     MediaPlayer effectSound;
 
@@ -58,15 +56,6 @@ public class GameNote extends Node{
         this.setOnTapListener((v, event) ->{
             //getScore(); //이거 주석하고
         });
-
-        /*
-        this.setOnTouchListener((v, event)->{
-            if(event.getAction() == MotionEvent.ACTION_MOVE){
-                getScore();
-            }
-            return super.onTouchEvent(v, event);
-        });
-         */
     }
 
     @Override
@@ -113,9 +102,11 @@ public class GameNote extends Node{
         this.setWorldPosition(movePos);
     }
 
-    public void getScore(){
+    public void getScore(int direction){
         // 일정 거리보다 가깝다면
         float perfectLine = gameSystem.getZONEDISTANCE();
+
+        if(this.direction != direction) return; // 드래그 한 방향이 다르면 삭제x
 
         if(limitDistance - (perfectLine + 1f) <= distance && distance <= limitDistance - (perfectLine - 1f)) { // 일단 타격 인정 범위
             effectSound.start();
@@ -133,5 +124,9 @@ public class GameNote extends Node{
     public void removeNote(){
         gameSystem.removeChild(this);
         this.setParent(null);
+    }
+
+    public int getDirection(){
+        return direction;
     }
 }

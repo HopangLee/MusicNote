@@ -30,6 +30,7 @@ import com.naver.maps.geometry.Coord;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -114,7 +115,6 @@ public class GameSystem extends AnchorNode{
 
     // 터치 관련
     class Coordinate{
-        Coordinate(){}
         Coordinate(float x, float y){
             this.x = x;
             this.y = y;
@@ -124,11 +124,13 @@ public class GameSystem extends AnchorNode{
     }
     class Touch{
         List<Coordinate> points;
-        Vector3 direction; // 위, 아래, 우측, 좌측등 8방향
+
+        // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
+        int direction;
 
         Touch(){
             points = new ArrayList<Coordinate>();
-            direction = new Vector3(0f, 0f, 0f);
+            direction = -1;
         }
     }
     Map<Integer, Touch> touchs = new HashMap<>();
@@ -390,8 +392,76 @@ public class GameSystem extends AnchorNode{
         float distance = (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 
         if(distance >= minDistance){
-            checkCollision(startPoint, endPoint);
-            Log.i("디버그: ", " 드래그 -> "+key);
+            // touch의 방향 확인
+            float theta = (float)Math.atan2(y, x);
+            if(theta < 0) theta += (float)Math.PI * 2;
+            if(0 <= theta && theta < Math.PI/8 || Math.PI/8 + Math.PI/4 * 7 <= theta && theta < Math.PI*2){
+                // 오른쪽
+                touchs.get(key).direction = 0;
+            }
+            else if(Math.PI/8 <= theta && theta < Math.PI/8 + Math.PI/4){
+                // 오른쪽 아래
+                touchs.get(key).direction = 1;
+            }
+            else if(Math.PI/8 + Math.PI/4 <= theta && theta < Math.PI/8 + Math.PI/4*2){
+                // 아래
+                touchs.get(key).direction = 2;
+            }
+            else if(Math.PI/8 + Math.PI/4*2 <= theta && theta < Math.PI/8 + Math.PI/4*3){
+                // 왼쪽 아래
+                touchs.get(key).direction = 3;
+            }
+            else if(Math.PI/8 + Math.PI/4*3 <= theta && theta < Math.PI/8 + Math.PI/4*4){
+                // 왼쪽
+                touchs.get(key).direction = 4;
+            }
+            else if(Math.PI/8 + Math.PI/4*4 <= theta && theta < Math.PI/8 + Math.PI/4*5){
+                // 왼쪽 위
+                touchs.get(key).direction = 5;
+            }
+            else if(Math.PI/8 + Math.PI/4*5 <= theta && theta < Math.PI/8 + Math.PI/4*6){
+                // 위
+                touchs.get(key).direction = 6;
+            }
+            else if(Math.PI/8 + Math.PI/4*6 <= theta && theta < Math.PI/8 + Math.PI/4*7){
+                // 오른쪽 위
+                touchs.get(key).direction = 7;
+            }
+
+            checkCollision(key, startPoint, endPoint);
+            // 디버그
+
+            String str = "";
+            switch(touchs.get(key).direction){
+                case 0:
+                    str = "오른쪽";
+                   break;
+                case 1:
+                    str = "오른쪽 아래";
+                    break;
+                case 2:
+                    str = "아래";
+                    break;
+                case 3:
+                    str = "왼쪽 아래";
+                    break;
+                case 4:
+                    str = "왼쪽";
+                    break;
+                case 5:
+                    str = "왼쪽 위";
+                    break;
+                case 6:
+                    str = "위";
+                    break;
+                case 7:
+                    str = "오른쪽 위";
+                    break;
+                default:
+                    str = "기본";
+            }
+            Log.i("디버그: ", " 드래그 -> "+ str);
+
             while(distance >= minDistance){
                 coordinates.remove(0);
                 int tsize = coordinates.size();
@@ -413,7 +483,34 @@ public class GameSystem extends AnchorNode{
     }
 
     // 충돌 감지
-    public void checkCollision(Coordinate start, Coordinate end){
+    public void checkCollision(int key, Coordinate start, Coordinate end){
+        Camera camera = arSceneView.getScene().getCamera();
+
+        // 1번째 생각 스크린 포인트를 Ray로
+
+        Ray startRay = camera.screenPointToRay(start.x, start.y);
+        Ray endRay = camera.screenPointToRay(end.x, end.y);
+
+        for(int i = 0; i < 10; i++){
+            Vector3 startPoint = startRay.getPoint(ZONEDISTANCE - 1f + 0.2f * i);
+            Vector3 endPoint = endRay.getPoint(ZONEDISTANCE - 1f + 0.2f * i);
+            Vector3 direction = Vector3.subtract(endPoint, startPoint);
+
+            Ray ray = new Ray(startPoint, direction);
+
+            List<HitTestResult> hits = arSceneView.getScene().hitTestAll(ray);
+            for(int j = 0; j < hits.size(); j++){
+                if(hits.get(j).getDistance() <= minDistance * 2f){
+                    Node n = hits.get(j).getNode();
+                    if(n instanceof GameNote){
+                        ((GameNote) n).getScore(touchs.get(key).direction);
+
+                    }
+                }
+            }
+
+
+        }
 
     }
 
