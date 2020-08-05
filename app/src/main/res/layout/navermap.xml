@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
+    <!--
     <LinearLayout
         android:layout_width="120dp"
         android:layout_height="155dp"
@@ -23,6 +25,40 @@
             android:layout_marginTop="3dp"/>
 
     </LinearLayout>
+    !-->
+
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        app:scale_base_height="1800"
+        app:scale_base_width="1000"
+        tools:ignore="MissingPrefix">
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.naver.maps.map.MapFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            app:scale_height="380"
+            app:scale_width="280"
+            app:scale_top="40"
+            app:scale_left="40"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/map_border"
+            android:layout_gravity="top"
+            app:scale_height="400"
+            app:scale_width="300"
+            app:scale_top="30"
+            app:scale_left="30"
+            />
+
+    </com.ssomai.android.scalablelayout.ScalableLayout>
 
 
 </LinearLayout>

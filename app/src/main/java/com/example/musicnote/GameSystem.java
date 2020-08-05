@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
@@ -101,7 +102,7 @@ public class GameSystem extends AnchorNode{
     final float ZONEDISTANCE = 1.75f; // 퍼펙트 존 거리
     final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
-    final float SCALE = 0.75f;
+    final float SCALE = 0.5f;
     final int SCORE = 50;
 
     final float INTERVAL = 0.6f; // 0.6m
@@ -140,10 +141,10 @@ public class GameSystem extends AnchorNode{
     // 쓰기 쉽게 아래에 자주 쓰이는 좌표 나열
     final Coordinate RIGHT = new Coordinate(INTERVAL/2, 0);
     final Coordinate LEFT = new Coordinate(-INTERVAL/2, 0);
-    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2, INTERVAL/2);
-    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2, -INTERVAL/2);
-    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2, INTERVAL/2);
-    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2, -INTERVAL/2);
+    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2, INTERVAL/3);
+    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2, -INTERVAL/3);
+    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2, INTERVAL/3);
+    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2, -INTERVAL/3);
 
     final int mR = 0, mRD = 1, mD = 2, mLD = 3, mL = 4, mLU = 5, mU = 6, mRU = 7;
 
@@ -256,7 +257,7 @@ public class GameSystem extends AnchorNode{
         this.musicUi = musicUi;
         this.textView = textView;
 
-        minDistance = Math.min(arSceneView.getWidth(), arSceneView.getHeight()) / 8f;
+        minDistance = Math.min(arSceneView.getWidth(), arSceneView.getHeight()) / 6f;
 
         arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
 
@@ -509,7 +510,7 @@ public class GameSystem extends AnchorNode{
                 float tx = tempEnd.x - tempStart.x;
                 float ty = tempEnd.y - tempStart.y;
 
-                distance = (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+                distance = (float)Math.sqrt(Math.pow(tx, 2) + Math.pow(ty, 2));
             }
         }
         else{
@@ -520,31 +521,29 @@ public class GameSystem extends AnchorNode{
     // 충돌 감지
     public void checkCollision(int key, Coordinate start, Coordinate end){
         Camera camera = arSceneView.getScene().getCamera();
+        Vector3 forward = camera.getForward();
 
         // 1번째 생각 스크린 포인트를 Ray로
 
         Ray startRay = camera.screenPointToRay(start.x, start.y);
         Ray endRay = camera.screenPointToRay(end.x, end.y);
 
-        for(int i = 0; i < 10; i++){
-            Vector3 startPoint = startRay.getPoint(ZONEDISTANCE - 1f + 0.2f * i);
-            Vector3 endPoint = endRay.getPoint(ZONEDISTANCE - 1f + 0.2f * i);
-            Vector3 direction = Vector3.subtract(endPoint, startPoint);
+        for(int i = 0; i < 13; i++){
+            Vector3 startPoint = startRay.getPoint(ZONEDISTANCE - 1.25f + 0.3f * i);
+            Vector3 endPoint = endRay.getPoint(ZONEDISTANCE - 1.25f + 0.3f * i);
+            Vector3 direction = Vector3.subtract(endPoint, startPoint).normalized();
+            startPoint = Vector3.add(startPoint, direction.negated().scaled(0.1f));
 
             Ray ray = new Ray(startPoint, direction);
-
             List<HitTestResult> hits = arSceneView.getScene().hitTestAll(ray);
             for(int j = 0; j < hits.size(); j++){
                 if(hits.get(j).getDistance() <= minDistance * 2f){
                     Node n = hits.get(j).getNode();
                     if(n instanceof GameNote){
                         ((GameNote) n).getScore(touchs.get(key).direction);
-
                     }
                 }
             }
-
-
         }
 
     }

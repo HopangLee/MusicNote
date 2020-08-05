@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
@@ -86,7 +87,7 @@ public class GameNote extends Node{
         Vector3 movePos = Vector3.add(gameSystem.getWorldPosition(), localPosVec);
         Vector3 up = gameSystem.getUp().normalized();
 
-        movePos = Vector3.add(movePos, up.scaled(-0.5f)); // 아래로 좀 내리기
+        movePos = Vector3.add(movePos, up.scaled(-0.2f)); // 아래로 좀 내리기
 
         this.setWorldPosition(movePos);
     }
@@ -130,7 +131,7 @@ public class GameNote extends Node{
         Vector3 localPosVec = gameSystem.getPosVector(coordinate);
         Vector3 movePos = Vector3.add(gameSystem.getWorldPosition(), Vector3.add(direction, localPosVec));
 
-        movePos = Vector3.add(movePos, up.scaled(-0.5f)); // 아래로 좀 내리기
+        movePos = Vector3.add(movePos, up.scaled(-0.2f)); // 아래로 좀 내리기
 
         this.setWorldPosition(movePos);
     }
