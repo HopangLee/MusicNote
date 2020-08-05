@@ -23,39 +23,72 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 public class GameNote extends Node{
     ArSceneView arSceneView; // 카메라 위치 알기 위함
     GameSystem gameSystem; // up Vector와 parnet의 위치 => SetNotePosition으로 위치 갱신
-    boolean isRight; // 오른쪽 생성 노드인지 왼쪽 생성 노드인지 확인 (true => right, false => left)
     float speed; // 노트의 이동 속도
     float distance = 0f; // 앵커 노드에서 떨어진 거리
     float limitDistance; // 생성될 때 카메라에서 떨어진 거리
     int score;
 
     // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
-    int direction = -1; // 기본(-1)
+    int DIRECTION = -1; // 기본(-1)
 
     MediaPlayer effectSound;
+    GameSystem.Coordinate coordinate;
 
-    GameNote(ArSceneView arSceneView, GameSystem gameSystem, ModelRenderable noteRenderable, float speed, float distance, int score, boolean isRight){
+    GameNote(ArSceneView arSceneView, GameSystem gameSystem, ModelRenderable noteRenderable, float speed, float distance, int score, GameSystem.Coordinate coordinate, int DIRECTION){
         this.arSceneView = arSceneView;
         this.gameSystem = gameSystem;
         this.speed = speed;
         this.limitDistance = distance;
         this.score = score;
-        this.isRight = isRight;
+        this.coordinate = coordinate;
+        this.DIRECTION = DIRECTION;
 
         effectSound = MediaPlayer.create(gameSystem.context, R.raw.ui_menu_button_click_19);
 
-        this.setLocalRotation(Quaternion.axisAngle(this.getUp(), -90));
+        Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
+
+        switch (DIRECTION){
+            case 0: // 오른쪽
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), +90), rotation);
+                break;
+            case 1: // 오른쪽 아래
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), 90 + 45), rotation);
+                break;
+            case 2: // 아래
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), 180), rotation);
+                break;
+            case 3: // 왼쪽 아래
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), -90 - 45), rotation);
+                break;
+            case 4: // 왼쪽
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), -90), rotation);
+                break;
+            case 5: // 왼쪽 위
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), -45), rotation);
+                break;
+            case 6: // 위
+                break;
+            case 7: // 오른쪽 위
+                rotation = Quaternion.multiply(Quaternion.axisAngle(this.getForward(), +45), rotation);
+                break;
+            default:
+
+        }
+
+        this.setLocalRotation(rotation);
+
         this.setRenderable(noteRenderable);
         this.setLocalScale(Vector3.one().scaled(gameSystem.getSCALE()));
         this.setParent(gameSystem);
 
-        Vector3 localPos = gameSystem.SetNotePosition(isRight);
+        this.setLocalPosition(gameSystem.getPosVector(coordinate));
+        Vector3 localPosVec = gameSystem.getPosVector(coordinate);
+        Vector3 movePos = Vector3.add(gameSystem.getWorldPosition(), localPosVec);
+        Vector3 up = gameSystem.getUp().normalized();
 
-        this.setLocalPosition(localPos);
+        movePos = Vector3.add(movePos, up.scaled(-0.5f)); // 아래로 좀 내리기
 
-        this.setOnTapListener((v, event) ->{
-            //getScore(); //이거 주석하고
-        });
+        this.setWorldPosition(movePos);
     }
 
     @Override
@@ -81,8 +114,7 @@ public class GameNote extends Node{
 
         Camera camera = arSceneView.getScene().getCamera();
 
-        Vector3 up = this.getUp().normalized();
-        Vector3 localPos = gameSystem.SetNotePosition(isRight);
+        Vector3 up = gameSystem.getUp().normalized();
 
         Vector3 forward = camera.getForward();
         Vector3 upValue = new Vector3(up).scaled(Vector3.dot(up, forward));
@@ -95,7 +127,8 @@ public class GameNote extends Node{
 
         direction = direction.scaled(distance);
 
-        Vector3 movePos = Vector3.add(gameSystem.getWorldPosition(), Vector3.add(direction, localPos));
+        Vector3 localPosVec = gameSystem.getPosVector(coordinate);
+        Vector3 movePos = Vector3.add(gameSystem.getWorldPosition(), Vector3.add(direction, localPosVec));
 
         movePos = Vector3.add(movePos, up.scaled(-0.5f)); // 아래로 좀 내리기
 
@@ -106,7 +139,7 @@ public class GameNote extends Node{
         // 일정 거리보다 가깝다면
         float perfectLine = gameSystem.getZONEDISTANCE();
 
-        if(this.direction != direction) return; // 드래그 한 방향이 다르면 삭제x
+        if(this.DIRECTION != direction) return; // 드래그 한 방향이 다르면 삭제x
 
         if(limitDistance - (perfectLine + 1f) <= distance && distance <= limitDistance - (perfectLine - 1f)) { // 일단 타격 인정 범위
             effectSound.start();
@@ -127,6 +160,6 @@ public class GameNote extends Node{
     }
 
     public int getDirection(){
-        return direction;
+        return DIRECTION;
     }
 }

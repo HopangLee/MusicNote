@@ -3,38 +3,25 @@ package com.example.musicnote;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.ar.core.Anchor;
-import com.google.ar.core.HitResult;
-import com.google.ar.core.Pose;
-import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
-import com.google.ar.sceneform.Scene;
 import com.google.ar.sceneform.collision.Ray;
-import com.google.ar.sceneform.collision.RayHit;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
-import com.naver.maps.geometry.Coord;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 // 리듬 노드를 생성하는 GameSystem(Anchor node)
 public class GameSystem extends AnchorNode{
@@ -42,20 +29,12 @@ public class GameSystem extends AnchorNode{
     class NoteCreateTimer{
         float speed; // 노트의 움직이는 속도
         float scale; // 노트의 크기
-        int score; // 노트 터치 성공당 점수
-        int[] leftTimer; // 왼쪽에서 생성되는 노트의 생성 타이밍
-        int[] rightTimer; // 오른쪽에서 생성되는 노트의 생성 타이밍
+        Note[] notes;
 
-        NoteCreateTimer(int[][] timer, float speed, float scale, int score){
-            this.leftTimer = timer[0];
-            this.rightTimer = timer[1];
+        NoteCreateTimer(Note[] notes, float speed, float scale){
+            this.notes = notes;
             this.speed = speed;
             this.scale = scale;
-            this.score = score;
-        }
-
-        public void setScore(int score){
-            this.score = score;
         }
 
         public void setScale(float scale){
@@ -66,27 +45,42 @@ public class GameSystem extends AnchorNode{
             this.speed = speed;
         }
 
-        public void setTimer(int[][] timer){
-            this.leftTimer = timer[0];
-            this.rightTimer = timer[1];
+        public int getNoteTimer(int index){
+            return notes[index].timer;
         }
 
-        public int getLeftTimer(int index){
-            return leftTimer[index];
+        public int getDirection(int index){
+            return notes[index].direction;
         }
 
-        public int getRightTimer(int index){
-            return rightTimer[index];
+        boolean isRight(int index){
+            return notes[index].coordinate.x >= 0 ? true : false;
         }
 
-        public int getLeftLength(){
-            return leftTimer.length;
+        public int getNoteSize(){
+            return notes.length;
         }
 
-        public int getRightLength(){
-            return rightTimer.length;
+        public Coordinate getCoordinate(int index){
+            return notes[index].coordinate;
         }
     }
+
+    class Note{ // 시간 + 위치 + 방향을 담고 있는 클래스
+        int timer;
+        Coordinate coordinate;
+        int direction; // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
+        Vector3 pos; // parent(GameSystem)를 기준으로 한 로컬 벡터
+
+        Note(){ }
+        Note(int timer, Coordinate coordinate, int direction){
+            this.timer = timer;
+            this.coordinate = coordinate;
+            this.direction = direction;
+        }
+    }
+
+    final GameSystem gameSystem = this;
 
     ArSceneView arSceneView;
 
@@ -97,8 +91,7 @@ public class GameSystem extends AnchorNode{
     int musicIndex = 0;
     MusicUi musicUi; // 현재 나오는 음악 정보(playing중인지) 및 index를 알기 위해
 
-    int LeftTimerIndex = 0; // 왼쪽 노트 타이머 index
-    int RightTimerIndex = 0; // 오른쪽 노트 타이머 index
+    int currentIndex = 0;
     NoteCreateTimer musicCreater = null;
 
     int currentScore = 0; // 현재까지 얻은 점수
@@ -142,43 +135,102 @@ public class GameSystem extends AnchorNode{
     ModelRenderable blueRenderable;
     ModelRenderable redRenderable;
 
-
     Context context;
 
+    // 쓰기 쉽게 아래에 자주 쓰이는 좌표 나열
+    final Coordinate RIGHT = new Coordinate(INTERVAL/2, 0);
+    final Coordinate LEFT = new Coordinate(-INTERVAL/2, 0);
+    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2, INTERVAL/2);
+    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2, -INTERVAL/2);
+    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2, INTERVAL/2);
+    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2, -INTERVAL/2);
+
+    final int mR = 0, mRD = 1, mD = 2, mLD = 3, mL = 4, mLU = 5, mU = 6, mRU = 7;
+
+    // 새롭게 바뀐 곡 노트 타이밍
+    Note[][] NOTES = {
+        // 0번째 곡
+        {       new Note(1000, RIGHT, mU), new Note(2000, LEFT, mU),
+                new Note(3000, RIGHT, mD), new Note(4000, LEFT, mD),
+                new Note(5000, RIGHT, mR), new Note(6000, LEFT, mL),
+                new Note(7000, RIGHTUP, mRU), new Note(8000, LEFTUP, mLU),
+                new Note(9000, RIGHTDOWN, mRD), new Note(10000, LEFTDOWN, mLD),
+                new Note(11000, RIGHTUP, mR), new Note(12000, LEFTUP, mL),
+                new Note(13000, RIGHT, mR), new Note(14000, LEFT, mL),
+                new Note(15000, RIGHTDOWN, mR), new Note(16000, LEFTDOWN, mL),
+                new Note(17000, RIGHT, mU), new Note(18000, LEFT, mU),
+                new Note(19000, RIGHT, mD), new Note(20000, LEFT, mD),
+                new Note(21000, RIGHT, mR), new Note(22000, LEFT, mL),
+                new Note(23000, RIGHTUP, mRU), new Note(24000, LEFTUP, mLU),
+                new Note(25000, RIGHTDOWN, mRD), new Note(260000, LEFTDOWN, mLD),
+                new Note(27000, RIGHTUP, mR), new Note(28000, LEFTUP, mL),
+                new Note(29000, RIGHT, mR), new Note(30000, LEFT, mL),
+                new Note(31000, RIGHTDOWN, mR), new Note(32000, LEFTDOWN, mL),
+                new Note(33000, RIGHT, mU), new Note(34000, LEFT, mU),
+                new Note(35000, RIGHT, mD), new Note(36000, LEFT, mD),
+                new Note(37000, RIGHT, mR), new Note(38000, LEFT, mL),
+                new Note(39000, RIGHTUP, mRU), new Note(40000, LEFTUP, mLU),
+                new Note(41000, RIGHTDOWN, mRD), new Note(42000, LEFTDOWN, mLD),
+                new Note(43000, RIGHTUP, mR), new Note(44000, LEFTUP, mL),
+                new Note(45000, RIGHT, mR), new Note(46000, LEFT, mL),
+                new Note(47000, RIGHTDOWN, mR), new Note(48000, LEFTDOWN, mL)},
+        // 1번째 곡
+        {       new Note(1000, RIGHT, mU), new Note(2000, LEFT, mU),
+                new Note(3000, RIGHT, mD), new Note(4000, LEFT, mD),
+                new Note(5000, RIGHT, mR), new Note(6000, LEFT, mL),
+                new Note(7000, RIGHTUP, mRU), new Note(8000, LEFTUP, mLU),
+                new Note(9000, RIGHTDOWN, mRD), new Note(10000, LEFTDOWN, mLD),
+                new Note(11000, RIGHTUP, mR), new Note(12000, LEFTUP, mL),
+                new Note(13000, RIGHT, mR), new Note(14000, LEFT, mL),
+                new Note(15000, RIGHTDOWN, mR), new Note(16000, LEFTDOWN, mL),
+                new Note(17000, RIGHT, mU), new Note(18000, LEFT, mU),
+                new Note(19000, RIGHT, mD), new Note(20000, LEFT, mD),
+                new Note(21000, RIGHT, mR), new Note(22000, LEFT, mL),
+                new Note(23000, RIGHTUP, mRU), new Note(24000, LEFTUP, mLU),
+                new Note(25000, RIGHTDOWN, mRD), new Note(260000, LEFTDOWN, mLD),
+                new Note(27000, RIGHTUP, mR), new Note(28000, LEFTUP, mL),
+                new Note(29000, RIGHT, mR), new Note(30000, LEFT, mL),
+                new Note(31000, RIGHTDOWN, mR), new Note(32000, LEFTDOWN, mL),
+                new Note(33000, RIGHT, mU), new Note(34000, LEFT, mU),
+                new Note(35000, RIGHT, mD), new Note(36000, LEFT, mD),
+                new Note(37000, RIGHT, mR), new Note(38000, LEFT, mL),
+                new Note(39000, RIGHTUP, mRU), new Note(40000, LEFTUP, mLU),
+                new Note(41000, RIGHTDOWN, mRD), new Note(42000, LEFTDOWN, mLD),
+                new Note(43000, RIGHTUP, mR), new Note(44000, LEFTUP, mL),
+                new Note(45000, RIGHT, mR), new Note(46000, LEFT, mL),
+                new Note(47000, RIGHTDOWN, mR), new Note(48000, LEFTDOWN, mL)},
+        // 2번째 곡
+        {       new Note(1000, RIGHT, mU), new Note(2000, LEFT, mU),
+                new Note(3000, RIGHT, mD), new Note(4000, LEFT, mD),
+                new Note(5000, RIGHT, mR), new Note(6000, LEFT, mL),
+                new Note(7000, RIGHTUP, mRU), new Note(8000, LEFTUP, mLU),
+                new Note(9000, RIGHTDOWN, mRD), new Note(10000, LEFTDOWN, mLD),
+                new Note(11000, RIGHTUP, mR), new Note(12000, LEFTUP, mL),
+                new Note(13000, RIGHT, mR), new Note(14000, LEFT, mL),
+                new Note(15000, RIGHTDOWN, mR), new Note(16000, LEFTDOWN, mL),
+                new Note(17000, RIGHT, mU), new Note(18000, LEFT, mU),
+                new Note(19000, RIGHT, mD), new Note(20000, LEFT, mD),
+                new Note(21000, RIGHT, mR), new Note(22000, LEFT, mL),
+                new Note(23000, RIGHTUP, mRU), new Note(24000, LEFTUP, mLU),
+                new Note(25000, RIGHTDOWN, mRD), new Note(260000, LEFTDOWN, mLD),
+                new Note(27000, RIGHTUP, mR), new Note(28000, LEFTUP, mL),
+                new Note(29000, RIGHT, mR), new Note(30000, LEFT, mL),
+                new Note(31000, RIGHTDOWN, mR), new Note(32000, LEFTDOWN, mL),
+                new Note(33000, RIGHT, mU), new Note(34000, LEFT, mU),
+                new Note(35000, RIGHT, mD), new Note(36000, LEFT, mD),
+                new Note(37000, RIGHT, mR), new Note(38000, LEFT, mL),
+                new Note(39000, RIGHTUP, mRU), new Note(40000, LEFTUP, mLU),
+                new Note(41000, RIGHTDOWN, mRD), new Note(42000, LEFTDOWN, mLD),
+                new Note(43000, RIGHTUP, mR), new Note(44000, LEFTUP, mL),
+                new Note(45000, RIGHT, mR), new Note(46000, LEFT, mL),
+                new Note(47000, RIGHTDOWN, mR), new Note(48000, LEFTDOWN, mL)}
+    };
+
+/*
     // 곡 노트 타이밍 (왼쪽, 오른쪽) (ms) => [곡 인덱스][왼쪽, 오른쪽][노트 index] = 타이머
     final int[][][] NOTETIMER = {
             // 0번째 곡
-            // 수고가 많습니다.. 총총
-            {{1000, 3000, 5000, 7000, 9000, 10000, 11000, 13000, 15000, 17000, 19000,
-              20000, 21000, 23000, 25000, 27000, 29000, 30000, 31000, 33000, 35000, 37000, 39000,
-              40000, 41000, 43000, 45000, 47000, 49000, 50000, 51000, 53000, 55000, 57000, 59000,
-              60000, 61000, 63000, 65000, 67000, 69000, 70000, 71000, 73000, 75000, 77000, 79000,
-              80000, 81000, 83000, 85000, 87000, 89000, 90000, 91000, 93000, 95000, 97000, 99000,
-              100000, 101000, 103000, 105000, 107000, 109000, 110000, 111000, 113000, 115000, 117000, 119000,
-              120000}, // 왼쪽 노트
-             {2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000,
-              22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000,
-              42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000,
-              62000, 64000, 66000, 68000, 70000, 72000, 74000, 76000, 78000, 80000,
-              82000, 84000, 86000, 88000, 90000, 92000, 94000, 96000, 98000, 100000,
-              102000, 104000, 106000, 108000, 110000, 112000, 114000, 116000, 118000, 120000}}, // 오른쪽 노트
-
-            // 1번째 곡
-            {{1000, 3000, 5000, 7000, 9000, 10000, 11000, 13000, 15000, 17000, 19000,
-              20000, 21000, 23000, 25000, 27000, 29000, 30000, 31000, 33000, 35000, 37000, 39000,
-              40000, 41000, 43000, 45000, 47000, 49000, 50000, 51000, 53000, 55000, 57000, 59000,
-              60000, 61000, 63000, 65000, 67000, 69000, 70000, 71000, 73000, 75000, 77000, 79000,
-              80000, 81000, 83000, 85000, 87000, 89000, 90000, 91000, 93000, 95000, 97000, 99000,
-              100000, 101000, 103000, 105000, 107000, 109000, 110000, 111000, 113000, 115000, 117000, 119000,
-              120000}, // 왼쪽 노트
-             {2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000,
-              22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000,
-              42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000,
-              62000, 64000, 66000, 68000, 70000, 72000, 74000, 76000, 78000, 80000,
-              82000, 84000, 86000, 88000, 90000, 92000, 94000, 96000, 98000, 100000,
-              102000, 104000, 106000, 108000, 110000, 112000, 114000, 116000, 118000, 120000}}, // 오른쪽 노트
-
-            // 2번째 곡
+            // 수고가 많습니다.. 총총 ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ뭐야 언제썼어
             {{1000, 3000, 5000, 7000, 9000, 10000, 11000, 13000, 15000, 17000, 19000,
               20000, 21000, 23000, 25000, 27000, 29000, 30000, 31000, 33000, 35000, 37000, 39000,
               40000, 41000, 43000, 45000, 47000, 49000, 50000, 51000, 53000, 55000, 57000, 59000,
@@ -193,7 +245,7 @@ public class GameSystem extends AnchorNode{
               82000, 84000, 86000, 88000, 90000, 92000, 94000, 96000, 98000, 100000,
               102000, 104000, 106000, 108000, 110000, 112000, 114000, 116000, 118000, 120000}}, // 오른쪽 노트
     };
-
+*/
     // 딜레이 고려
     private float time = 0;
 
@@ -206,7 +258,6 @@ public class GameSystem extends AnchorNode{
 
         minDistance = Math.min(arSceneView.getWidth(), arSceneView.getHeight()) / 8f;
 
-        //touchView.setOnTouchListener(this::onTouch); // 이거 주석 없애고
         arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
 
         // Create an ARCore Anchor at the position.
@@ -241,20 +292,16 @@ public class GameSystem extends AnchorNode{
                 return;
             }
 
-            // 왼쪽 노트 타이밍 계산
-            if(LeftTimerIndex < musicCreater.getLeftLength() && musicCreater.getLeftTimer(LeftTimerIndex) < time){
-                // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, redRenderable, SPEED, DISTANCE, SCORE, false);
+            for(; currentIndex < musicCreater.getNoteSize() && musicCreater.getNoteTimer(currentIndex) < time; currentIndex++) {
+                int direction = musicCreater.getDirection(currentIndex);
+                Coordinate coordinate = musicCreater.getCoordinate(currentIndex);
 
-                LeftTimerIndex++;
-            }
-
-            // 오른쪽 노트 타이밍 계산
-            if(RightTimerIndex < musicCreater.getRightLength() && musicCreater.getRightTimer(RightTimerIndex) < time){
-                // GameNote 생성
-                GameNote note = new GameNote(arSceneView, this, blueRenderable, SPEED, DISTANCE, SCORE, true);
-
-                RightTimerIndex++;
+                if (musicCreater.isRight(currentIndex)) {
+                    GameNote note = new GameNote(arSceneView, this, blueRenderable, SPEED, DISTANCE, SCORE, coordinate, direction);
+                }
+                else {
+                    GameNote note = new GameNote(arSceneView, this, redRenderable, SPEED, DISTANCE, SCORE, coordinate, direction);
+                }
             }
         }
     }
@@ -271,10 +318,9 @@ public class GameSystem extends AnchorNode{
         textView.setVisibility(View.VISIBLE);
 
         musicIndex = musicUi.getCurrentMediaPlayerIndex();
-        LeftTimerIndex = 0;
-        RightTimerIndex = 0;
+        currentIndex = 0;
         isPlaying = true;
-        musicCreater = new NoteCreateTimer(NOTETIMER[musicIndex], SPEED, SCALE, SCORE);
+        musicCreater = new NoteCreateTimer(NOTES[musicIndex], SPEED, SCALE);
         SetPosition();
 
         currentScore = 0;
@@ -286,8 +332,7 @@ public class GameSystem extends AnchorNode{
         textView.setVisibility(View.GONE);
 
         isPlaying = false;
-        LeftTimerIndex = 0;
-        RightTimerIndex = 0;
+        currentIndex = 0;
         currentScore = 0;
         musicCreater = null;
         time = 0;
@@ -320,16 +365,6 @@ public class GameSystem extends AnchorNode{
         this.setWorldRotation(direction);
     }
 
-    public Vector3 SetNotePosition(boolean isRight){
-        if(isRight){
-            return this.getRight().scaled(INTERVAL/2);
-        }
-        else{
-            return this.getLeft().scaled(INTERVAL/2);
-        }
-    }
-
-
     public boolean onTouch(View view, MotionEvent motionEvent) {
         boolean ret = false;
         int touch_count = motionEvent.getPointerCount();
@@ -340,7 +375,7 @@ public class GameSystem extends AnchorNode{
 
         switch(action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: //한 개 포인트에 대한 DOWN을 얻을 때.
-                Log.i("디버그: ", " 터치 다운");
+                //Log.i("디버그: ", " 터치 다운");
                 key = motionEvent.getPointerId(0);
                 touchs.put(key, new Touch());
                 touchs.get(key).points.add(new Coordinate(motionEvent.getX(), motionEvent.getY()));
@@ -348,7 +383,7 @@ public class GameSystem extends AnchorNode{
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN: //두 개 이상의 포인트에 대한 DOWN을 얻을 때.
-                Log.i("디버그: ", " 터치 다운 (2개)");
+                //Log.i("디버그: ", " 터치 다운 (2개)");
                 for(int i = 0; i < touch_count; i++){
                     key = motionEvent.getPointerId(i);
                     touchs.put(key, new Touch());
@@ -358,7 +393,7 @@ public class GameSystem extends AnchorNode{
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                Log.i("디버그: ", " 터치 무브");
+                //Log.i("디버그: ", " 터치 무브");
                 for(int i = 0; i < touch_count; i++){
                     key = motionEvent.getPointerId(i);
                     touchs.get(key).points.add(new Coordinate(motionEvent.getX(i), motionEvent.getY(i)));
@@ -368,7 +403,7 @@ public class GameSystem extends AnchorNode{
                 break;
 
             case MotionEvent.ACTION_UP:
-                Log.i("디버그: ", " 터치 업");
+                //Log.i("디버그: ", " 터치 업");
                 for(int i = 0; i < touch_count; i++){
                     key = motionEvent.getPointerId(i);
                     touchs.remove(key);
@@ -514,6 +549,14 @@ public class GameSystem extends AnchorNode{
 
     }
 
+    Vector3 getPosVector(Coordinate coordinate){
+        Vector3 up = gameSystem.getUp();
+        Vector3 right = gameSystem.getRight();
+
+        Vector3 pos = Vector3.add(right.scaled(coordinate.x), up.scaled(coordinate.y));
+
+        return pos;
+    }
 
     public void getScore(int score){
         currentScore += score;
