@@ -3,6 +3,7 @@ package com.example.musicnote;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
@@ -84,10 +85,11 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
 
     // 네이버 지도 관련
-    private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final int PERMISSION_REQUEST_CODE = 1000;
     private static final String[] PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.CAMERA
     };
 
     private FusedLocationSource mLocationSource;
@@ -130,11 +132,11 @@ public class MainActivity extends AppCompatActivity
     // 음악 노트
     private int[] timerArray =
             {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
-            11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
-            21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
-            31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000,
-            41000, 42000, 43000, 44000, 45000, 46000, 47000, 48000, 49000, 50000,
-            51000, 52000, 53000, 54000, 55000, 56000, 57000, 58000, 59000, 60000};
+                    11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
+                    21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
+                    31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000,
+                    41000, 42000, 43000, 44000, 45000, 46000, 47000, 48000, 49000, 50000,
+                    51000, 52000, 53000, 54000, 55000, 56000, 57000, 58000, 59000, 60000};
 
     // UI
     private TextView musicTitle;
@@ -256,7 +258,6 @@ public class MainActivity extends AppCompatActivity
         setUpModel();
 
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
-        //arFragment.getArSceneView().getScene().addOnUpdateListener(this::onSceneUpdate);
     }
 
     @Override
@@ -341,6 +342,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
+        // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
+        mNaverMap = naverMap;
+
+        mNaverMap.setLocationSource(mLocationSource);
+
         Log.d(TAG, "onMapReady");
 
         // 마커 세팅
@@ -376,10 +382,6 @@ public class MainActivity extends AppCompatActivity
         logo.setAnchor(new PointF(0.5f, 0.5f));
         logo.setMap(naverMap);
 
-        // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
-        mNaverMap = naverMap;
-        mNaverMap.setLocationSource(mLocationSource);
-
         // UI 컨트롤 재배치
         UiSettings uiSettings = mNaverMap.getUiSettings();
         uiSettings.setCompassEnabled(false); // 기본값 : true
@@ -403,23 +405,37 @@ public class MainActivity extends AppCompatActivity
         locationOverlay.setSubIconHeight(40);
         locationOverlay.setSubAnchor(new PointF(0.5f, 0.9f));
 
-        mNaverMap.addOnLocationChangeListener(location ->
-                mCurrentLocation = location);
+        mNaverMap.addOnLocationChangeListener(location ->{
+                    mCurrentLocation = location;
+                });
+        mNaverMap.addOnCameraIdleListener(()->{
+            if(mNaverMap.getLocationTrackingMode() == LocationTrackingMode.NoFollow ||
+            mNaverMap.getLocationTrackingMode() == LocationTrackingMode.None){
+                mNaverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+            }
+        });
+
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
-        ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+        //ActivityCompat.requestPermissions(this, PERMISSIONS, LOCATION_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        // request code와 권한획득 여부 확인
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                mNaverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+        if (mLocationSource.onRequestPermissionsResult(
+                requestCode, permissions, grantResults)) {
+            if (!mLocationSource.isActivated()) { // 권한 거부됨
+                mNaverMap.setLocationTrackingMode(LocationTrackingMode.None);
             }
+
+            Log.i("디버그: ", " 퍼미션 요청");
+            return;
         }
+
+
+
+        super.onRequestPermissionsResult(
+                requestCode, permissions, grantResults);
     }
 
     @Override
