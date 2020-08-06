@@ -102,10 +102,10 @@ public class GameSystem extends AnchorNode{
     final float ZONEDISTANCE = 1.75f; // 퍼펙트 존 거리
     final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
-    final float SCALE = 0.5f;
+    final float SCALE = 0.4f;
     final int SCORE = 50;
 
-    final float INTERVAL = 0.6f; // 0.6m
+    final float INTERVAL = (MainActivity.getMinScreenSize() / 2160); // =>0.5
 
     // 터치 관련
     class Coordinate{
@@ -128,7 +128,7 @@ public class GameSystem extends AnchorNode{
         }
     }
     Map<Integer, Touch> touchs = new HashMap<>();
-    final float minDistance; // 드래그의 최소 거리
+    final float minDistance = MainActivity.getMinScreenSize() / 8f; // 드래그의 최소 거리
 
     // 점수 관련
     final TextView textView;
@@ -139,12 +139,24 @@ public class GameSystem extends AnchorNode{
     Context context;
 
     // 쓰기 쉽게 아래에 자주 쓰이는 좌표 나열
-    final Coordinate RIGHT = new Coordinate(INTERVAL/2, 0);
-    final Coordinate LEFT = new Coordinate(-INTERVAL/2, 0);
-    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2, INTERVAL/3);
-    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2, -INTERVAL/3);
-    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2, INTERVAL/3);
-    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2, -INTERVAL/3);
+    final Coordinate RIGHT = new Coordinate(INTERVAL/2f, 0);
+    final Coordinate LEFT = new Coordinate(-INTERVAL/2f, 0);
+    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2f, INTERVAL/2.5f);
+    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2f, -INTERVAL/2.5f);
+    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2f, INTERVAL/2.5f);
+    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2f, -INTERVAL/2.5f);
+    final Coordinate RIGHT_FAR = new Coordinate(INTERVAL/1.5f, 0);
+    final Coordinate LEFT_FAR = new Coordinate(-INTERVAL/1.5f, 0);
+    final Coordinate RIGHTUP_FAR = new Coordinate(INTERVAL/1.5f, INTERVAL/2f);
+    final Coordinate RIGHTDOWN_FAR = new Coordinate(INTERVAL/1.5f, -INTERVAL/2f);
+    final Coordinate LEFTUP_FAR = new Coordinate(-INTERVAL/1.5f, INTERVAL/2f);
+    final Coordinate LEFTDOWN_FAR = new Coordinate(-INTERVAL/1.5f, -INTERVAL/2f);
+    final Coordinate RIGHT_NEAR = new Coordinate(INTERVAL/3f, 0);
+    final Coordinate LEFT_NEAR = new Coordinate(-INTERVAL/3f, 0);
+    final Coordinate RIGHTUP_NEAR = new Coordinate(INTERVAL/3f, INTERVAL/2.5f);
+    final Coordinate RIGHTDOWN_NEAR = new Coordinate(INTERVAL/3f, -INTERVAL/2.5f);
+    final Coordinate LEFTUP_NEAR = new Coordinate(-INTERVAL/3f, INTERVAL/2.5f);
+    final Coordinate LEFTDOWN_NEAR = new Coordinate(-INTERVAL/3f, -INTERVAL/2.5f);
 
     final int mR = 0, mRD = 1, mD = 2, mLD = 3, mL = 4, mLU = 5, mU = 6, mRU = 7;
 
@@ -309,8 +321,6 @@ public class GameSystem extends AnchorNode{
         this.musicUi = musicUi;
         this.textView = textView;
 
-        minDistance = Math.min(arSceneView.getWidth(), arSceneView.getHeight()) / 6f;
-
         arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
 
         // Create an ARCore Anchor at the position.
@@ -329,6 +339,8 @@ public class GameSystem extends AnchorNode{
         Vector3 up = this.getUp();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
+
+        Log.i("스크린크기> ", ""+MainActivity.getMinScreenSize());
     }
 
     @Override

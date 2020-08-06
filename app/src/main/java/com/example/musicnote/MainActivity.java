@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity
 
     // 아래는 ArCamera를 위한 변수 선언
     private ArFragment arFragment;
-    private ArSceneView arSceneView;
+    private static ArSceneView arSceneView;
     private AnchorNode[] mAnchorNode = new AnchorNode[3];
     private AnchorNode logoAnchor;
 
@@ -158,11 +158,11 @@ public class MainActivity extends AppCompatActivity
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        /*
+
         //팝업창 관련
         Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
         startActivityForResult(intent, 1);
-*/
+
         // Devicd Orientation 관련
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -266,6 +266,8 @@ public class MainActivity extends AppCompatActivity
         arFragment.getPlaneDiscoveryController().hide();
         arFragment.getPlaneDiscoveryController().setInstructionView(null);
 
+        arFragment.onResume();
+
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
     }
@@ -273,8 +275,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        arFragment.onPause();
         mSensorManager.unregisterListener(this, mAccelerometer);
         mSensorManager.unregisterListener(this, mMagnetometer);
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        //arFragment.onDestroy();
     }
 
     private void setUpModel() {
@@ -310,7 +319,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nintendo)
+                .setSource(this, R.raw.musicnote3)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -320,7 +329,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nintendo)
+                .setSource(this, R.raw.musicnote3)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -330,7 +339,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nintendo)
+                .setSource(this, R.raw.musicnote3)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -804,5 +813,9 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    public static float getMinScreenSize(){
+        return Math.min(arSceneView.getWidth(), arSceneView.getHeight());
     }
 }
