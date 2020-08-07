@@ -28,7 +28,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewManager;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -84,6 +86,8 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
 
+    private FrameLayout popupLayout;
+
     // 네이버 지도 관련
     private static final int PERMISSION_REQUEST_CODE = 1000;
     private static final String[] PERMISSIONS = {
@@ -125,9 +129,9 @@ public class MainActivity extends AppCompatActivity
     private float[] mLastMagnetometer = new float[3];
     private boolean mLastAccelerometerSet = false;
     private boolean mLastMagnetometerSet = false;
-    private float mCurrentAzim = 0f; // 방위각
-    private float mCurrentPitch = 0f; // 피치
-    private float mCurrentRoll = 0f; // 롤
+    public static float mCurrentAzim = 0f; // 방위각
+    public static float mCurrentPitch = 0f; // 피치
+    public static float mCurrentRoll = 0f; // 롤
 
     // 음악 노트
     private int[] timerArray =
@@ -159,9 +163,11 @@ public class MainActivity extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
+        /*
         //팝업창 관련
         Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
         startActivityForResult(intent, 1);
+        */
 
         // Devicd Orientation 관련
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -202,19 +208,21 @@ public class MainActivity extends AppCompatActivity
         addContentView(ll, paramll);
 
 
-        // 게임 ui 관련
-        // 레이아웃을 위에 겹쳐서 올리는 부분
-        LayoutInflater ginflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // 게임 ui 레이아웃 오버레이
         // 레이아웃 객체 생성
-        LinearLayout gll = (LinearLayout) ginflater.inflate(R.layout.game_ui, null);
+        LinearLayout gameLayout = (LinearLayout) inflater.inflate(R.layout.game_ui, null);
         // 레이아웃 배경 투명도 주기
-        gll.setBackgroundColor(Color.parseColor("#00000000"));
+        gameLayout.setBackgroundColor(Color.parseColor("#00000000"));
         // 레이아웃 위에 겹치기
-        LinearLayout.LayoutParams gparamll = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        addContentView(gll, gparamll);
+        addContentView(gameLayout, paramll);
 
+        // '위치를 찾는 중' 팝업창 오버레이
+        popupLayout = (FrameLayout)inflater.inflate(R.layout.activity_popup, null);
+        popupLayout.setBackgroundColor(Color.parseColor("#CC000000"));
+        FrameLayout.LayoutParams popParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        addContentView(popupLayout, popParams);
 
         // 음악 관련 세팅
         musicUi = (ScalableLayout) findViewById(R.id.musicUi);
@@ -441,8 +449,6 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-
-
         super.onRequestPermissionsResult(
                 requestCode, permissions, grantResults);
     }
@@ -528,6 +534,10 @@ public class MainActivity extends AppCompatActivity
         if (mCurrentLocation == null) {
             Log.d(TAG, "Location is null");
             return;
+        }
+        else{
+            if(popupLayout == null || popupLayout.getParent() != null)
+                ((ViewManager)popupLayout.getParent()).removeView(popupLayout);
         }
 
         if (bofLogoRenderable == null) {
@@ -666,7 +676,7 @@ public class MainActivity extends AppCompatActivity
 
         BofLogo bofLogo = new BofLogo(logoAnchor, bofLogoRenderable, arSceneView);
 
-        Snackbar.make(mLayout, "로고 오브젝트 생성 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(mLayout, "목적지 근처에 도착했습니다 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
     }
 
     // 앨범 노드 생성~!
@@ -772,7 +782,7 @@ public class MainActivity extends AppCompatActivity
         }
         albumNode.setIndex(index);
 
-        Snackbar.make(mLayout, "오브젝트 생성[" + i + "] (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(mLayout, "앨범이 근처에 있습니다 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
 
         return true;
     }

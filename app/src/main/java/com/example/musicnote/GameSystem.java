@@ -98,7 +98,7 @@ public class GameSystem extends AnchorNode{
     int currentScore = 0; // 현재까지 얻은 점수
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
-    final int DELAY = 2000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
+    final int DELAY = 2500; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
     final float ZONEDISTANCE = 1.75f; // 퍼펙트 존 거리
     final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
@@ -493,8 +493,10 @@ public class GameSystem extends AnchorNode{
 
         if(distance >= minDistance){
             // touch의 방향 확인
-            float theta = (float)Math.atan2(y, x);
+            float theta = (float)Math.atan2(y, x) + MainActivity.mCurrentRoll;
             if(theta < 0) theta += (float)Math.PI * 2;
+
+            //theta = theta % (float)(Math.PI*2);
             if(0 <= theta && theta < Math.PI/8 || Math.PI/8 + Math.PI/4 * 7 <= theta && theta < Math.PI*2){
                 // 오른쪽
                 touchs.get(key).direction = 0;
