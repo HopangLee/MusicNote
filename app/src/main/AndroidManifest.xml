@@ -20,7 +20,13 @@
         <activity android:name=".InfoActivity">
 
         </activity>
+
+        <activity android:name=".SplashActivity">
+
+        </activity>
+
         <activity android:name=".IntroActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <!-- //응용프로그램의 진입 -->
@@ -33,9 +39,11 @@
             android:screenOrientation="fullSensor"
             android:theme="@style/popupTheme" />
         <activity
-            android:name=".PopupActivity2"
-            android:screenOrientation="fullSensor"
-            android:theme="@style/popupTheme" />
+        android:name=".PopupActivity2"
+        android:screenOrientation="fullSensor"
+        android:theme="@style/popupTheme" />
+
+
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"

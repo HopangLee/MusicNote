@@ -50,8 +50,9 @@ public class InfoActivity extends AppCompatActivity {
                 }
                 // 권한이 허용되어있다면 다음 화면 진행
                 else {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivityForResult(intent,1);
+                    Intent intent = new Intent(getApplicationContext(), SplashActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
 
