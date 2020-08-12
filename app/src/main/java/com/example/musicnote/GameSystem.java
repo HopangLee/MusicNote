@@ -85,7 +85,7 @@ public class GameSystem extends AnchorNode{
 
     ArSceneView arSceneView;
 
-    boolean isPlaying = false; // 게임이 진행 중인지
+    public boolean isPlaying = false; // 게임이 진행 중인지
 
     MediaPlayer currentMediaPlayer; // 현재 흘러나오는 음악(터치한 오브젝트의 음악),
     // 노래 시간에 맞추기 위해서 필요? (아니면 그냥 일정 시간 마다 진행하는걸로 => 노래가 꺼져도 진행가능)
@@ -139,13 +139,13 @@ public class GameSystem extends AnchorNode{
     Context context;
 
     // 쓰기 쉽게 아래에 자주 쓰이는 좌표 나열
-    //final Coordinate RIGHT = new Coordinate(INTERVAL/2f, 0);
-    //final Coordinate LEFT = new Coordinate(-INTERVAL/2f, 0);
+    final Coordinate RIGHT = new Coordinate(INTERVAL/2f, 0);
+    final Coordinate LEFT = new Coordinate(-INTERVAL/2f, 0);
     final Coordinate RIGHTUP = new Coordinate(INTERVAL/2f, INTERVAL/2.5f);
     final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2f, -INTERVAL/2.5f);
     final Coordinate LEFTUP = new Coordinate(-INTERVAL/2f, INTERVAL/2.5f);
     final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2f, -INTERVAL/2.5f);
-    final Coordinate Middle = new Coordinate(0, 0);
+    final Coordinate MIDDLE = new Coordinate(0, 0);
 
     final int mR = 0, mRD = 1, mD = 2, mLD = 3, mL = 4, mLU = 5, mU = 6, mRU = 7;
 
@@ -195,47 +195,47 @@ public class GameSystem extends AnchorNode{
                 new Note(68000, RIGHTDOWN, mRD), new Note(68000, LEFTDOWN, mLD)
                 },
         // 1번째 곡
-        {       new Note(1000, RIGHTUP, mU), new Note(2000, LEFTUP, mU),
-                new Note(3000, RIGHTDOWN, mD), new Note(4000, LEFTDOWN, mD),
-                new Note(5000, RIGHTUP, mR), new Note(6000, LEFTDOWN, mL),
-                new Note(7000, RIGHTUP, mRU), new Note(8000, LEFTUP, mLU),
-                new Note(9000, RIGHTDOWN, mRD), new Note(10000, LEFTDOWN, mLD),
-                new Note(11000, RIGHTUP, mR), new Note(12000, LEFTUP, mL),
-                new Note(13000, RIGHTUP, mR), new Note(14000, LEFTUP, mL),
-                new Note(15000, RIGHTDOWN, mR), new Note(16000, LEFTDOWN, mL),
-                new Note(17000, RIGHTUP, mU), new Note(18000, LEFTUP, mU),
-                new Note(19000, RIGHTUP, mD), new Note(20000, LEFTUP, mD),
-                new Note(21000, RIGHTDOWN, mR), new Note(22000, LEFTDOWN, mL),
-                new Note(23000, RIGHTUP, mRU), new Note(24000, LEFTUP, mLU),
-                new Note(25000, RIGHTDOWN, mRD), new Note(26000, LEFTDOWN, mLD),
-                new Note(27000, RIGHTUP, mR), new Note(28000, LEFTUP, mL),
-                new Note(29000, RIGHTDOWN, mR), new Note(30000, RIGHTDOWN, mL),
-                new Note(31000, RIGHTDOWN, mR), new Note(32000, LEFTDOWN, mL),
-                new Note(33000, RIGHTDOWN, mU), new Note(34000, RIGHTDOWN, mU),
-                new Note(35000, RIGHTUP, mD), new Note(36000, LEFTUP, mD),
-                new Note(37000, LEFTUP, mR), new Note(38000, LEFTUP, mL),
-                new Note(39000, RIGHTUP, mRU), new Note(40000, LEFTUP, mLU),
-                new Note(41000, RIGHTDOWN, mRD), new Note(42000, LEFTDOWN, mLD),
-                new Note(43000, RIGHTUP, mR), new Note(44000, LEFTUP, mL),
-                new Note(45000, LEFTUP, mR), new Note(46000, LEFTUP, mL),
-                new Note(47000, RIGHTDOWN, mR), new Note(48000, LEFTDOWN, mL),
-                new Note(50000, RIGHTUP, mR), new Note(50000, LEFTDOWN, mL),
-                new Note(52000, RIGHTDOWN, mU), new Note(52000, LEFTUP, mU),
-                new Note(54000, RIGHTDOWN, mD), new Note(54000, LEFTUP, mD),
-                new Note(55000, RIGHTDOWN, mU), new Note(55000, LEFTUP, mU),
-                new Note(56000, RIGHTDOWN, mD), new Note(56000, LEFTUP, mD),
-                new Note(57000, RIGHTUP, mU), new Note(57000, LEFTUP, mU),
-                new Note(58000, RIGHTUP, mD), new Note(58000, LEFTUP, mD),
-                new Note(59000, RIGHTUP, mU), new Note(59000, LEFTUP, mU),
-                new Note(60000, RIGHTUP, mD), new Note(60000, LEFTUP, mD),
-                new Note(62000, RIGHTUP, mU), new Note(62000, LEFTUP, mU),
-                new Note(62500, RIGHTDOWN, mU), new Note(62500, LEFTDOWN, mU),
-                new Note(63000, RIGHTDOWN, mU), new Note(63000, LEFTDOWN, mU),
-                new Note(65000, RIGHTDOWN, mD), new Note(65000, LEFTDOWN, mD),
-                new Note(65500, RIGHTUP, mD), new Note(65500, LEFTDOWN, mD),
-                new Note(66000, RIGHTUP, mD), new Note(66000, LEFTUP, mD),
-                new Note(67000, RIGHTUP, mRU), new Note(67000, LEFTUP, mLU),
-                new Note(68000, RIGHTDOWN, mRD), new Note(68000, LEFTDOWN, mLD)},
+        {       new Note(1000, RIGHT, mU), new Note(2000, LEFT, mU),
+                new Note(3000, RIGHT, mD), new Note(4000, LEFT, mD),
+                new Note(5000, MIDDLE, mR), new Note(6000, MIDDLE, mL),
+                new Note(7000, RIGHT, mRU), new Note(8000, LEFT, mLU),
+                new Note(9000, MIDDLE, mRD), new Note(10000, MIDDLE, mLD),
+                new Note(11000, RIGHT, mR), new Note(12000, LEFT, mL),
+                new Note(13000, RIGHT, mR), new Note(14000, LEFT, mL),
+                new Note(15000, RIGHT, mR), new Note(16000, LEFT, mL),
+                new Note(17000, MIDDLE, mU), new Note(18000, MIDDLE, mU),
+                new Note(19000, RIGHT, mD), new Note(20000, MIDDLE, mD),
+                new Note(21000, RIGHT, mR), new Note(22000, MIDDLE, mL),
+                new Note(23000, RIGHT, mRU), new Note(24000, LEFT, mLU),
+                new Note(25000, RIGHT, mRD), new Note(26000, LEFT, mLD),
+                new Note(27000, MIDDLE, mR), new Note(28000, LEFT, mL),
+                new Note(29000, MIDDLE, mR), new Note(30000, LEFT, mL),
+                new Note(31000, MIDDLE, mR), new Note(32000, MIDDLE, mL),
+                new Note(33000, MIDDLE, mU), new Note(34000, LEFT, mU),
+                new Note(35000, RIGHT, mD), new Note(36000, LEFT, mD),
+                new Note(37000, RIGHT, mR), new Note(38000, LEFT, mL),
+                new Note(39000, RIGHT, mRU), new Note(40000, LEFT, mLU),
+                new Note(41000, MIDDLE, mRD), new Note(42000, LEFT, mLD),
+                new Note(43000, RIGHT, mR), new Note(44000, LEFT, mL),
+                new Note(45000, RIGHT, mR), new Note(46000, LEFT, mL),
+                new Note(47000, RIGHT, mR), new Note(48000, LEFT, mL),
+                new Note(50000, RIGHT, mR), new Note(50000, LEFT, mL),
+                new Note(52000, RIGHT, mU), new Note(52000, LEFT, mU),
+                new Note(54000, RIGHT, mD), new Note(54000, LEFT, mD),
+                new Note(55000, MIDDLE, mU), new Note(55000, LEFT, mU),
+                new Note(56000, RIGHT, mD), new Note(56000, MIDDLE, mD),
+                new Note(57000, RIGHT, mU), new Note(57000, LEFT, mU),
+                new Note(58000, RIGHT, mD), new Note(58000, LEFT, mD),
+                new Note(59000, MIDDLE, mU), new Note(59000, LEFT, mU),
+                new Note(60000, RIGHT, mD), new Note(60000, LEFT, mD),
+                new Note(62000, RIGHT, mU), new Note(62000, MIDDLE, mU),
+                new Note(62500, RIGHT, mU), new Note(62500, LEFT, mU),
+                new Note(63000, RIGHT, mU), new Note(63000, LEFT, mU),
+                new Note(65000, RIGHT, mD), new Note(65000, LEFT, mD),
+                new Note(65500, MIDDLE, mD), new Note(65500, LEFT, mD),
+                new Note(66000, MIDDLE, mD), new Note(66000, LEFT, mD),
+                new Note(67000, MIDDLE, mRU), new Note(67000, LEFT, mLU),
+                new Note(68000, RIGHT, mRD), new Note(68000, LEFT, mLD)},
         // 2번째 곡
         {       new Note(1000, RIGHTUP, mU), new Note(2000, LEFTUP, mU),
                 new Note(3000, RIGHTDOWN, mD), new Note(4000, LEFTDOWN, mD),

@@ -46,8 +46,8 @@ public class GameNote extends Node{
 
         effectSound = MediaPlayer.create(gameSystem.context, R.raw.ui_menu_button_click_19);
 
-        //Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
-        Quaternion rotation = Quaternion.axisAngle(this.getUp(), 0);
+        Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
+        //Quaternion rotation = Quaternion.axisAngle(this.getUp(), 0);
 
         switch (DIRECTION){
             case 0: // 오른쪽
