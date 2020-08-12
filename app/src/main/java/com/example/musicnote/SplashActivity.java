@@ -24,7 +24,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.splash_layout);
 
         loadingbar = (ProgressBar)findViewById(R.id.loadingbar);
-        loadingbar.setMax(500);
+        loadingbar.setMax(200);
         Activity activity = this;
 
         Thread musicThread = new Thread(new Runnable() {
@@ -40,7 +40,7 @@ public class SplashActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    if(!isStart && progress > 100){
+                    if(!isStart && progress > 60){
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         isStart = true;
