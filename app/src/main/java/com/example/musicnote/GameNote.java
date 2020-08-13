@@ -4,7 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,6 +24,8 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.math.Vector3Evaluator;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
+
+
 public class GameNote extends Node{
     ArSceneView arSceneView; // 카메라 위치 알기 위함
     GameSystem gameSystem; // up Vector와 parnet의 위치 => SetNotePosition으로 위치 갱신
@@ -32,7 +37,10 @@ public class GameNote extends Node{
     // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
     int DIRECTION = -1; // 기본(-1)
 
-    MediaPlayer effectSound;
+    //MediaPlayer effectSound;
+    SoundPool soundPool;
+    int effectSoundID;
+
     GameSystem.Coordinate coordinate;
 
     GameNote(ArSceneView arSceneView, GameSystem gameSystem, ModelRenderable noteRenderable, float speed, float distance, int score, GameSystem.Coordinate coordinate, int DIRECTION){
@@ -44,7 +52,8 @@ public class GameNote extends Node{
         this.coordinate = coordinate;
         this.DIRECTION = DIRECTION;
 
-        effectSound = MediaPlayer.create(gameSystem.context, R.raw.ui_menu_button_click_19);
+        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        effectSoundID = soundPool.load(gameSystem.context, R.raw.ui_menu_button_click_19, 1);
 
         Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
         //Quaternion rotation = Quaternion.axisAngle(this.getUp(), 0);
@@ -144,7 +153,11 @@ public class GameNote extends Node{
         if(this.DIRECTION != direction) return; // 드래그 한 방향이 다르면 삭제x
 
         if(limitDistance - (perfectLine + 1f) <= distance && distance <= limitDistance - (perfectLine - 1f)) { // 일단 타격 인정 범위
-            effectSound.start();
+            //effectSound.start();
+            soundPool.play(effectSoundID, 1f, 1f, 0, 0, 1f);
+            //Vibrator vib = (Vibrator)gameSystem.context.getSystemService(Context.VIBRATOR_SERVICE);
+            //vib.vibrate(200);
+
             removeNote();
             if(limitDistance - (perfectLine + 0.5f) <= distance &&
                     distance <= limitDistance - (perfectLine - 0.5f)) {
