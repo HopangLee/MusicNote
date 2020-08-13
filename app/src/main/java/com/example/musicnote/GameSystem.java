@@ -1,7 +1,10 @@
 package com.example.musicnote;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -303,12 +306,20 @@ public class GameSystem extends AnchorNode{
     // 딜레이 고려
     private float time = 0;
 
+    // 효과음 관련
+    //MediaPlayer effectSound;
+    SoundPool soundPool;
+    int effectSoundID;
+
     GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView){
         // Setting
         this.context = context;
         this.arSceneView = arSceneView;
         this.musicUi = musicUi;
         this.textView = textView;
+
+        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        effectSoundID = soundPool.load(gameSystem.context, R.raw.ui_menu_button_click_19, 1);
 
         arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
 
@@ -329,7 +340,7 @@ public class GameSystem extends AnchorNode{
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
 
-        Log.i("스크린크기> ", ""+MainActivity.getMinScreenSize());
+        //Log.i("스크린크기> ", ""+MainActivity.getMinScreenSize());
     }
 
     @Override
@@ -612,9 +623,19 @@ public class GameSystem extends AnchorNode{
         return pos;
     }
 
-    public void getScore(int score){
+    public void getScore(int score, Coordinate coordinate){
         currentScore += score;
         textView.setText(Integer.toString(currentScore));
+        if(coordinate.x > 0) {
+            soundPool.play(effectSoundID, 0.25f, 1f, 0, 0, 1.2f);
+        }
+        else if (coordinate.x < 0){
+            soundPool.play(effectSoundID, 1f, 0.25f, 0, 0, 1.2f);
+        }
+        else{
+            soundPool.play(effectSoundID, 1f, 1f, 0, 0, 1.2f);
+        }
+
         Log.i("Time: ", currentMediaPlayer.getCurrentPosition()+"ms, "+"Time: "+time);
     }
 

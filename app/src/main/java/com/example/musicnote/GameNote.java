@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.os.Build;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -37,10 +38,6 @@ public class GameNote extends Node{
     // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
     int DIRECTION = -1; // 기본(-1)
 
-    //MediaPlayer effectSound;
-    SoundPool soundPool;
-    int effectSoundID;
-
     GameSystem.Coordinate coordinate;
 
     GameNote(ArSceneView arSceneView, GameSystem gameSystem, ModelRenderable noteRenderable, float speed, float distance, int score, GameSystem.Coordinate coordinate, int DIRECTION){
@@ -51,9 +48,6 @@ public class GameNote extends Node{
         this.score = score;
         this.coordinate = coordinate;
         this.DIRECTION = DIRECTION;
-
-        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        effectSoundID = soundPool.load(gameSystem.context, R.raw.ui_menu_button_click_19, 1);
 
         Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
         //Quaternion rotation = Quaternion.axisAngle(this.getUp(), 0);
@@ -154,17 +148,16 @@ public class GameNote extends Node{
 
         if(limitDistance - (perfectLine + 1f) <= distance && distance <= limitDistance - (perfectLine - 1f)) { // 일단 타격 인정 범위
             //effectSound.start();
-            soundPool.play(effectSoundID, 1f, 1f, 0, 0, 1f);
             //Vibrator vib = (Vibrator)gameSystem.context.getSystemService(Context.VIBRATOR_SERVICE);
             //vib.vibrate(200);
 
             removeNote();
             if(limitDistance - (perfectLine + 0.5f) <= distance &&
                     distance <= limitDistance - (perfectLine - 0.5f)) {
-                gameSystem.getScore(score * 2);
+                gameSystem.getScore(score * 2, coordinate);
             }
             else{
-                gameSystem.getScore(score);
+                gameSystem.getScore(score, coordinate);
             }
         }
     }
