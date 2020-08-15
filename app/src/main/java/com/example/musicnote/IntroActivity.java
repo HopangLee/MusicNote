@@ -2,6 +2,8 @@ package com.example.musicnote;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -21,10 +23,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class IntroActivity extends AppCompatActivity {
 
+    SoundPool soundPool;
+    int effectSoundID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
+
+        soundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+        effectSoundID = soundPool.load(this, R.raw.ui_menu_button_click_07, 1);
 
         ImageButton musicnote_btn = (ImageButton) findViewById(R.id.musicnote_btn);
         TextView bof_text = (TextView)findViewById(R.id.textView);
@@ -59,6 +67,7 @@ public class IntroActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
+                soundPool.play(effectSoundID, 0.75f, 0.75f, 0, 0, 1f);
                 startActivity(intent);
             }
         });

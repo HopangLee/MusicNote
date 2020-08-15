@@ -2,11 +2,11 @@
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <stroke android:width="5dp"
-        android:color="#FF5D4D" />
+    <stroke android:width="3dp"
+        android:color="#ece6cc" />
 
-    <corners android:bottomRightRadius="7dp" android:bottomLeftRadius="7dp"
-        android:topLeftRadius="7dp" android:topRightRadius="7dp"/>
+    <corners android:bottomRightRadius="5dp" android:bottomLeftRadius="5dp"
+        android:topLeftRadius="5dp" android:topRightRadius="5dp"/>
 
     <padding
         android:left="2dp"

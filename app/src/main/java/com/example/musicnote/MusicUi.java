@@ -24,9 +24,9 @@ public class MusicUi{
     private ProgressBar musicBar;
     private TextView titleText;
     private ImageView playBtn;
-    private ImageView album;
+    //private ImageView album;
     String[] title = {"How You Like That - 블랙핑크", "DNA - 방탄소년단","빨간맛 - 레드벨벳"};
-    final int[] FILEROOT = {R.drawable.blackpink_howyoulikethat, R.drawable.bts_dna, R.drawable.redvelvet_redflavor};
+    //final int[] FILEROOT = {R.drawable.blackpink_howyoulikethat, R.drawable.bts_dna, R.drawable.redvelvet_redflavor};
     final int[] MEDIAROOT = {R.raw.blackpink, R.raw.bts, R.raw.red_velvet};
     //MediaPlayer[] mediaPlayer = new MediaPlayer[3];
     List<MediaPlayer> mediaPlayers = new ArrayList<>(3);
@@ -36,11 +36,11 @@ public class MusicUi{
     private Timer mTimer;
     private TimerTask mTask;
 
-    MusicUi(Activity mActivity, Context context, ProgressBar musicBar, TextView titleText, ImageView playBtn, ImageView album){
+    MusicUi(Activity mActivity, Context context, ProgressBar musicBar, TextView titleText, ImageView playBtn){
         this.musicBar = musicBar;
         this.titleText = titleText;
         this.playBtn = playBtn;
-        this.album = album;
+        //this.album = album;
 
         for(int r : MEDIAROOT){
             mediaPlayers.add(MediaPlayer.create(context, r));
@@ -64,7 +64,7 @@ public class MusicUi{
         musicBar.setMax(currentMediaPlayer.getDuration());
         musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
         titleText.setText(title[number]);
-        album.setImageResource(FILEROOT[number]);
+        //album.setImageResource(FILEROOT[number]);
     }
 
     public void musicPlay(){
@@ -100,7 +100,7 @@ public class MusicUi{
             };
             mTimer.schedule(mTask, gameSystem.getDELAY());
 
-            playBtn.setImageResource(android.R.drawable.ic_media_pause);
+            playBtn.setImageResource(R.drawable.ic_media_stop);
 
 
         }
@@ -111,7 +111,7 @@ public class MusicUi{
             mTimer.cancel();
             currentMediaPlayer.pause();
             gameSystem.GamePause();
-            playBtn.setImageResource(android.R.drawable.ic_media_play);
+            playBtn.setImageResource(R.drawable.ic_media_play);
         }
     }
 

@@ -5,6 +5,10 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -135,6 +139,7 @@ public class GameSystem extends AnchorNode{
 
     // 점수 관련
     final TextView textView;
+    final TextView textView2;
 
     ModelRenderable blueRenderable;
     ModelRenderable redRenderable;
@@ -311,15 +316,16 @@ public class GameSystem extends AnchorNode{
     SoundPool soundPool;
     int effectSoundID;
 
-    GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView){
+    GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView, TextView textView2){
         // Setting
         this.context = context;
         this.arSceneView = arSceneView;
         this.musicUi = musicUi;
         this.textView = textView;
+        this.textView2 = textView2;
 
         soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        effectSoundID = soundPool.load(gameSystem.context, R.raw.ui_menu_button_click_19, 1);
+        effectSoundID = soundPool.load(context, R.raw.kick_heavy_impact_04, 1);
 
         arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
 
@@ -625,15 +631,34 @@ public class GameSystem extends AnchorNode{
 
     public void getScore(int score, Coordinate coordinate){
         currentScore += score;
-        textView.setText(Integer.toString(currentScore));
+        //textView.setText(Integer.toString(currentScore));
+        int colorWhite = context.getResources().getColor(R.color.colorWhite);
+
+        String scoreString = currentScore +" 점";
+        int length = scoreString.length();
+        SpannableStringBuilder spannable = new SpannableStringBuilder(scoreString);
+        spannable.setSpan(new AbsoluteSizeSpan(60),0, length - 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new AbsoluteSizeSpan(40),length-1, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(spannable, TextView.BufferType.EDITABLE);
+
+        String scoreString2 = "스코어 " + currentScore + " 점";
+        int length2 = scoreString2.length();
+        SpannableStringBuilder spannable2 = new SpannableStringBuilder(scoreString2);
+        spannable2.setSpan(new AbsoluteSizeSpan(45),0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable2.setSpan(new AbsoluteSizeSpan(70),4, length2 - 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable2.setSpan(new AbsoluteSizeSpan(45),length2-1, length2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable2.setSpan(new ForegroundColorSpan(colorWhite),4, length2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        textView2.setText(spannable2, TextView.BufferType.EDITABLE);
+
         if(coordinate.x > 0) {
-            soundPool.play(effectSoundID, 0.25f, 1f, 0, 0, 1.2f);
+            soundPool.play(effectSoundID, 0.15f, 0.5f, 0, 0, 1.2f);
         }
         else if (coordinate.x < 0){
-            soundPool.play(effectSoundID, 1f, 0.25f, 0, 0, 1.2f);
+            soundPool.play(effectSoundID, 0.15f, 0.2f, 0, 0, 1.2f);
         }
         else{
-            soundPool.play(effectSoundID, 1f, 1f, 0, 0, 1.2f);
+            soundPool.play(effectSoundID, 0.15f, 0.5f, 0, 0, 1.2f);
         }
 
         Log.i("Time: ", currentMediaPlayer.getCurrentPosition()+"ms, "+"Time: "+time);

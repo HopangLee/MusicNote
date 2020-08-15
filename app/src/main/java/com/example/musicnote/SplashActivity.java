@@ -40,7 +40,7 @@ public class SplashActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    if(!isStart && progress > 60){
+                    if(!isStart && progress > 75){
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         isStart = true;

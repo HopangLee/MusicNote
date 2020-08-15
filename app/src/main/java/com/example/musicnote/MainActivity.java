@@ -21,6 +21,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.MonthDisplayHelper;
 import android.view.DragEvent;
@@ -229,7 +233,7 @@ public class MainActivity extends AppCompatActivity
 
         musicTitle = (TextView) findViewById(R.id.musicTitle);
         play = (ImageView) findViewById(R.id.play);
-        play.setImageResource(android.R.drawable.ic_media_pause);
+        play.setImageResource(R.drawable.ic_media_stop);
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -241,8 +245,23 @@ public class MainActivity extends AppCompatActivity
             }
         });
         musicBar = (ProgressBar) findViewById(R.id.musicBar);
-        album = (ImageView) findViewById(R.id.album);
-        musicUiclass = new MusicUi(this, this, musicBar, musicTitle, play, album);
+        //album = (ImageView) findViewById(R.id.album);
+        musicUiclass = new MusicUi(this, this, musicBar, musicTitle, play);
+
+        TextView score = findViewById(R.id.score);
+        SpannableStringBuilder spannable = new SpannableStringBuilder(score.getText());
+        spannable.setSpan(new AbsoluteSizeSpan(60),0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new AbsoluteSizeSpan(40), 2, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        score.setText(spannable, TextView.BufferType.EDITABLE);
+
+        int colorWhite = getResources().getColor(R.color.colorWhite);
+        TextView score2 = findViewById(R.id.scoreText);
+        SpannableStringBuilder spannable2 = new SpannableStringBuilder(score2.getText());
+        spannable2.setSpan(new AbsoluteSizeSpan(45),0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable2.setSpan(new AbsoluteSizeSpan(70),4, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable2.setSpan(new AbsoluteSizeSpan(45),6, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable2.setSpan(new ForegroundColorSpan(colorWhite),4, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        score2.setText(spannable2, TextView.BufferType.EDITABLE);
 
         // 지도 객체 생성
         FragmentManager fm = getSupportFragmentManager();
@@ -327,7 +346,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musicnote3)
+                .setSource(this, R.raw.exo_album)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -337,7 +356,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musicnote3)
+                .setSource(this, R.raw.nct127_album)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -347,7 +366,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.musicnote3)
+                .setSource(this, R.raw.redvelvet_album)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -586,7 +605,7 @@ public class MainActivity extends AppCompatActivity
 
         if(gameSystem == null) {
             // 게임 시스템 생성
-            gameSystem = new GameSystem(this, arSceneView, musicUiclass, findViewById(R.id.score));
+            gameSystem = new GameSystem(this, arSceneView, musicUiclass, findViewById(R.id.score), findViewById(R.id.scoreText));
             musicUiclass.setGameSystem(gameSystem);
             Log.i("GameSystem create: ", "true");
         }
@@ -690,7 +709,6 @@ public class MainActivity extends AppCompatActivity
         if( i == 0 ) {
             dLatitude = 3f;
             dLongitude = 0f;
-            return false;
         }
         else if ( i == 1 ){
             dLatitude = -3f;

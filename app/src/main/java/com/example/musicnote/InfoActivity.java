@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,12 +32,20 @@ public class InfoActivity extends AppCompatActivity {
     private Context c;
     private Activity a;
 
+    SoundPool soundPool;
+    int effectSoundID;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
         Button start_btn = (Button) findViewById(R.id.start_btn);
         ImageView imageView = (ImageView)findViewById(R.id.illust_image);
+
+        soundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+        effectSoundID = soundPool.load(this, R.raw.ui_menu_button_confirm_03, 1);
+
 
         c = this;
         a = this;
@@ -44,9 +54,18 @@ public class InfoActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
+                soundPool.play(effectSoundID, 0.75f, 0.75f, 0, 0, 1f);
+
+
                 // 권한이 허용되어있지않다면 권한요청
                 if(!hasPermissions(c, PERMISSIONS)){
                     ActivityCompat.requestPermissions(a, PERMISSIONS, PERMISSION_ALL);
+
+                    if(hasPermissions(c, PERMISSIONS)){
+                        Intent intent = new Intent(getApplicationContext(), SplashActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
                 // 권한이 허용되어있다면 다음 화면 진행
                 else {
