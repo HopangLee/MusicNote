@@ -58,21 +58,42 @@ dependencies {
 
 apply plugin: 'com.google.ar.sceneform.plugin'
 
-
+/*
 sceneform.asset('sampledata/album/EXO_album.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
         'sampledata/album/EXO_album.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/exo_album')              // '.sfb Output Path' specified during import.
-
-
-
-sceneform.asset('sampledata/album/NCT127_album.fbx', // 'Source Asset Path' specified during import.
+*/
+/*
+sceneform.asset('sampledata/album/nctmodel2.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/models/NCT127_album.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/nct127_album')              // '.sfb Output Path' specified during import.
+        'sampledata/models/nctmodel2.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/nctmodel2')              // '.sfb Output Path' specified during import.
+*/
 
-
+/*
 sceneform.asset('sampledata/album/RedVelvet_album.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
         'sampledata/album/RedVelvet_album.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/redvelvet_album')              // '.sfb Output Path' specified during import.
+*/
+
+/*
+sceneform.asset('sampledata/models/blueblock.fbx', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/models/blueblock.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/blueblock2')              // '.sfb Output Path' specified during import.
+
+sceneform.asset('sampledata/models/redblock.fbx', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/models/redblock.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/redblock2')              // '.sfb Output Path' specified during import.
+sceneform.asset('sampledata/models/blueblock_sliced.fbx', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/models/blueblock_sliced.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/blueblock2_sliced')              // '.sfb Output Path' specified during import.
+sceneform.asset('sampledata/models/redblock_slice.fbx', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/models/redblock_slice.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/redblock2_sliced')              // '.sfb Output Path' specified during import.
+*/

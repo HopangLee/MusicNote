@@ -1,6 +1,12 @@
 package com.example.musicnote;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Path;
+import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -142,17 +148,19 @@ public class GameSystem extends AnchorNode{
     final TextView textView2;
 
     ModelRenderable blueRenderable;
+    ModelRenderable blueSlicedRenderable;
     ModelRenderable redRenderable;
+    ModelRenderable redSlicedRenderable;
 
-    Context context;
+    MainActivity mainActivity;
 
     // 쓰기 쉽게 아래에 자주 쓰이는 좌표 나열
     final Coordinate RIGHT = new Coordinate(INTERVAL/2f, 0);
     final Coordinate LEFT = new Coordinate(-INTERVAL/2f, 0);
-    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2f, INTERVAL/2.5f);
-    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2f, -INTERVAL/2.5f);
-    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2f, INTERVAL/2.5f);
-    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2f, -INTERVAL/2.5f);
+    final Coordinate RIGHTUP = new Coordinate(INTERVAL/2f, INTERVAL/3f);
+    final Coordinate RIGHTDOWN = new Coordinate(INTERVAL/2f, -INTERVAL/3f);
+    final Coordinate LEFTUP = new Coordinate(-INTERVAL/2f, INTERVAL/3f);
+    final Coordinate LEFTDOWN = new Coordinate(-INTERVAL/2f, -INTERVAL/3f);
     final Coordinate MIDDLE = new Coordinate(0, 0);
 
     final int mR = 0, mRD = 1, mD = 2, mLD = 3, mL = 4, mLU = 5, mU = 6, mRU = 7;
@@ -316,18 +324,22 @@ public class GameSystem extends AnchorNode{
     SoundPool soundPool;
     int effectSoundID;
 
-    GameSystem(Context context, ArSceneView arSceneView, MusicUi musicUi, TextView textView, TextView textView2){
+    // Draw effect
+    DrawView drawView;
+
+    GameSystem(MainActivity mainActivity, ArSceneView arSceneView, MusicUi musicUi, TextView textView, TextView textView2){
         // Setting
-        this.context = context;
+        this.mainActivity = mainActivity;
         this.arSceneView = arSceneView;
         this.musicUi = musicUi;
         this.textView = textView;
         this.textView2 = textView2;
 
         soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        effectSoundID = soundPool.load(context, R.raw.kick_heavy_impact_04, 1);
+        effectSoundID = soundPool.load(mainActivity, R.raw.kick_heavy_impact_04, 1);
 
         arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
+
 
         // Create an ARCore Anchor at the position.
         this.setParent(arSceneView.getScene());
@@ -347,6 +359,8 @@ public class GameSystem extends AnchorNode{
         this.setWorldRotation(direction);
 
         //Log.i("스크린크기> ", ""+MainActivity.getMinScreenSize());
+
+        drawView = mainActivity.findViewById(R.id.drawView);
     }
 
     @Override
@@ -443,22 +457,45 @@ public class GameSystem extends AnchorNode{
 
         final int action = motionEvent.getAction();
         int key;
+        float x,y;
 
         switch(action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: //한 개 포인트에 대한 DOWN을 얻을 때.
                 //Log.i("디버그: ", " 터치 다운");
+                x = motionEvent.getX();
+                y = motionEvent.getY();
                 key = motionEvent.getPointerId(0);
                 touchs.put(key, new Touch());
-                touchs.get(key).points.add(new Coordinate(motionEvent.getX(), motionEvent.getY()));
+                touchs.get(key).points.add(new Coordinate(x, y));
+
+                if(x < MainActivity.getWidth()/2){ // 왼쪽
+                    //drawView.path[0].moveTo(x, y);
+                    //drawView.pathMap[0].put(key, new Path());
+                }
+                else{ // 오른쪽
+                    //drawView.path[1].moveTo(x, y);
+                    //drawView.pathMap[1].put(key, new Path());
+                }
+
                 ret = true;
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN: //두 개 이상의 포인트에 대한 DOWN을 얻을 때.
                 //Log.i("디버그: ", " 터치 다운 (2개)");
                 for(int i = 0; i < touch_count; i++){
+                    x = motionEvent.getX(i);
+                    y = motionEvent.getY(i);
+
                     key = motionEvent.getPointerId(i);
                     touchs.put(key, new Touch());
-                    touchs.get(key).points.add(new Coordinate(motionEvent.getX(i), motionEvent.getY(i)));
+                    touchs.get(key).points.add(new Coordinate(x, y));
+
+                    if(x < MainActivity.getWidth()/2){ // 왼쪽
+                        //drawView.path[0].moveTo(x, y);
+                    }
+                    else{ // 오른쪽
+                        //drawView.path[1].moveTo(x, y);
+                    }
                 }
                 ret = true;
                 break;
@@ -466,9 +503,18 @@ public class GameSystem extends AnchorNode{
             case MotionEvent.ACTION_MOVE:
                 //Log.i("디버그: ", " 터치 무브");
                 for(int i = 0; i < touch_count; i++){
+                    x = motionEvent.getX(i);
+                    y = motionEvent.getY(i);
                     key = motionEvent.getPointerId(i);
-                    touchs.get(key).points.add(new Coordinate(motionEvent.getX(i), motionEvent.getY(i)));
+                    touchs.get(key).points.add(new Coordinate(x, y));
                     checkDirection(key);
+                    if(x < MainActivity.getWidth()/2){ // 왼쪽
+                        //drawView.path[0].lineTo(x, y);
+                    }
+                    else{ // 오른쪽
+                        //drawView.path[1].lineTo(x, y);
+                    }
+
                 }
                 ret = true;
                 break;
@@ -481,8 +527,15 @@ public class GameSystem extends AnchorNode{
                 }
                 break;
         }
+        drawView.invalidate();
         arSceneView.onTouchEvent(motionEvent);
         return ret;
+    }
+
+    public void onDraw(Canvas canvas){
+
+
+        arSceneView.onDrawForeground(canvas);
     }
 
     // 해당 터치의 연속된 기록이 어떤 방향을 나타내고 있는지 => 이상하면 가장 오래된 기록 삭제
@@ -538,7 +591,7 @@ public class GameSystem extends AnchorNode{
 
             checkCollision(key, startPoint, endPoint);
             // 디버그
-
+/*
             String str = "";
             switch(touchs.get(key).direction){
                 case 0:
@@ -568,7 +621,7 @@ public class GameSystem extends AnchorNode{
                 default:
                     str = "기본";
             }
-            Log.i("디버그: ", " 드래그 -> "+ str);
+            Log.i("디버그: ", " 드래그 -> "+ str);*/
 
             while(distance >= minDistance){
                 coordinates.remove(0);
@@ -632,7 +685,7 @@ public class GameSystem extends AnchorNode{
     public void getScore(int score, Coordinate coordinate){
         currentScore += score;
         //textView.setText(Integer.toString(currentScore));
-        int colorWhite = context.getResources().getColor(R.color.colorWhite);
+        int colorWhite = mainActivity.getResources().getColor(R.color.colorWhite);
 
         String scoreString = currentScore +" 점";
         int length = scoreString.length();
@@ -670,7 +723,7 @@ public class GameSystem extends AnchorNode{
 
     public void setUpModel(){
         ModelRenderable.builder()
-                .setSource(context, R.raw.blueblock)
+                .setSource(mainActivity, R.raw.blueblock2)
                 .build().thenAccept(renderable -> blueRenderable = renderable)
                 .exceptionally(
                         throwable -> {
@@ -678,8 +731,24 @@ public class GameSystem extends AnchorNode{
                         }
                 );
         ModelRenderable.builder()
-                .setSource(context, R.raw.redblock)
+                .setSource(mainActivity, R.raw.redblock2)
                 .build().thenAccept(renderable -> redRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+        ModelRenderable.builder()
+                .setSource(mainActivity, R.raw.blueblock2_sliced)
+                .build().thenAccept(renderable -> blueSlicedRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+        ModelRenderable.builder()
+                .setSource(mainActivity, R.raw.redblock2_sliced)
+                .build().thenAccept(renderable -> redSlicedRenderable = renderable)
                 .exceptionally(
                         throwable -> {
                             return null;

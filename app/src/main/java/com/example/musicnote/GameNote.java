@@ -10,6 +10,7 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -34,6 +35,9 @@ public class GameNote extends Node{
     float distance = 0f; // 앵커 노드에서 떨어진 거리
     float limitDistance; // 생성될 때 카메라에서 떨어진 거리
     int score;
+    boolean isSliced = false;
+
+    ModelRenderable noteRenderable;
 
     // 오른쪽(0), 오른쪽 아래(1), 아래(2), 왼쪽 아래(3), 왼쪽(4), 왼쪽 위(5), 위(6), 오른쪽 위(7)
     int DIRECTION = -1; // 기본(-1)
@@ -48,6 +52,7 @@ public class GameNote extends Node{
         this.score = score;
         this.coordinate = coordinate;
         this.DIRECTION = DIRECTION;
+        this.noteRenderable = noteRenderable;
 
         Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
         //Quaternion rotation = Quaternion.axisAngle(this.getUp(), 0);
@@ -150,15 +155,23 @@ public class GameNote extends Node{
             //effectSound.start();
             //Vibrator vib = (Vibrator)gameSystem.context.getSystemService(Context.VIBRATOR_SERVICE);
             //vib.vibrate(200);
+            if(!isSliced) {
+                if (limitDistance - (perfectLine + 0.5f) <= distance &&
+                        distance <= limitDistance - (perfectLine - 0.5f)) {
+                    gameSystem.getScore(score * 2, coordinate);
+                } else {
+                    gameSystem.getScore(score, coordinate);
+                }
 
-            removeNote();
-            if(limitDistance - (perfectLine + 0.5f) <= distance &&
-                    distance <= limitDistance - (perfectLine - 0.5f)) {
-                gameSystem.getScore(score * 2, coordinate);
+                if(noteRenderable == gameSystem.redRenderable){
+                    this.setRenderable(gameSystem.redSlicedRenderable);
+                }
+                else if(noteRenderable == gameSystem.blueRenderable){
+                    this.setRenderable(gameSystem.blueSlicedRenderable);
+                }
+                isSliced = true;
             }
-            else{
-                gameSystem.getScore(score, coordinate);
-            }
+            //removeNote();
         }
     }
 

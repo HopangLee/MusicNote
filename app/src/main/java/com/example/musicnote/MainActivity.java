@@ -214,11 +214,14 @@ public class MainActivity extends AppCompatActivity
 
         // 게임 ui 레이아웃 오버레이
         // 레이아웃 객체 생성
-        LinearLayout gameLayout = (LinearLayout) inflater.inflate(R.layout.game_ui, null);
+        FrameLayout gameLayout = (FrameLayout) inflater.inflate(R.layout.game_ui, null);
         // 레이아웃 배경 투명도 주기
         gameLayout.setBackgroundColor(Color.parseColor("#00000000"));
         // 레이아웃 위에 겹치기
-        addContentView(gameLayout, paramll);
+        FrameLayout.LayoutParams paramll2 = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        addContentView(gameLayout, paramll2);
 
         // '위치를 찾는 중' 팝업창 오버레이
         popupLayout = (FrameLayout)inflater.inflate(R.layout.activity_popup, null);
@@ -845,5 +848,13 @@ public class MainActivity extends AppCompatActivity
 
     public static float getMinScreenSize(){
         return Math.min(arSceneView.getWidth(), arSceneView.getHeight());
+    }
+
+    public static float getWidth(){
+        return arSceneView.getWidth();
+    }
+
+    public static float getHeight(){
+        return arSceneView.getHeight();
     }
 }
