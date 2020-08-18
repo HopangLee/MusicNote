@@ -52,7 +52,6 @@ public class DrawView extends View {
         paint[1].setAntiAlias(true);
         paint[1].setColor(Color.RED);
         paint[1].setAlpha(125);
-
         //path[1] = new Path();
     }
 

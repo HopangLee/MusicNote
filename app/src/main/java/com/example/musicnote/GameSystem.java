@@ -111,8 +111,8 @@ public class GameSystem extends AnchorNode{
     int currentScore = 0; // 현재까지 얻은 점수
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
-    final int DELAY = 2500; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
-    final float ZONEDISTANCE = 1.75f; // 퍼펙트 존 거리
+    final int DELAY = 3000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
+    final float ZONEDISTANCE = 3f; // 퍼펙트 존 거리
     final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
     final float SCALE = 0.4f;
@@ -151,6 +151,7 @@ public class GameSystem extends AnchorNode{
     ModelRenderable blueSlicedRenderable;
     ModelRenderable redRenderable;
     ModelRenderable redSlicedRenderable;
+    ModelRenderable touchRenderable;
 
     MainActivity mainActivity;
 
@@ -296,26 +297,6 @@ public class GameSystem extends AnchorNode{
                 new Note(77010, RIGHTDOWN, mRD), new Note(77440, LEFTDOWN, mLD)}
     };
 
-/*
-    // 곡 노트 타이밍 (왼쪽, 오른쪽) (ms) => [곡 인덱스][왼쪽, 오른쪽][노트 index] = 타이머
-    final int[][][] NOTETIMER = {
-            // 0번째 곡
-            // 수고가 많습니다.. 총총 ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ뭐야 언제썼어
-            {{1000, 3000, 5000, 7000, 9000, 10000, 11000, 13000, 15000, 17000, 19000,
-              20000, 21000, 23000, 25000, 27000, 29000, 30000, 31000, 33000, 35000, 37000, 39000,
-              40000, 41000, 43000, 45000, 47000, 49000, 50000, 51000, 53000, 55000, 57000, 59000,
-              60000, 61000, 63000, 65000, 67000, 69000, 70000, 71000, 73000, 75000, 77000, 79000,
-              80000, 81000, 83000, 85000, 87000, 89000, 90000, 91000, 93000, 95000, 97000, 99000,
-              100000, 101000, 103000, 105000, 107000, 109000, 110000, 111000, 113000, 115000, 117000, 119000,
-              120000}, // 왼쪽 노트
-             {2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000,
-              22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000,
-              42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000,
-              62000, 64000, 66000, 68000, 70000, 72000, 74000, 76000, 78000, 80000,
-              82000, 84000, 86000, 88000, 90000, 92000, 94000, 96000, 98000, 100000,
-              102000, 104000, 106000, 108000, 110000, 112000, 114000, 116000, 118000, 120000}}, // 오른쪽 노트
-    };
-*/
     // 딜레이 고려
     private float time = 0;
 
@@ -590,38 +571,6 @@ public class GameSystem extends AnchorNode{
             }
 
             checkCollision(key, startPoint, endPoint);
-            // 디버그
-/*
-            String str = "";
-            switch(touchs.get(key).direction){
-                case 0:
-                    str = "오른쪽";
-                   break;
-                case 1:
-                    str = "오른쪽 아래";
-                    break;
-                case 2:
-                    str = "아래";
-                    break;
-                case 3:
-                    str = "왼쪽 아래";
-                    break;
-                case 4:
-                    str = "왼쪽";
-                    break;
-                case 5:
-                    str = "왼쪽 위";
-                    break;
-                case 6:
-                    str = "위";
-                    break;
-                case 7:
-                    str = "오른쪽 위";
-                    break;
-                default:
-                    str = "기본";
-            }
-            Log.i("디버그: ", " 드래그 -> "+ str);*/
 
             while(distance >= minDistance){
                 coordinates.remove(0);
@@ -654,7 +603,7 @@ public class GameSystem extends AnchorNode{
         Ray endRay = camera.screenPointToRay(end.x, end.y);
 
         for(int i = 0; i < 13; i++){
-            Vector3 startPoint = startRay.getPoint(ZONEDISTANCE - 1.25f + 0.3f * i);
+            Vector3 startPoint = startRay.getPoint(ZONEDISTANCE - 1.2f + 0.2f * i);
             Vector3 endPoint = endRay.getPoint(ZONEDISTANCE - 1.25f + 0.3f * i);
             Vector3 direction = Vector3.subtract(endPoint, startPoint).normalized();
             startPoint = Vector3.add(startPoint, direction.negated().scaled(0.1f));
@@ -684,7 +633,6 @@ public class GameSystem extends AnchorNode{
 
     public void getScore(int score, Coordinate coordinate){
         currentScore += score;
-        //textView.setText(Integer.toString(currentScore));
         int colorWhite = mainActivity.getResources().getColor(R.color.colorWhite);
 
         String scoreString = currentScore +" 점";
@@ -723,7 +671,7 @@ public class GameSystem extends AnchorNode{
 
     public void setUpModel(){
         ModelRenderable.builder()
-                .setSource(mainActivity, R.raw.blueblock2)
+                .setSource(mainActivity, R.raw.blueblock)
                 .build().thenAccept(renderable -> blueRenderable = renderable)
                 .exceptionally(
                         throwable -> {
@@ -731,7 +679,7 @@ public class GameSystem extends AnchorNode{
                         }
                 );
         ModelRenderable.builder()
-                .setSource(mainActivity, R.raw.redblock2)
+                .setSource(mainActivity, R.raw.redblock)
                 .build().thenAccept(renderable -> redRenderable = renderable)
                 .exceptionally(
                         throwable -> {
@@ -739,7 +687,7 @@ public class GameSystem extends AnchorNode{
                         }
                 );
         ModelRenderable.builder()
-                .setSource(mainActivity, R.raw.blueblock2_sliced)
+                .setSource(mainActivity, R.raw.pushilin_star)
                 .build().thenAccept(renderable -> blueSlicedRenderable = renderable)
                 .exceptionally(
                         throwable -> {
@@ -747,8 +695,16 @@ public class GameSystem extends AnchorNode{
                         }
                 );
         ModelRenderable.builder()
-                .setSource(mainActivity, R.raw.redblock2_sliced)
+                .setSource(mainActivity, R.raw.pushilin_star)
                 .build().thenAccept(renderable -> redSlicedRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            return null;
+                        }
+                );
+        ModelRenderable.builder()
+                .setSource(mainActivity, R.raw.pushilin_sun)
+                .build().thenAccept(renderable -> touchRenderable = renderable)
                 .exceptionally(
                         throwable -> {
                             return null;

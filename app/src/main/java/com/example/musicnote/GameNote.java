@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.Display;
@@ -34,8 +35,10 @@ public class GameNote extends Node{
     float speed; // 노트의 이동 속도
     float distance = 0f; // 앵커 노드에서 떨어진 거리
     float limitDistance; // 생성될 때 카메라에서 떨어진 거리
+    float ZONEDISTANCE;
     int score;
     boolean isSliced = false;
+    boolean isTouchabled = false;
 
     ModelRenderable noteRenderable;
 
@@ -53,6 +56,7 @@ public class GameNote extends Node{
         this.coordinate = coordinate;
         this.DIRECTION = DIRECTION;
         this.noteRenderable = noteRenderable;
+        ZONEDISTANCE = limitDistance - gameSystem.getZONEDISTANCE();
 
         Quaternion rotation = Quaternion.axisAngle(this.getUp(), -90);
         //Quaternion rotation = Quaternion.axisAngle(this.getUp(), 0);
@@ -114,9 +118,14 @@ public class GameNote extends Node{
             removeNote();
         }
 
+        if(!isTouchabled && !isSliced && distance >= ZONEDISTANCE * 0.9f){
+            this.setRenderable(null);
+            this.setRenderable(gameSystem.touchRenderable);
+            isTouchabled = true;
+        }
+
         // 노래가 종료될 시에도 삭제 (어차피 게임중에는 pause 못하긴 할듯 => 그래서 그냥 노래 플레이중 아니면 삭제)
         if(!gameSystem.isPlaying) removeNote();
-
     }
 
     // 위치 조정
@@ -151,23 +160,29 @@ public class GameNote extends Node{
 
         if(this.DIRECTION != direction) return; // 드래그 한 방향이 다르면 삭제x
 
-        if(limitDistance - (perfectLine + 1f) <= distance && distance <= limitDistance - (perfectLine - 1f)) { // 일단 타격 인정 범위
+        if(ZONEDISTANCE - 1.5f <= distance && distance <= limitDistance * 1.2f) { // 일단 타격 인정 범위
             //effectSound.start();
-            //Vibrator vib = (Vibrator)gameSystem.context.getSystemService(Context.VIBRATOR_SERVICE);
-            //vib.vibrate(200);
+            Vibrator vib = (Vibrator)gameSystem.mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
+            vib.vibrate(250);
             if(!isSliced) {
-                if (limitDistance - (perfectLine + 0.5f) <= distance &&
-                        distance <= limitDistance - (perfectLine - 0.5f)) {
+                if (ZONEDISTANCE - 0.75f <= distance &&
+                        distance <= ZONEDISTANCE + 0.75f) {
                     gameSystem.getScore(score * 2, coordinate);
                 } else {
                     gameSystem.getScore(score, coordinate);
                 }
 
                 if(noteRenderable == gameSystem.redRenderable){
+                    this.setRenderable(null);
                     this.setRenderable(gameSystem.redSlicedRenderable);
                 }
                 else if(noteRenderable == gameSystem.blueRenderable){
+                    this.setRenderable(null);
                     this.setRenderable(gameSystem.blueSlicedRenderable);
+                }
+                else if(noteRenderable == gameSystem.touchRenderable){
+                    this.setRenderable(null);
+                    this.setRenderable(gameSystem.redSlicedRenderable);
                 }
                 isSliced = true;
             }
@@ -183,4 +198,5 @@ public class GameNote extends Node{
     public int getDirection(){
         return DIRECTION;
     }
+
 }

@@ -79,11 +79,12 @@ sceneform.asset('sampledata/album/RedVelvet_album.fbx', // 'Source Asset Path' s
 */
 
 /*
-sceneform.asset('sampledata/models/blueblock.fbx', // 'Source Asset Path' specified during import.
+sceneform.asset('sampledata/models/PUSHILIN_sun.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/models/blueblock.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/blueblock2')              // '.sfb Output Path' specified during import.
-
+        'sampledata/models/PUSHILIN_sun.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/pushilin_sun')              // '.sfb Output Path' specified during import.
+*/
+/*
 sceneform.asset('sampledata/models/redblock.fbx', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
         'sampledata/models/redblock.sfa',         // '.sfa Output Path' specified during import.

@@ -26,7 +26,8 @@ public class InfoActivity extends AppCompatActivity {
     private static final String[] PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
+            Manifest.permission.VIBRATE
     };
 
     private Context c;
@@ -47,6 +48,8 @@ public class InfoActivity extends AppCompatActivity {
         effectSoundID = soundPool.load(this, R.raw.ui_menu_button_confirm_03, 1);
 
 
+
+
         c = this;
         a = this;
 
@@ -62,15 +65,15 @@ public class InfoActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(a, PERMISSIONS, PERMISSION_ALL);
 
                     if(hasPermissions(c, PERMISSIONS)){
-                        Intent intent = new Intent(getApplicationContext(), SplashActivity.class);
-                        startActivity(intent);
+                        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
+                        startActivityForResult(intent,1);
                         finish();
                     }
                 }
                 // 권한이 허용되어있다면 다음 화면 진행
                 else {
-                    Intent intent = new Intent(getApplicationContext(), SplashActivity.class);
-                    startActivity(intent);
+                    Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
+                    startActivityForResult(intent,1);
                     finish();
                 }
             }

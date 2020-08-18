@@ -52,6 +52,7 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
@@ -156,6 +157,7 @@ public class MainActivity extends AppCompatActivity
 
     // 게임 관련
     private GameSystem gameSystem;
+    public static MainActivity ma;
 
 
     @Override
@@ -696,7 +698,21 @@ public class MainActivity extends AppCompatActivity
 
         Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
+
         BofLogo bofLogo = new BofLogo(logoAnchor, bofLogoRenderable, arSceneView);
+
+
+        bofLogo.setOnTapListener(new Node.OnTapListener() {
+            @Override
+            public void onTap(HitTestResult hitTestResult, MotionEvent motionEvent) {
+                Intent intent = new Intent(getApplicationContext(), PopupActivity2.class);
+                String scoreString2 = gameSystem.currentScore + " 점";
+                intent.putExtra("Score", scoreString2);
+                startActivity(intent);
+            }
+        });
+
+
 
         Snackbar.make(mLayout, "목적지 근처에 도착했습니다 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
     }
