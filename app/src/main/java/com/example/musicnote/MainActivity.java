@@ -339,7 +339,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nctcd1)
+                .setSource(this, R.raw.red_note)
                 .build().thenAccept(renderable -> musicNotes[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nctcd1)
+                .setSource(this, R.raw.nct_model)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nctcd1)
+                .setSource(this, R.raw.exo_album)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nctcd1)
+                .setSource(this, R.raw.redvelvet_album)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -620,18 +620,18 @@ public class MainActivity extends AppCompatActivity
 
         // 테스트 용도
 
-/*
+
         dLatitude = 20f;
         dLongitude = 0f;
- */
+
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
-        if (distance > 20) { // 25m보다 멀면 오브젝트 생성X
+        if (distance > 25) { // 25m보다 멀면 오브젝트 생성X
             return;
         }
 
-        float height = 10f;
+        float height = 5f;
         Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
 
         Vector3 xUnitVec;
@@ -723,7 +723,7 @@ public class MainActivity extends AppCompatActivity
 
         // 테스트 용도
 
-/*
+
         if( i == 0 ) {
             dLatitude = 3f;
             dLongitude = 0f;
@@ -736,7 +736,7 @@ public class MainActivity extends AppCompatActivity
             dLatitude = 0f;
             dLongitude = 3f;
         }
-*/
+
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
         if (distance > 15) { // 15m보다 멀면 오브젝트 생성X

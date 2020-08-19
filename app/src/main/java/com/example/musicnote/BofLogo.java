@@ -14,9 +14,9 @@ public class BofLogo extends Node {
     BofLogo(AnchorNode parent, ModelRenderable bofLogoModel,
             ArSceneView arSceneView){
         this.setRenderable(bofLogoModel);
-        this.setLocalScale(new Vector3(.5f, .5f, .5f));
+        this.setLocalScale(new Vector3(.33f, .33f, .33f));
         this.setParent(parent);
-        this.setLocalPosition(this.getUp().scaled(+0.5f));
+        //this.setLocalPosition(this.getUp().scaled(+0.5f));
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
         Vector3 objPos = this.getWorldPosition();

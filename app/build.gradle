@@ -65,36 +65,19 @@ sceneform.asset('sampledata/album/EXO_album.fbx', // 'Source Asset Path' specifi
         'src/main/res/raw/exo_album')              // '.sfb Output Path' specified during import.
 */
 /*
-sceneform.asset('sampledata/album/nctcd1.obj', // 'Source Asset Path' specified during import.
+sceneform.asset('sampledata/album/engcdmodel.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/album/nctcd1.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/nctcd1')        // '.sfb Output Path' specified during import.
+        'sampledata/album/engcdmodel.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/exo_album')              // '.sfb Output Path' specified during import.
+*/
+/*
+sceneform.asset('sampledata/album/engcdmodel.obj', // 'Source Asset Path' specified during import.
+        'default',                            // 'Material Path' specified during import.
+        'sampledata/album/engcdmodel.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/nct_model')        // '.sfb Output Path' specified during import.
 */
 
-/*
-sceneform.asset('sampledata/album/RedVelvet_album.fbx', // 'Source Asset Path' specified during import.
+sceneform.asset('sampledata/album/engcdmodel.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/album/RedVelvet_album.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/redvelvet_album')              // '.sfb Output Path' specified during import.
-*/
-
-/*
-sceneform.asset('sampledata/models/PUSHILIN_sun.obj', // 'Source Asset Path' specified during import.
-        'default',                            // 'Material Path' specified during import.
-        'sampledata/models/PUSHILIN_sun.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/pushilin_sun')              // '.sfb Output Path' specified during import.
-*/
-/*
-sceneform.asset('sampledata/models/redblock.fbx', // 'Source Asset Path' specified during import.
-        'default',                            // 'Material Path' specified during import.
-        'sampledata/models/redblock.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/redblock2')              // '.sfb Output Path' specified during import.
-sceneform.asset('sampledata/models/blueblock_sliced.fbx', // 'Source Asset Path' specified during import.
-        'default',                            // 'Material Path' specified during import.
-        'sampledata/models/blueblock_sliced.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/blueblock2_sliced')              // '.sfb Output Path' specified during import.
-sceneform.asset('sampledata/models/redblock_slice.fbx', // 'Source Asset Path' specified during import.
-        'default',                            // 'Material Path' specified during import.
-        'sampledata/models/redblock_slice.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/redblock2_sliced')              // '.sfb Output Path' specified during import.
-*/
+        'sampledata/album/engcdmodel.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/redvelvet_album')        // '.sfb Output Path' specified during import.
