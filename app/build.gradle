@@ -65,10 +65,10 @@ sceneform.asset('sampledata/album/EXO_album.fbx', // 'Source Asset Path' specifi
         'src/main/res/raw/exo_album')              // '.sfb Output Path' specified during import.
 */
 /*
-sceneform.asset('sampledata/album/nctmodel2.fbx', // 'Source Asset Path' specified during import.
+sceneform.asset('sampledata/album/nctcd1.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
-        'sampledata/models/nctmodel2.sfa',         // '.sfa Output Path' specified during import.
-        'src/main/res/raw/nctmodel2')              // '.sfb Output Path' specified during import.
+        'sampledata/album/nctcd1.sfa',         // '.sfa Output Path' specified during import.
+        'src/main/res/raw/nctcd1')        // '.sfb Output Path' specified during import.
 */
 
 /*

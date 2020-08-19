@@ -169,11 +169,9 @@ public class MainActivity extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
-        /*
-        //팝업창 관련
-        Intent intent = new Intent(getApplicationContext(), PopupActivity.class);
-        startActivityForResult(intent, 1);
-        */
+
+
+        ma = this;
 
         // Devicd Orientation 관련
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -185,21 +183,21 @@ public class MainActivity extends AppCompatActivity
 
         // 첫번째 마커//ddddd
         markers[0] = new Location("point A");
-        markers[0].setLatitude(37.284944);
-        markers[0].setLongitude(127.054483);
+        markers[0].setLatitude(37.284677);
+        markers[0].setLongitude(127.053124);
         // 두번째 마커
         markers[1] = new Location("point B");
-        markers[1].setLatitude(37.285698);
-        markers[1].setLongitude(127.055123);
+        markers[1].setLatitude(37.284457);
+        markers[1].setLongitude(127.053318 );
         // 세번째 마커
         markers[2] = new Location("point C");
-        markers[2].setLatitude(37.283768);
-        markers[2].setLongitude(127.054366);
+        markers[2].setLatitude(37.284161);
+        markers[2].setLongitude(127.053781);
 
         // 로고 위치
         logoLocation = new Location("BOF LOGO");
-        logoLocation.setLatitude(37.286259);
-        logoLocation.setLongitude(127.053147);
+        logoLocation.setLatitude(37.283827);
+        logoLocation.setLongitude(127.054332);
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -341,7 +339,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.red_note)
+                .setSource(this, R.raw.nctcd1)
                 .build().thenAccept(renderable -> musicNotes[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -351,7 +349,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.exo_album)
+                .setSource(this, R.raw.nctcd1)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -361,7 +359,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.nct127_album)
+                .setSource(this, R.raw.nctcd1)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -371,7 +369,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.redvelvet_album)
+                .setSource(this, R.raw.nctcd1)
                 .build().thenAccept(renderable -> albumRenderable[2] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -622,17 +620,18 @@ public class MainActivity extends AppCompatActivity
 
         // 테스트 용도
 
-
+/*
         dLatitude = 20f;
         dLongitude = 0f;
+ */
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
-        if (distance > 25) { // 25m보다 멀면 오브젝트 생성X
+        if (distance > 20) { // 25m보다 멀면 오브젝트 생성X
             return;
         }
 
-        float height = 0.5f;
+        float height = 10f;
         Vector3 objVec = new Vector3(dLongitude, dLatitude, height);
 
         Vector3 xUnitVec;
@@ -724,7 +723,7 @@ public class MainActivity extends AppCompatActivity
 
         // 테스트 용도
 
-
+/*
         if( i == 0 ) {
             dLatitude = 3f;
             dLongitude = 0f;
@@ -737,7 +736,7 @@ public class MainActivity extends AppCompatActivity
             dLatitude = 0f;
             dLongitude = 3f;
         }
-
+*/
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
         if (distance > 15) { // 15m보다 멀면 오브젝트 생성X

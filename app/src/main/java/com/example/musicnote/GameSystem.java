@@ -112,10 +112,10 @@ public class GameSystem extends AnchorNode{
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
     final int DELAY = 3000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
-    final float ZONEDISTANCE = 3f; // 퍼펙트 존 거리
+    final float ZONEDISTANCE = 2.75f; // 퍼펙트 존 거리
     final float SPEED = (DISTANCE - ZONEDISTANCE) * 1000 / DELAY; // 노트의 이동 속도(m/s)
 
-    final float SCALE = 0.4f;
+    final float SCALE = 0.5f;
     final int SCORE = 50;
 
     final float INTERVAL = (MainActivity.getMinScreenSize() / 2160); // =>0.5

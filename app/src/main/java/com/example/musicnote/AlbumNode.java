@@ -33,7 +33,7 @@ public class AlbumNode extends Node {
               MediaPlayer mediaPlayer, ArSceneView arSceneView){
         this.setRenderable(albumModel);
 
-        this.setLocalScale(new Vector3(0.02f, 0.02f, 0.02f));
+        this.setLocalScale(new Vector3(0.2f, 0.2f, 0.2f));
         //this.setLocalPosition(this.getUp().scaled(-2f)); // 스위치로 바꾸는 과정에서 이렇게함
         /*
         this.setLocalScale(new Vector3(1f, 1f, 1f));
