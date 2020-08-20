@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 
 public class AlbumNode extends Node {
     private AnchorNode parent;
-    private ModelRenderable[] musicNotes;
+    //private ModelRenderable[] musicNotes;
     private int[] timerArray; // 밀리세컨드 단위
     private float time = 0f;
     private int index = 0; // timerArray의 index
@@ -29,7 +29,7 @@ public class AlbumNode extends Node {
     private ArSceneView arSceneView;
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
-              int[] timerArray, ModelRenderable[] musicNotes,
+              int[] timerArray,
               MediaPlayer mediaPlayer, ArSceneView arSceneView){
         this.setRenderable(albumModel);
 
@@ -42,7 +42,7 @@ public class AlbumNode extends Node {
         this.setParent(parent);
         this.parent = parent;
         this.timerArray = timerArray;
-        this.musicNotes = musicNotes;
+        //this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
 
@@ -61,9 +61,11 @@ public class AlbumNode extends Node {
 
         Vector3 cameraPos = arSceneView.getScene().getCamera().getWorldPosition();
 
+        /*
         // Animation hasn't been set up.
         if(mediaPlayer.isPlaying()) {
             time = mediaPlayer.getCurrentPosition(); // 밀리 세컨드로 받아옴
+
 
             // 특정 시간에 음표 생성 (아직 딜레이 적용x)
             if (index < timerArray.length && time >= timerArray[index]) {
@@ -74,7 +76,9 @@ public class AlbumNode extends Node {
 
                 index++;
             }
+
         }
+         */
 
         /*
         Vector3 objPos = this.getWorldPosition();

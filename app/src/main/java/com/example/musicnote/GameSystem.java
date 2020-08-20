@@ -109,6 +109,7 @@ public class GameSystem extends AnchorNode{
     NoteCreateTimer musicCreater = null;
 
     int currentScore = 0; // 현재까지 얻은 점수
+    int totalScore = 0; // 전체 점수
 
     final float DISTANCE = 15f; // 15m (얼마나 앞에서 생성되게 할 것인지)
     final int DELAY = 3000; // 생성되고 퍼펙트 존(터치시 점수를 얻는 구역)까지 오는 데 걸리는 시간 (ms)
@@ -633,6 +634,7 @@ public class GameSystem extends AnchorNode{
 
     public void getScore(int score, Coordinate coordinate){
         currentScore += score;
+        totalScore += score;
         int colorWhite = mainActivity.getResources().getColor(R.color.colorWhite);
 
         String scoreString = currentScore +" 점";
@@ -642,7 +644,7 @@ public class GameSystem extends AnchorNode{
         spannable.setSpan(new AbsoluteSizeSpan(40),length-1, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         textView.setText(spannable, TextView.BufferType.EDITABLE);
 
-        String scoreString2 = "스코어 " + currentScore + " 점";
+        String scoreString2 = "스코어 " + totalScore + " 점";
         int length2 = scoreString2.length();
         SpannableStringBuilder spannable2 = new SpannableStringBuilder(scoreString2);
         spannable2.setSpan(new AbsoluteSizeSpan(45),0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -29,34 +29,6 @@
             app:scale_width="320"
             app:scale_left="620"/>
 
-        <TextView
-            android:id="@+id/permissionText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="이 앱의 카메라 사용을 허가합니다."
-            android:textColor="#fff"
-            android:fontFamily="@font/notosanskrmedium"
-            app:scale_textsize="40"
-            app:buttonTint="#fff"
-            app:scale_width="650"
-            app:scale_height="80"
-            app:scale_left="290"
-            app:scale_top="600">
-        </TextView>
-
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/check1"
-            android:gravity="center"
-            android:textColor="#fff"
-            app:buttonTint="#fff"
-            app:scale_width="80"
-            app:scale_height="70"
-            app:scale_left="200"
-            app:scale_top="620"/>
-
-
         <ImageView
             android:id="@+id/bof_logo"
             android:layout_width="wrap_content"
@@ -97,15 +69,15 @@
 
 
         <ImageButton
-        android:id="@+id/musicnote_btn"
-        android:layout_width="140dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"
-        android:background="@drawable/musicnote_btn_bg"
-        android:src="@drawable/musicnote_btn_illust"
-        app:scale_height="400"
-        app:scale_top="50"
-        app:scale_width="930" />
+            android:id="@+id/musicnote_btn"
+            android:layout_width="140dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@drawable/musicnote_btn_bg"
+            android:src="@drawable/musicnote_btn_illust"
+            app:scale_height="400"
+            app:scale_top="0"
+            app:scale_width="930" />
 
         <TextView
             android:id="@+id/musicnote_btn_text"
@@ -118,10 +90,11 @@
             android:fontFamily="@font/notosanskrregular"
             android:clickable="false"
             android:textStyle="bold"
-            android:text="#두근두근_행사장 가는 길\nAR 음악노트"
+            android:bufferType="spannable"
+            android:text="#두근두근_행사장_가는_길\nAR 음악노트"
             app:scale_height="400"
             app:scale_textsize="50"
-            app:scale_top="50"
+            app:scale_top="0"
             app:scale_width="950" />
 
         <ImageButton
@@ -132,7 +105,7 @@
             android:background="@drawable/musicnote_btn_bg"
             android:src="@drawable/gamemeeting_btn_illust"
             app:scale_height="400"
-            app:scale_top="500"
+            app:scale_top="450"
             app:scale_width="930" />
 
         <TextView
@@ -146,10 +119,11 @@
             android:fontFamily="@font/notosanskrregular"
             android:clickable="false"
             android:textStyle="bold"
+            android:bufferType="spannable"
             android:text="#몸은_멀리_마음은_가까이\nAR 겜미팅"
             app:scale_height="400"
             app:scale_textsize="50"
-            app:scale_top="500"
+            app:scale_top="450"
             app:scale_width="950" />
 
 

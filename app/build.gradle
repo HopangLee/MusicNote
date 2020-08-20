@@ -76,8 +76,9 @@ sceneform.asset('sampledata/album/engcdmodel.obj', // 'Source Asset Path' specif
         'sampledata/album/engcdmodel.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/nct_model')        // '.sfb Output Path' specified during import.
 */
-
+/*
 sceneform.asset('sampledata/album/engcdmodel.obj', // 'Source Asset Path' specified during import.
         'default',                            // 'Material Path' specified during import.
         'sampledata/album/engcdmodel.sfa',         // '.sfa Output Path' specified during import.
         'src/main/res/raw/redvelvet_album')        // '.sfb Output Path' specified during import.
+ */

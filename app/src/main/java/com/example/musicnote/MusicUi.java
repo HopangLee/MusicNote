@@ -25,9 +25,9 @@ public class MusicUi{
     private TextView titleText;
     private ImageView playBtn;
     //private ImageView album;
-    String[] title = {"How You Like That - 블랙핑크", "DNA - 방탄소년단","빨간맛 - 레드벨벳"};
+    String[] title = {"Love Shot - EXO", "HERO - NCT127","빨간맛 - 레드벨벳"};
     //final int[] FILEROOT = {R.drawable.blackpink_howyoulikethat, R.drawable.bts_dna, R.drawable.redvelvet_redflavor};
-    final int[] MEDIAROOT = {R.raw.blackpink, R.raw.bts, R.raw.red_velvet};
+    final int[] MEDIAROOT = {R.raw.exo_loveshot, R.raw.nct127_hero, R.raw.red_velvet};
     //MediaPlayer[] mediaPlayer = new MediaPlayer[3];
     List<MediaPlayer> mediaPlayers = new ArrayList<>(3);
 

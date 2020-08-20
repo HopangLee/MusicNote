@@ -328,6 +328,7 @@ public class MainActivity extends AppCompatActivity
                         }
                 );
 
+       /*
         ModelRenderable.builder()
                 .setSource(this, R.raw.orange_note)
                 .build().thenAccept(renderable -> musicNotes[0] = renderable)
@@ -347,7 +348,7 @@ public class MainActivity extends AppCompatActivity
                             return null;
                         }
                 );
-
+     */
         ModelRenderable.builder()
                 .setSource(this, R.raw.nct_model)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
@@ -567,12 +568,14 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        /*
         for (ModelRenderable m : musicNotes) {
             if (m == null) {
                 Log.d(TAG, "onUpdate: musicNotes Renderable is null");
                 return;
             }
         }
+         */
 
         for (ModelRenderable m : albumRenderable) {
             if (m == null) {
@@ -809,7 +812,7 @@ public class MainActivity extends AppCompatActivity
         Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
-                timerArray, musicNotes, musicUiclass.getMediaPlayer(i), arSceneView);
+                timerArray, musicUiclass.getMediaPlayer(i), arSceneView);
         music(albumNode, i);
 
         int index = albumNode.getIndex();
