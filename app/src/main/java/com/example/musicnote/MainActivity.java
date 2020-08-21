@@ -4,9 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +36,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewManager;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,6 +68,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
+import com.naver.maps.map.CameraAnimation;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
@@ -70,6 +79,7 @@ import com.naver.maps.map.UiSettings;
 import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
+import com.naver.maps.map.overlay.PathOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.naver.maps.map.widget.CompassView;
 import com.naver.maps.map.widget.LocationButtonView;
@@ -78,6 +88,7 @@ import com.naver.maps.map.widget.ZoomControlView;
 import com.ssomai.android.scalablelayout.ScalableLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -103,6 +114,15 @@ public class MainActivity extends AppCompatActivity
 
     private FusedLocationSource mLocationSource;
     private NaverMap mNaverMap;
+
+    // 지도 확대 관련
+    boolean isFullScreen = false;
+    float mapWidth = 0;
+    float mapHeight = 0;
+    float mapX = 0;
+    float mapY = 0;
+    boolean isThreadRunning = false;
+    PathOverlay path;
 
     // 위치 관련
     public Location mCurrentLocation;
@@ -159,7 +179,6 @@ public class MainActivity extends AppCompatActivity
     private GameSystem gameSystem;
     public static MainActivity ma;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,9 +186,6 @@ public class MainActivity extends AppCompatActivity
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-
-
 
         ma = this;
 
@@ -188,7 +204,7 @@ public class MainActivity extends AppCompatActivity
         // 두번째 마커
         markers[1] = new Location("point B");
         markers[1].setLatitude(37.284457);
-        markers[1].setLongitude(127.053318 );
+        markers[1].setLongitude(127.053318);
         // 세번째 마커
         markers[2] = new Location("point C");
         markers[2].setLatitude(37.284161);
@@ -314,6 +330,66 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy(){
         super.onDestroy();
         //arFragment.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(isFullScreen){
+            if(isThreadRunning) isThreadRunning = false;
+
+            Activity a = this;
+            View mapOverlay = (View)findViewById(R.id.map);
+            View mapBorder = (View)findViewById(R.id.mapBorder);
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() { // Thread 로 작업할 내용을 구현
+                    final int deltaSecond = 5;
+                    final int duration = 100;
+                    int time = 0;
+                    final int width = arSceneView.getWidth();
+                    final int height = arSceneView.getHeight();
+
+                    while(time < duration){
+                        try {
+                            Thread.sleep(deltaSecond);
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        time += deltaSecond;
+
+                        int finalTime = time;
+                        a.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mapOverlay.setX(mapX * (finalTime/duration));
+                                mapOverlay.setY(mapY * (finalTime/duration));
+                                mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0, 0, (mapWidth - width)/duration * finalTime + width, (mapHeight - height)/duration * finalTime + height));
+                            }
+                        });
+                    }
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mapBorder.setVisibility(View.VISIBLE);
+                            mapOverlay.setX(mapX);
+                            mapOverlay.setY(mapY);
+                            mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0f, 0f, mapWidth*0.925f, mapHeight*0.925f));
+                            path.setMap(null);
+                            CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
+                            mNaverMap.moveCamera(cameraUpdate);
+                        }
+                    });
+                }
+            });
+            thread.start();
+
+            isFullScreen = false;
+        }
+        else{
+            super.onBackPressed();
+        }
     }
 
     private void setUpModel() {
@@ -448,12 +524,89 @@ public class MainActivity extends AppCompatActivity
         mNaverMap.addOnLocationChangeListener(location ->{
                     mCurrentLocation = location;
                 });
+
         mNaverMap.addOnCameraIdleListener(()->{
-            if(mNaverMap.getLocationTrackingMode() == LocationTrackingMode.NoFollow ||
-            mNaverMap.getLocationTrackingMode() == LocationTrackingMode.None){
+            if(!isFullScreen && (mNaverMap.getLocationTrackingMode() == LocationTrackingMode.NoFollow ||
+            mNaverMap.getLocationTrackingMode() == LocationTrackingMode.None)){
                 mNaverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
             }
         });
+
+        mNaverMap.setOnMapClickListener((point, coord)->{
+            if(!isFullScreen) {
+                View mapOverlay = (View) findViewById(R.id.map);
+                View mapBorder = (View) findViewById(R.id.mapBorder);
+                mapBorder.setVisibility(View.GONE);
+                // mapOverlay 정보 저장
+                mapX = mapOverlay.getX();
+                mapY = mapOverlay.getY();
+                mapWidth = mapOverlay.getWidth();
+                mapHeight = mapOverlay.getHeight();
+                final int width = arSceneView.getWidth();
+                final int height = arSceneView.getHeight();
+                isFullScreen = true;
+                Activity a = this;
+                isThreadRunning = true;
+                // 지도 확대 애니메이션
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() { // Thread 로 작업할 내용을 구현
+                        final int deltaSecond = 5;
+                        final int duration = 100;
+                        int time = 0;
+
+                        while(isThreadRunning && time < duration){
+                            try {
+                                Thread.sleep(deltaSecond);
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            time += deltaSecond;
+
+                            int finalTime = time;
+                            a.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mapOverlay.setX(mapX * (-1/duration * finalTime + 1));
+                                    mapOverlay.setY(mapY * (-1/duration * finalTime + 1));
+                                    mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0, 0, (width - mapWidth)/duration * finalTime + mapWidth, (height - mapHeight)/duration * finalTime + mapHeight));
+                                }
+                            });
+                        }
+                        a.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mapOverlay.setX(0);
+                                mapOverlay.setY(0);
+                                mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0, 0, width, height));
+                                path = new PathOverlay();
+                                path.setCoords(Arrays.asList(
+                                        new LatLng(37.284677, 127.053124),
+                                        new LatLng(37.284457, 127.053318),
+                                        new LatLng(37.284161, 127.053781),
+                                        new LatLng(37.284161, 127.054332)
+                                ));
+                                path.setProgress(0.5);
+                                path.setPatternImage(OverlayImage.fromResource(R.drawable.arrow_pattern));
+                                path.setColor(Color.YELLOW);
+                                path.setPassedColor(Color.GRAY);
+                                path.setOutlineWidth(5);
+                                path.setMap(mNaverMap);
+                                mNaverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
+                                CameraUpdate cameraUpdate = CameraUpdate.zoomTo(17);
+                                mNaverMap.moveCamera(cameraUpdate);
+                                cameraUpdate = CameraUpdate.scrollTo(new LatLng(37.284354, 127.053544))
+                                        .animate(CameraAnimation.Fly);
+                                naverMap.moveCamera(cameraUpdate);
+                            }
+                        });
+                        isThreadRunning = false;
+                    }
+                });
+                thread.start();
+            }
+    });
 
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
         //ActivityCompat.requestPermissions(this, PERMISSIONS, LOCATION_CODE);
@@ -623,10 +776,10 @@ public class MainActivity extends AppCompatActivity
 
         // 테스트 용도
 
-
+/*
         dLatitude = 20f;
         dLongitude = 0f;
-
+*/
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
@@ -725,8 +878,7 @@ public class MainActivity extends AppCompatActivity
         float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
         // 테스트 용도
-
-
+        /*
         if( i == 0 ) {
             dLatitude = 3f;
             dLongitude = 0f;
@@ -738,7 +890,7 @@ public class MainActivity extends AppCompatActivity
         else{
             dLatitude = 0f;
             dLongitude = 3f;
-        }
+        }*/
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 

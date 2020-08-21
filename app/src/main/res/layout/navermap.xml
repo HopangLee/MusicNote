@@ -27,6 +27,7 @@
             app:scale_width="290" />
 
         <ImageView
+            android:id="@+id/mapBorder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"

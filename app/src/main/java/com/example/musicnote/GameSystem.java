@@ -306,8 +306,6 @@ public class GameSystem extends AnchorNode{
     SoundPool soundPool;
     int effectSoundID;
 
-    // Draw effect
-    DrawView drawView;
 
     GameSystem(MainActivity mainActivity, ArSceneView arSceneView, MusicUi musicUi, TextView textView, TextView textView2){
         // Setting
@@ -339,10 +337,6 @@ public class GameSystem extends AnchorNode{
         Vector3 up = this.getUp();
         Quaternion direction = Quaternion.lookRotation(objToCam, up);
         this.setWorldRotation(direction);
-
-        //Log.i("스크린크기> ", ""+MainActivity.getMinScreenSize());
-
-        drawView = mainActivity.findViewById(R.id.drawView);
     }
 
     @Override
@@ -450,15 +444,6 @@ public class GameSystem extends AnchorNode{
                 touchs.put(key, new Touch());
                 touchs.get(key).points.add(new Coordinate(x, y));
 
-                if(x < MainActivity.getWidth()/2){ // 왼쪽
-                    //drawView.path[0].moveTo(x, y);
-                    //drawView.pathMap[0].put(key, new Path());
-                }
-                else{ // 오른쪽
-                    //drawView.path[1].moveTo(x, y);
-                    //drawView.pathMap[1].put(key, new Path());
-                }
-
                 ret = true;
                 break;
 
@@ -471,13 +456,6 @@ public class GameSystem extends AnchorNode{
                     key = motionEvent.getPointerId(i);
                     touchs.put(key, new Touch());
                     touchs.get(key).points.add(new Coordinate(x, y));
-
-                    if(x < MainActivity.getWidth()/2){ // 왼쪽
-                        //drawView.path[0].moveTo(x, y);
-                    }
-                    else{ // 오른쪽
-                        //drawView.path[1].moveTo(x, y);
-                    }
                 }
                 ret = true;
                 break;
@@ -490,13 +468,6 @@ public class GameSystem extends AnchorNode{
                     key = motionEvent.getPointerId(i);
                     touchs.get(key).points.add(new Coordinate(x, y));
                     checkDirection(key);
-                    if(x < MainActivity.getWidth()/2){ // 왼쪽
-                        //drawView.path[0].lineTo(x, y);
-                    }
-                    else{ // 오른쪽
-                        //drawView.path[1].lineTo(x, y);
-                    }
-
                 }
                 ret = true;
                 break;
@@ -509,7 +480,6 @@ public class GameSystem extends AnchorNode{
                 }
                 break;
         }
-        drawView.invalidate();
         arSceneView.onTouchEvent(motionEvent);
         return ret;
     }

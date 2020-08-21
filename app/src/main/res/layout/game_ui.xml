@@ -6,34 +6,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <com.example.musicnote.DrawView
-        android:id="@+id/drawView"
+    <com.ssomai.android.scalablelayout.ScalableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="false"
-        android:focusable="false"
-        />
-
-    <com.ssomai.android.scalablelayout.ScalableLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="top"
         app:scale_base_height="1800"
         app:scale_base_width="1000"
         tools:ignore="MissingPrefix">
 
         <ImageView
+            android:layout_gravity="top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ui_score_bg01"
             app:scale_width="300"
             app:scale_height="170"
             app:scale_left="680"
-            app:scale_top="50"
+            app:scale_top="20"
             />
         <TextView
-            android:layout_width="300dp"
-            android:layout_height="150dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textColor="#fff"
             android:text="현재 스코어"
             android:textAlignment="center"
@@ -42,16 +35,17 @@
             app:scale_width="300"
             app:scale_height="50"
             app:scale_left="680"
-            app:scale_top="80"
+            app:scale_top="50"
             />
         <ImageView
+            android:layout_gravity="top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ui_score_bg02"
             app:scale_width="300"
             app:scale_height="150"
             app:scale_left="680"
-            app:scale_top="90"
+            app:scale_top="60"
             />
 
         <TextView
@@ -66,7 +60,7 @@
             app:scale_height="110"
             app:scale_left="630"
             app:scale_textsize="40"
-            app:scale_top="85"
+            app:scale_top="55"
             app:scale_width="300" />
         <!--
         <ImageView

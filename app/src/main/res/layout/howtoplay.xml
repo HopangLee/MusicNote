@@ -96,7 +96,7 @@
             android:text="거리 곳곳에 숨어있는 앨범을 찾아 터치하고\n재생되는 K-Pop 음악 리듬과 함께\n날아오는 음표들을 타이밍에 맞춰 터뜨려\n점수를 올려보세요!"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            app:scale_height="90"
+            app:scale_height="120"
             app:scale_textsize="14"
             app:scale_top="-120"
             app:scale_width="310" />
