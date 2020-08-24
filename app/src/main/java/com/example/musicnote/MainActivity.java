@@ -17,6 +17,7 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity
     boolean isThreadRunning = false;
     PathOverlay path;
     List<Marker> markerList;
-    int musicMaxIndex = 0;
+    int musicMaxIndex = -1;
 
     // 위치 관련
     public Location mCurrentLocation;
@@ -356,8 +357,11 @@ public class MainActivity extends AppCompatActivity
 
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
         arSceneView.setOnTouchListener((view, motionEvent)->{
-            if(isFullScreen){
-                popDownScrollUI();
+            final int action = motionEvent.getAction();
+            if((action & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP){
+                if(isFullScreen){
+                    popDownScrollUI();
+                }
             }
             return gameSystem.onTouch(view, motionEvent);
         });
@@ -499,7 +503,7 @@ public class MainActivity extends AppCompatActivity
                 );
      */
         ModelRenderable.builder()
-                .setSource(this, R.raw.nct_model)
+                .setSource(this, R.raw.exo_album)
                 .build().thenAccept(renderable -> albumRenderable[0] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -509,7 +513,7 @@ public class MainActivity extends AppCompatActivity
                 );
 
         ModelRenderable.builder()
-                .setSource(this, R.raw.exo_album)
+                .setSource(this, R.raw.nct_model)
                 .build().thenAccept(renderable -> albumRenderable[1] = renderable)
                 .exceptionally(
                         throwable -> {
@@ -648,6 +652,26 @@ public class MainActivity extends AppCompatActivity
         });
 
         List<ImageView> imageViews = new ArrayList<ImageView>();
+        imageViews.add(findViewById(R.id.marker1));
+        imageViews.add(findViewById(R.id.marker2));
+        imageViews.add(findViewById(R.id.marker3));
+        imageViews.add(findViewById(R.id.marker4));
+        imageViews.add(findViewById(R.id.marker5));
+        imageViews.add(findViewById(R.id.marker6));
+        imageViews.add(findViewById(R.id.marker7));
+        imageViews.add(findViewById(R.id.marker8));
+        imageViews.add(findViewById(R.id.marker9));
+
+        List<ImageView> lines = new ArrayList<ImageView>();
+        lines.add(findViewById(R.id.line1));
+        lines.add(findViewById(R.id.line2));
+        lines.add(findViewById(R.id.line3));
+        lines.add(findViewById(R.id.line4));
+        lines.add(findViewById(R.id.line5));
+        lines.add(findViewById(R.id.line6));
+        lines.add(findViewById(R.id.line7));
+        lines.add(findViewById(R.id.line8));
+        lines.add(findViewById(R.id.line9));
 
         mNaverMap.setOnMapClickListener((point, coord)->{
             if(!isFullScreen) {
@@ -669,6 +693,48 @@ public class MainActivity extends AppCompatActivity
                 mapImg.setVisibility(View.VISIBLE);
                 mapOverlay.setVisibility(View.INVISIBLE);
                 mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(35, 35, width, height));
+
+                int index = musicUiclass.getCurrentMediaPlayerIndex();
+
+                if(index != -1) {
+                    ImageView checkCircle = (ImageView) findViewById(R.id.checkCircle);
+                    // 현재 듣고 있는 노래 빨간동그라미로 강조!!
+                    float x = imageViews.get(index).getX();
+                    float y = imageViews.get(index).getY();
+                    float ImgWidth = imageViews.get(index).getWidth();
+                    float ImgHeight = imageViews.get(index).getHeight();
+                    float widthCircle = checkCircle.getWidth();
+                    float heightCircle = checkCircle.getHeight();
+                    checkCircle.setX(x + ImgWidth / 2 - widthCircle / 2);
+                    checkCircle.setY(y + ImgHeight / 2 - heightCircle / 2);
+                    checkCircle.setVisibility(View.VISIBLE);
+
+                    if (index > musicMaxIndex) musicMaxIndex = index;
+
+                    for (int i = 0; i < musicMaxIndex + 1; i++) {
+                        if (imageViews.get(i).getColorFilter() != null) {
+                            imageViews.get(i).setColorFilter(null);
+                            imageViews.get(i).setImageAlpha(256);
+                        }
+                    }
+
+                    for(int i = 0; i <musicMaxIndex; i++){
+                        Drawable d = getResources().getDrawable(R.drawable.line);
+                        lines.get(i).setBackground(d);
+                    }
+                }
+
+                // 모으지 못한 앨범들 GRAYSCALE 처리
+                for (int i = musicMaxIndex + 1; i < imageViews.size(); i++) {
+                    if (imageViews.get(i).getColorFilter() == null) {
+                        ColorMatrix matrix = new ColorMatrix();
+                        matrix.setSaturation(0);
+                        ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+                        imageViews.get(i).setColorFilter(colorFilter);
+                        imageViews.get(i).setImageAlpha(180);
+                    }
+                }
+
                 // 지도 확대 애니메이션
                 Thread thread = new Thread(new Runnable() {
                     @Override
@@ -690,8 +756,6 @@ public class MainActivity extends AppCompatActivity
                             a.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //mapOverlay.setX(mapX * (-1/duration * finalTime + 1));
-                                    //mapOverlay.setY(mapY * (-1/duration * finalTime + 1));
                                     mapImg.setLayoutParams(new ScalableLayout.LayoutParams(35, 35, (width - mapWidth)/duration * finalTime + mapWidth, (height - mapHeight)/duration * finalTime + mapHeight));
                                     mapBorder.setLayoutParams(new ScalableLayout.LayoutParams(30, 30, (width - borderWidth)/duration * finalTime + borderWidth, (height - borderHeight)/duration * finalTime + borderHeight));
                                     panel.setLayoutParams(new ScalableLayout.LayoutParams((-75 + 250)/duration * finalTime - 250, 0, 200, 1850));
@@ -702,66 +766,6 @@ public class MainActivity extends AppCompatActivity
                         a.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                imageViews.add(findViewById(R.id.marker1));
-                                imageViews.add(findViewById(R.id.marker2));
-                                imageViews.add(findViewById(R.id.marker3));
-                                imageViews.add(findViewById(R.id.marker4));
-                                imageViews.add(findViewById(R.id.marker5));
-                                imageViews.add(findViewById(R.id.marker6));
-                                imageViews.add(findViewById(R.id.marker7));
-                                imageViews.add(findViewById(R.id.marker8));
-                                imageViews.add(findViewById(R.id.marker9));
-
-                                Thread checkedThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        while (isFullScreen) {
-                                            try {
-                                                Thread.sleep(10);
-
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                            a.runOnUiThread(new Runnable() {
-                                                ImageView checkCircle = (ImageView)findViewById(R.id.checkCircle);
-
-                                                @Override
-                                                public void run() {
-                                                    if (musicUiclass.getCurrentMediaPlayer() != null) {
-                                                        int index = musicUiclass.getCurrentMediaPlayerIndex();
-
-                                                        if(index > musicMaxIndex) musicMaxIndex = index;
-
-                                                        // 현재 및 지난 앨범들 GRAYSCALE 처리
-                                                        for (int i = 0; i < musicMaxIndex + 1; i++) {
-                                                            if (i != index && imageViews.get(i).getColorFilter() == null) {
-                                                                ColorMatrix matrix = new ColorMatrix();
-                                                                matrix.setSaturation(0);
-                                                                ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
-                                                                imageViews.get(i).setColorFilter(colorFilter);
-                                                                imageViews.get(i).setImageAlpha(180);
-                                                            }
-                                                        }
-
-                                                        // 현재 듣고 있는 노래 빨간동그라미로 강조!!
-                                                        float x = imageViews.get(index).getX();
-                                                        float y = imageViews.get(index).getY();
-                                                        float width = imageViews.get(index).getWidth();
-                                                        float height = imageViews.get(index).getHeight();
-                                                        float widthCircle = checkCircle.getWidth();
-                                                        float heightCircle = checkCircle.getHeight();
-                                                        checkCircle.setX(x + width/2 - widthCircle/2);
-                                                        checkCircle.setY(y + height/2 - heightCircle/2);
-                                                        checkCircle.setVisibility(View.VISIBLE);
-                                                    }
-                                                    else checkCircle.setVisibility(View.INVISIBLE);
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                                checkedThread.start();
-
                                 gameUi.setVisibility(View.INVISIBLE);
                                 mapBorder.setLayoutParams(new ScalableLayout.LayoutParams(30, 30, width + 10, height + 10));
                                 panel.setLayoutParams(new ScalableLayout.LayoutParams(-75, 0, 200, 1850));
@@ -856,29 +860,43 @@ public class MainActivity extends AppCompatActivity
                 });
                 cameraThread.start();
                  */
-
-                for(int i = 0; i < imageViews.size(); i++){
-                    int finalI = i;
-                    imageViews.get(i).setOnClickListener((view)->{
-                        if(finalI > musicMaxIndex) return; // 아직 모은 앨범노드가 아님
-
-                        if(musicUiclass.getMediaPlayer(finalI) == null) return;
-
-                        if (musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE) {
-                            musicUi.setVisibility(View.VISIBLE);
-                        }
-                        if (musicUiclass.isPlaying(finalI)) {
-                            musicUiclass.musicStop();
-                        }
-                        else {
-                            musicUiclass.musicStop();
-                            musicUiclass.setMediaPlayer(finalI);
-                            musicUiclass.musicPlay();
-                        }
-                    });
-                }
             }
     });
+
+        for(int i = 0; i < imageViews.size(); i++){
+
+            int finalI = i;
+            imageViews.get(i).setOnClickListener((view)->{
+                if(finalI > musicMaxIndex) return; // 아직 모은 앨범노드가 아님
+
+                ImageView checkCircle = (ImageView)findViewById(R.id.checkCircle);
+
+                // 현재 듣고 있는 노래 빨간동그라미로 강조!!
+                float x = imageViews.get(finalI).getX();
+                float y = imageViews.get(finalI).getY();
+                float width = imageViews.get(finalI).getWidth();
+                float height = imageViews.get(finalI).getHeight();
+                float widthCircle = checkCircle.getWidth();
+                float heightCircle = checkCircle.getHeight();
+                checkCircle.setX(x + width/2 - widthCircle/2);
+                checkCircle.setY(y + height/2 - heightCircle/2);
+                checkCircle.setVisibility(View.VISIBLE);
+
+                if(musicUiclass.getMediaPlayer(finalI) == null) return; // 노래가 없음
+
+                if (musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE) {
+                    musicUi.setVisibility(View.VISIBLE);
+                }
+                if (musicUiclass.isPlaying(finalI)) {
+                    musicUiclass.musicStop();
+                }
+                else {
+                    musicUiclass.musicStop();
+                    musicUiclass.setMediaPlayer(finalI);
+                    musicUiclass.musicPlay();
+                }
+            });
+        }
 
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
         //ActivityCompat.requestPermissions(this, PERMISSIONS, LOCATION_CODE);
@@ -1048,10 +1066,10 @@ public class MainActivity extends AppCompatActivity
 
         // 테스트 용도
 
-/*
+
         dLatitude = 20f;
         dLongitude = 0f;
-*/
+
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 
@@ -1150,7 +1168,7 @@ public class MainActivity extends AppCompatActivity
         float dLongitude = (float) (markers.get(i).getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
         // 테스트 용도
-        /*
+
         if( i == 0 ) {
             dLatitude = 3f;
             dLongitude = 0f;
@@ -1162,7 +1180,7 @@ public class MainActivity extends AppCompatActivity
         else{
             dLatitude = 0f;
             dLongitude = 3f;
-        }*/
+        }
 
         float distance = (float) Math.sqrt((dLongitude * dLongitude) + (dLatitude * dLatitude));
 

@@ -113,8 +113,8 @@ public class GameNote extends Node{
 
         setPosition(deltaTime);
 
-        // 뒤로 지나가서 거리가 너무 멀어지면 삭제
         if(distance >= limitDistance * 1.5f){
+            // 뒤로 지나가서 거리가 너무 멀어지면 삭제
             removeNote();
         }
 

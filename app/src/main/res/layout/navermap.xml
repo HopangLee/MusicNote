@@ -92,15 +92,6 @@
                     android:layout_height="match_parent"
                     android:layout_marginLeft="26dp">
 
-                    <ImageView
-                        android:layout_width="7dp"
-                        android:layout_height="1100dp"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="-10dp"
-                        android:layout_marginLeft="0dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/arrow_ui" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -109,71 +100,134 @@
                         <ImageView
                             android:id="@+id/marker1"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:layout_marginTop="50dp"
                             android:src="@drawable/exo_icon" />
 
                         <ImageView
+                            android:id="@+id/line1"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
+
+                        <ImageView
                             android:id="@+id/marker2"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/nct_icon" />
+
+                        <ImageView
+                            android:id="@+id/line2"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
 
                         <ImageView
                             android:id="@+id/marker3"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/redvelvet_icon" />
+
+                        <ImageView
+                            android:id="@+id/line3"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
 
                         <ImageView
                             android:id="@+id/marker4"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/blackpink_icon" />
 
                         <ImageView
+                            android:id="@+id/line4"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
+
+                        <ImageView
                             android:id="@+id/marker5"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/bts_icon" />
+
+                        <ImageView
+                            android:id="@+id/line5"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
 
                         <ImageView
                             android:id="@+id/marker6"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/exo_icon" />
 
                         <ImageView
+                            android:id="@+id/line6"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
+
+                        <ImageView
                             android:id="@+id/marker7"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/nct_icon" />
 
                         <ImageView
+                            android:id="@+id/line7"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
+
+                        <ImageView
                             android:id="@+id/marker8"
                             android:layout_width="35dp"
-                            android:layout_height="125dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/redvelvet_icon" />
 
                         <ImageView
+                            android:id="@+id/line8"
+                            android:layout_width="2dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
+
+                        <ImageView
                             android:id="@+id/marker9"
                             android:layout_width="35dp"
-                            android:layout_height="100dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/bts_icon" />
 
                         <ImageView
+                            android:id="@+id/line9"
+                            android:layout_width="5dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/dot_line" />
+
+                        <ImageView
                             android:id="@+id/marker10"
                             android:layout_width="40dp"
-                            android:layout_height="100dp"
+                            android:layout_height="35dp"
                             android:layout_gravity="center"
                             android:src="@drawable/bof_logo" />
                     </LinearLayout>

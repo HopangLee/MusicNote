@@ -66,7 +66,7 @@ public class MusicUi{
 
     public void musicPlay(){
         if(currentMediaPlayer != null) {
-            //currentMediaPlayer.start();
+
             gameSystem.GameStart();
             currentMediaPlayer.start();
             Thread musicThread = new Thread(new Runnable() {
