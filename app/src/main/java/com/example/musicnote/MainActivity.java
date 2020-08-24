@@ -13,6 +13,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,6 +26,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
@@ -69,6 +73,7 @@ import com.google.ar.sceneform.ux.ArFragment;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.geometry.LatLngBounds;
 import com.naver.maps.map.CameraAnimation;
+import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
@@ -80,6 +85,7 @@ import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PathOverlay;
+import com.naver.maps.map.util.CameraUtils;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.naver.maps.map.widget.CompassView;
 import com.naver.maps.map.widget.LocationButtonView;
@@ -119,16 +125,16 @@ public class MainActivity extends AppCompatActivity
     boolean isFullScreen = false;
     float mapWidth = 0;
     float mapHeight = 0;
-    float mapX = 0;
-    float mapY = 0;
     boolean isThreadRunning = false;
     PathOverlay path;
+    List<Marker> markerList;
+    int musicMaxIndex = 0;
 
     // 위치 관련
     public Location mCurrentLocation;
 
     // 마커 관련
-    private Location[] markers = new Location[3];
+    private List<Location> markers = new ArrayList<Location>();
     private Location logoLocation;
 
     // ar 관련
@@ -157,15 +163,6 @@ public class MainActivity extends AppCompatActivity
     public static float mCurrentAzim = 0f; // 방위각
     public static float mCurrentPitch = 0f; // 피치
     public static float mCurrentRoll = 0f; // 롤
-
-    // 음악 노트
-    private int[] timerArray =
-            {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
-                    11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
-                    21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
-                    31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000,
-                    41000, 42000, 43000, 44000, 45000, 46000, 47000, 48000, 49000, 50000,
-                    51000, 52000, 53000, 54000, 55000, 56000, 57000, 58000, 59000, 60000};
 
     // UI
     private TextView musicTitle;
@@ -197,6 +194,58 @@ public class MainActivity extends AppCompatActivity
         // 레이아웃 받아오기
         mLayout = findViewById(R.id.layout_main);
 
+        // 해운대역
+        // 첫번째 마커
+        markers.add(new Location("point 0"));
+        markers.get(0).setLatitude(35.163372);
+        markers.get(0).setLongitude(129.159100);
+
+        // 두번째 마커
+        markers.add(new Location("point 1"));
+        markers.get(1).setLatitude(35.162959);
+        markers.get(1).setLongitude(129.159446);
+
+        // 세번째 마커
+        markers.add(new Location("point 2"));
+        markers.get(2).setLatitude(35.162545);
+        markers.get(2).setLongitude(129.159794);
+
+        // 네번째 마커
+        markers.add(new Location("point 3"));
+        markers.get(3).setLatitude(35.162131);
+        markers.get(3).setLongitude(129.160141);
+
+        // 다섯번째 마커
+        markers.add(new Location("point 4"));
+        markers.get(4).setLatitude(35.161710);
+        markers.get(4).setLongitude(129.160484);
+
+        // 여섯번째 마커
+        markers.add(new Location("point 5"));
+        markers.get(5).setLatitude(35.161295);
+        markers.get(5).setLongitude(129.160839);
+
+        // 일곱번째 마커
+        markers.add(new Location("point 6"));
+        markers.get(6).setLatitude(35.160891);
+        markers.get(6).setLongitude(129.161202);
+
+        // 여덟번째 마커
+        markers.add(new Location("point 7"));
+        markers.get(7).setLatitude(35.160473);
+        markers.get(7).setLongitude(129.161549);
+
+        // 아홉번째 마커
+        markers.add(new Location("point 8"));
+        markers.get(8).setLatitude(35.160061);
+        markers.get(8).setLongitude(129.161892);
+
+        // 로고 위치
+        logoLocation = new Location("BOF LOGO");
+        logoLocation.setLatitude(35.159715);
+        logoLocation.setLongitude(129.162171);
+
+        /* 집근처
         // 첫번째 마커//ddddd
         markers[0] = new Location("point A");
         markers[0].setLatitude(37.284677);
@@ -214,19 +263,11 @@ public class MainActivity extends AppCompatActivity
         logoLocation = new Location("BOF LOGO");
         logoLocation.setLatitude(37.283827);
         logoLocation.setLongitude(127.054332);
+         */
+
 
         // 레이아웃을 위에 겹쳐서 올리는 부분
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        // 레이아웃 객체 생성
-        LinearLayout ll = (LinearLayout) inflater.inflate(R.layout.navermap, null);
-        // 레이아웃 배경 투명도 주기
-        ll.setBackgroundColor(Color.parseColor("#00000000"));
-        // 레이아웃 위에 겹치기
-        LinearLayout.LayoutParams paramll = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        addContentView(ll, paramll);
-
 
         // 게임 ui 레이아웃 오버레이
         // 레이아웃 객체 생성
@@ -238,6 +279,16 @@ public class MainActivity extends AppCompatActivity
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
         );
         addContentView(gameLayout, paramll2);
+
+        // 레이아웃 객체 생성
+        LinearLayout ll = (LinearLayout) inflater.inflate(R.layout.navermap, null);
+        // 레이아웃 배경 투명도 주기
+        ll.setBackgroundColor(Color.parseColor("#00000000"));
+        // 레이아웃 위에 겹치기
+        LinearLayout.LayoutParams paramll = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        addContentView(ll, paramll);
 
         // '위치를 찾는 중' 팝업창 오버레이
         popupLayout = (FrameLayout)inflater.inflate(R.layout.activity_popup, null);
@@ -304,6 +355,12 @@ public class MainActivity extends AppCompatActivity
         setUpModel();
 
         arFragment.getArSceneView().getScene().setOnUpdateListener(this::onSceneUpdate);
+        arSceneView.setOnTouchListener((view, motionEvent)->{
+            if(isFullScreen){
+                popDownScrollUI();
+            }
+            return gameSystem.onTouch(view, motionEvent);
+        });
     }
 
     @Override
@@ -335,61 +392,77 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed(){
         if(isFullScreen){
-            if(isThreadRunning) isThreadRunning = false;
-
-            Activity a = this;
-            View mapOverlay = (View)findViewById(R.id.map);
-            View mapBorder = (View)findViewById(R.id.mapBorder);
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() { // Thread 로 작업할 내용을 구현
-                    final int deltaSecond = 5;
-                    final int duration = 100;
-                    int time = 0;
-                    final int width = arSceneView.getWidth();
-                    final int height = arSceneView.getHeight();
-
-                    while(time < duration){
-                        try {
-                            Thread.sleep(deltaSecond);
-
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        time += deltaSecond;
-
-                        int finalTime = time;
-                        a.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mapOverlay.setX(mapX * (finalTime/duration));
-                                mapOverlay.setY(mapY * (finalTime/duration));
-                                mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0, 0, (mapWidth - width)/duration * finalTime + width, (mapHeight - height)/duration * finalTime + height));
-                            }
-                        });
-                    }
-                    a.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mapBorder.setVisibility(View.VISIBLE);
-                            mapOverlay.setX(mapX);
-                            mapOverlay.setY(mapY);
-                            mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0f, 0f, mapWidth*0.925f, mapHeight*0.925f));
-                            path.setMap(null);
-                            CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
-                            mNaverMap.moveCamera(cameraUpdate);
-                        }
-                    });
-                }
-            });
-            thread.start();
-
-            isFullScreen = false;
+            popDownScrollUI();
         }
         else{
             super.onBackPressed();
         }
+    }
+
+    public void popDownScrollUI(){
+        if(isThreadRunning) isThreadRunning = false;
+
+        Activity a = this;
+        View mapOverlay = (View)findViewById(R.id.map);
+        View mapBorder = (View)findViewById(R.id.mapBorder);
+        View mapImg = (View)findViewById(R.id.mapImg);
+        View gameUI = (View)findViewById(R.id.game_ui);
+        View panel = (View)findViewById(R.id.panel);
+
+        gameUI.setVisibility(View.VISIBLE);
+
+        mapImg.setVisibility(View.VISIBLE);
+        mapOverlay.setVisibility(View.INVISIBLE);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() { // Thread 로 작업할 내용을 구현
+                final int deltaSecond = 5;
+                final int duration = 75;
+                int time = 0;
+                final int height = 1740;
+
+                while(time < duration){
+                    try {
+                        Thread.sleep(deltaSecond);
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    time += deltaSecond;
+
+                    int finalTime = time;
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            panel.setLayoutParams(new ScalableLayout.LayoutParams((-250 + 75)/duration * finalTime - 75, 0, 200, 1850));
+                            mapImg.setLayoutParams(new ScalableLayout.LayoutParams(35, 35, (290 - (1000-70))/duration * finalTime + (1000-70), (390 - height)/duration * finalTime + height));
+                            mapBorder.setLayoutParams(new ScalableLayout.LayoutParams(30, 30, (300 - (1000-60))/duration * finalTime + (1000-60), (400 - (height+10))/duration * finalTime + (height+10)));
+                        }
+                    });
+                }
+                a.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        panel.setLayoutParams(new ScalableLayout.LayoutParams(-250, 0, 200, 1850));
+                        mapImg.setVisibility(View.INVISIBLE);
+                        mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(35, 35, 290, 390));
+                        mapOverlay.setVisibility(View.VISIBLE);
+                        mapBorder.setLayoutParams(new ScalableLayout.LayoutParams(30, 30, 300, 400));
+                        path.setMap(null);
+                        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
+                        mNaverMap.moveCamera(cameraUpdate);
+
+                        for(Marker m : markerList){
+                            m.setCaptionText("");
+                            m.setSubCaptionText("");
+                        }
+                    }
+                });
+            }
+        });
+        thread.start();
+
+        isFullScreen = false;
     }
 
     private void setUpModel() {
@@ -464,31 +537,69 @@ public class MainActivity extends AppCompatActivity
         mNaverMap.setLocationSource(mLocationSource);
 
         Log.d(TAG, "onMapReady");
+        markerList = new ArrayList<Marker>();
 
         // 마커 세팅
         Marker marker1 = new Marker();
-        marker1.setPosition(new LatLng(markers[0].getLatitude(), markers[0].getLongitude()));
-        marker1.setHeight(70);
-        marker1.setWidth(60);
-        marker1.setIcon(OverlayImage.fromResource(R.drawable.blacklogo));
-        marker1.setAnchor(new PointF(0.5f, 1));
-        marker1.setMap(naverMap);
+        marker1.setPosition(new LatLng(markers.get(0).getLatitude(), markers.get(0).getLongitude()));
+        marker1.setIcon(OverlayImage.fromResource(R.drawable.exologo));
+        markerList.add(marker1);
 
         Marker marker2 = new Marker();
-        marker2.setPosition(new LatLng(markers[1].getLatitude(), markers[1].getLongitude()));
-        marker2.setHeight(70);
-        marker2.setWidth(60);
-        marker2.setIcon(OverlayImage.fromResource(R.drawable.btslogo));
-        marker2.setAnchor(new PointF(0.5f, 1));
-        marker2.setMap(naverMap);
+        marker2.setPosition(new LatLng(markers.get(1).getLatitude(), markers.get(1).getLongitude()));
+        marker2.setIcon(OverlayImage.fromResource(R.drawable.nctlogo));
+        markerList.add(marker2);
 
         Marker marker3 = new Marker();
-        marker3.setPosition(new LatLng(markers[2].getLatitude(), markers[2].getLongitude()));
-        marker3.setHeight(70);
-        marker3.setWidth(60);
+        marker3.setPosition(new LatLng(markers.get(2).getLatitude(), markers.get(2).getLongitude()));
         marker3.setIcon(OverlayImage.fromResource(R.drawable.redlogo));
-        marker3.setAnchor(new PointF(0.5f, 1));
-        marker3.setMap(naverMap);
+        markerList.add(marker3);
+
+        // 부산 해운대 추가
+        Marker marker4 = new Marker();
+        marker4.setPosition(new LatLng(markers.get(3).getLatitude(), markers.get(3).getLongitude()));
+        marker4.setIcon(OverlayImage.fromResource(R.drawable.blacklogo));
+        markerList.add(marker4);
+
+        Marker marker5 = new Marker();
+        marker5.setPosition(new LatLng(markers.get(4).getLatitude(), markers.get(4).getLongitude()));
+        marker5.setIcon(OverlayImage.fromResource(R.drawable.btslogo));
+        markerList.add(marker5);
+
+        Marker marker6 = new Marker();
+        marker6.setPosition(new LatLng(markers.get(5).getLatitude(), markers.get(5).getLongitude()));
+        marker6.setIcon(OverlayImage.fromResource(R.drawable.exologo));
+        markerList.add(marker6);
+
+        Marker marker7 = new Marker();
+        marker7.setPosition(new LatLng(markers.get(6).getLatitude(), markers.get(6).getLongitude()));
+        marker7.setIcon(OverlayImage.fromResource(R.drawable.nctlogo));
+        markerList.add(marker7);
+
+        Marker marker8 = new Marker();
+        marker8.setPosition(new LatLng(markers.get(7).getLatitude(), markers.get(7).getLongitude()));
+        marker8.setIcon(OverlayImage.fromResource(R.drawable.redlogo));
+        markerList.add(marker8);
+
+        Marker marker9 = new Marker();
+        marker9.setPosition(new LatLng(markers.get(8).getLatitude(), markers.get(8).getLongitude()));
+        marker9.setIcon(OverlayImage.fromResource(R.drawable.btslogo));
+        markerList.add(marker9);
+
+        for(Marker m : markerList){
+            m.setHeight(70);
+            m.setWidth(60);
+            m.setAnchor(new PointF(0.5f, 1));
+            m.setIconPerspectiveEnabled(true);
+            m.setHideCollidedSymbols(true);
+            m.setCaptionMinZoom(14);
+            m.setCaptionMaxZoom(17);
+            m.setCaptionTextSize(13);
+            m.setSubCaptionColor(Color.DKGRAY);
+            m.setSubCaptionHaloColor(Color.WHITE);
+            m.setSubCaptionTextSize(10);
+            m.setMap(naverMap);
+        }
 
         Marker logo = new Marker();
         logo.setPosition(new LatLng(logoLocation.getLatitude(), logoLocation.getLongitude()));
@@ -496,6 +607,9 @@ public class MainActivity extends AppCompatActivity
         logo.setWidth(70);
         logo.setIcon(OverlayImage.fromResource(R.drawable.boflogo));
         logo.setAnchor(new PointF(0.5f, 0.5f));
+        logo.setIconPerspectiveEnabled(true);
+        logo.setCaptionText("목적지");
+        logo.setCaptionTextSize(15);
         logo.setMap(naverMap);
 
         // UI 컨트롤 재배치
@@ -510,7 +624,8 @@ public class MainActivity extends AppCompatActivity
         CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
         mNaverMap.moveCamera(cameraUpdate);
         mNaverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
-        mNaverMap.setLiteModeEnabled(true);
+        mNaverMap.setSymbolScale(0.75f);
+
 
         LocationOverlay locationOverlay = mNaverMap.getLocationOverlay();
 
@@ -532,27 +647,34 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        List<ImageView> imageViews = new ArrayList<ImageView>();
+
         mNaverMap.setOnMapClickListener((point, coord)->{
             if(!isFullScreen) {
                 View mapOverlay = (View) findViewById(R.id.map);
                 View mapBorder = (View) findViewById(R.id.mapBorder);
-                mapBorder.setVisibility(View.GONE);
-                // mapOverlay 정보 저장
-                mapX = mapOverlay.getX();
-                mapY = mapOverlay.getY();
-                mapWidth = mapOverlay.getWidth();
-                mapHeight = mapOverlay.getHeight();
-                final int width = arSceneView.getWidth();
-                final int height = arSceneView.getHeight();
+                View mapImg = (View) findViewById(R.id.mapImg);
+                View gameUi = (View)findViewById(R.id.game_ui);
+                View panel = (View)findViewById(R.id.panel);
+
+                mapWidth = 290;
+                mapHeight = 390;
+                float borderWidth = 300;
+                float borderHeight = 400;
+                final float width = 1000 - 70;
+                final float height = 1740;
                 isFullScreen = true;
                 Activity a = this;
                 isThreadRunning = true;
+                mapImg.setVisibility(View.VISIBLE);
+                mapOverlay.setVisibility(View.INVISIBLE);
+                mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(35, 35, width, height));
                 // 지도 확대 애니메이션
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() { // Thread 로 작업할 내용을 구현
                         final int deltaSecond = 5;
-                        final int duration = 100;
+                        final int duration = 75;
                         int time = 0;
 
                         while(isThreadRunning && time < duration){
@@ -568,43 +690,193 @@ public class MainActivity extends AppCompatActivity
                             a.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mapOverlay.setX(mapX * (-1/duration * finalTime + 1));
-                                    mapOverlay.setY(mapY * (-1/duration * finalTime + 1));
-                                    mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0, 0, (width - mapWidth)/duration * finalTime + mapWidth, (height - mapHeight)/duration * finalTime + mapHeight));
+                                    //mapOverlay.setX(mapX * (-1/duration * finalTime + 1));
+                                    //mapOverlay.setY(mapY * (-1/duration * finalTime + 1));
+                                    mapImg.setLayoutParams(new ScalableLayout.LayoutParams(35, 35, (width - mapWidth)/duration * finalTime + mapWidth, (height - mapHeight)/duration * finalTime + mapHeight));
+                                    mapBorder.setLayoutParams(new ScalableLayout.LayoutParams(30, 30, (width - borderWidth)/duration * finalTime + borderWidth, (height - borderHeight)/duration * finalTime + borderHeight));
+                                    panel.setLayoutParams(new ScalableLayout.LayoutParams((-75 + 250)/duration * finalTime - 250, 0, 200, 1850));
                                 }
                             });
                         }
+
                         a.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mapOverlay.setX(0);
-                                mapOverlay.setY(0);
-                                mapOverlay.setLayoutParams(new ScalableLayout.LayoutParams(0, 0, width, height));
+                                imageViews.add(findViewById(R.id.marker1));
+                                imageViews.add(findViewById(R.id.marker2));
+                                imageViews.add(findViewById(R.id.marker3));
+                                imageViews.add(findViewById(R.id.marker4));
+                                imageViews.add(findViewById(R.id.marker5));
+                                imageViews.add(findViewById(R.id.marker6));
+                                imageViews.add(findViewById(R.id.marker7));
+                                imageViews.add(findViewById(R.id.marker8));
+                                imageViews.add(findViewById(R.id.marker9));
+
+                                Thread checkedThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        while (isFullScreen) {
+                                            try {
+                                                Thread.sleep(10);
+
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                            a.runOnUiThread(new Runnable() {
+                                                ImageView checkCircle = (ImageView)findViewById(R.id.checkCircle);
+
+                                                @Override
+                                                public void run() {
+                                                    if (musicUiclass.getCurrentMediaPlayer() != null) {
+                                                        int index = musicUiclass.getCurrentMediaPlayerIndex();
+
+                                                        if(index > musicMaxIndex) musicMaxIndex = index;
+
+                                                        // 현재 및 지난 앨범들 GRAYSCALE 처리
+                                                        for (int i = 0; i < musicMaxIndex + 1; i++) {
+                                                            if (i != index && imageViews.get(i).getColorFilter() == null) {
+                                                                ColorMatrix matrix = new ColorMatrix();
+                                                                matrix.setSaturation(0);
+                                                                ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+                                                                imageViews.get(i).setColorFilter(colorFilter);
+                                                                imageViews.get(i).setImageAlpha(180);
+                                                            }
+                                                        }
+
+                                                        // 현재 듣고 있는 노래 빨간동그라미로 강조!!
+                                                        float x = imageViews.get(index).getX();
+                                                        float y = imageViews.get(index).getY();
+                                                        float width = imageViews.get(index).getWidth();
+                                                        float height = imageViews.get(index).getHeight();
+                                                        float widthCircle = checkCircle.getWidth();
+                                                        float heightCircle = checkCircle.getHeight();
+                                                        checkCircle.setX(x + width/2 - widthCircle/2);
+                                                        checkCircle.setY(y + height/2 - heightCircle/2);
+                                                        checkCircle.setVisibility(View.VISIBLE);
+                                                    }
+                                                    else checkCircle.setVisibility(View.INVISIBLE);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                                checkedThread.start();
+
+                                gameUi.setVisibility(View.INVISIBLE);
+                                mapBorder.setLayoutParams(new ScalableLayout.LayoutParams(30, 30, width + 10, height + 10));
+                                panel.setLayoutParams(new ScalableLayout.LayoutParams(-75, 0, 200, 1850));
+                                mapOverlay.setVisibility(View.VISIBLE);
+                                mapImg.setVisibility(View.INVISIBLE);
+
                                 path = new PathOverlay();
                                 path.setCoords(Arrays.asList(
-                                        new LatLng(37.284677, 127.053124),
-                                        new LatLng(37.284457, 127.053318),
-                                        new LatLng(37.284161, 127.053781),
-                                        new LatLng(37.284161, 127.054332)
+                                        new LatLng(markers.get(0).getLatitude(), markers.get(0).getLongitude()),
+                                        new LatLng(logoLocation.getLatitude(), logoLocation.getLongitude())
                                 ));
-                                path.setProgress(0.5);
+                                //path.setProgress(0.5);
                                 path.setPatternImage(OverlayImage.fromResource(R.drawable.arrow_pattern));
-                                path.setColor(Color.YELLOW);
-                                path.setPassedColor(Color.GRAY);
-                                path.setOutlineWidth(5);
+                                path.setPatternInterval(75);
+                                path.setColor(Color.parseColor("#3B7BF9"));
+                                //path.setPassedColor(Color.GRAY);
+                                path.setWidth(20);
+                                path.setOutlineWidth(3);
+                                path.setOutlineColor(Color.parseColor("#828282"));
                                 path.setMap(mNaverMap);
+
                                 mNaverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
-                                CameraUpdate cameraUpdate = CameraUpdate.zoomTo(17);
-                                mNaverMap.moveCamera(cameraUpdate);
-                                cameraUpdate = CameraUpdate.scrollTo(new LatLng(37.284354, 127.053544))
-                                        .animate(CameraAnimation.Fly);
-                                naverMap.moveCamera(cameraUpdate);
+
+                                CameraPosition cameraPosition = new CameraPosition(
+                                        new LatLng(35.161521, 129.160587),
+                                        16.2,
+                                        0,
+                                        -12
+                                );
+                                mNaverMap.setCameraPosition(cameraPosition);
+
+                                mNaverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, false);
+
+                                marker1.setCaptionText("EXO");
+                                marker1.setSubCaptionText("Love Shot");
+
+                                marker2.setCaptionText("NCT127");
+                                marker2.setSubCaptionText("Hero");
+
+                                marker3.setCaptionText("레드벨벳");
+                                marker3.setSubCaptionText("빨간맛");
+
+                                marker4.setCaptionText("블랙핑크");
+                                marker4.setSubCaptionText("How You Like That");
+
+                                marker5.setCaptionText("방탄소년단");
+                                marker5.setSubCaptionText("DNA");
+
+                                marker6.setCaptionText("EXO");
+                                marker6.setSubCaptionText("Love Shot");
+
+                                marker7.setCaptionText("NCT127");
+                                marker7.setSubCaptionText("Hero");
+
+                                marker8.setCaptionText("레드벨벳");
+                                marker8.setSubCaptionText("빨간맛");
+
+                                marker9.setCaptionText("방탄소년단");
+                                marker9.setSubCaptionText("DNA");
                             }
                         });
                         isThreadRunning = false;
                     }
                 });
                 thread.start();
+
+                /*
+                Thread cameraThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(isFullScreen){
+                            try {
+                                Thread.sleep(1);
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            a.runOnUiThread(new Runnable(){
+                                @Override
+                                public void run() {
+                                    CameraPosition cameraPosition = new CameraPosition(
+                                            new LatLng(35.161521, 129.160587),
+                                            16.2,
+                                            0,
+                                            -12
+                                    );
+                                    mNaverMap.setCameraPosition(cameraPosition);
+                                }
+                            });
+                        }
+                    }
+                });
+                cameraThread.start();
+                 */
+
+                for(int i = 0; i < imageViews.size(); i++){
+                    int finalI = i;
+                    imageViews.get(i).setOnClickListener((view)->{
+                        if(finalI > musicMaxIndex) return; // 아직 모은 앨범노드가 아님
+
+                        if(musicUiclass.getMediaPlayer(finalI) == null) return;
+
+                        if (musicUi.getVisibility() == View.INVISIBLE || musicUi.getVisibility() == View.GONE) {
+                            musicUi.setVisibility(View.VISIBLE);
+                        }
+                        if (musicUiclass.isPlaying(finalI)) {
+                            musicUiclass.musicStop();
+                        }
+                        else {
+                            musicUiclass.musicStop();
+                            musicUiclass.setMediaPlayer(finalI);
+                            musicUiclass.musicPlay();
+                        }
+                    });
+                }
             }
     });
 
@@ -874,8 +1146,8 @@ public class MainActivity extends AppCompatActivity
 
     // 앨범 노드 생성~!
     public boolean createNode(int i) {
-        float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
-        float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
+        float dLatitude = (float) (markers.get(i).getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
+        float dLongitude = (float) (markers.get(i).getLongitude() - mCurrentLocation.getLongitude()) * 88400f;
 
         // 테스트 용도
         /*
@@ -964,14 +1236,8 @@ public class MainActivity extends AppCompatActivity
         Vector3 up = new Vector3(xAxis.x + yAxis.x + zAxis.x, xAxis.y + yAxis.y + zAxis.y, xAxis.z + yAxis.z + zAxis.z).normalized();
 
         AlbumNode albumNode = new AlbumNode(mAnchorNode[i], albumRenderable[i],
-                timerArray, musicUiclass.getMediaPlayer(i), arSceneView);
+                musicUiclass.getMediaPlayer(i), arSceneView);
         music(albumNode, i);
-
-        int index = albumNode.getIndex();
-        for(; albumNode.getTimer(index) < albumNode.getCurrentMediaPosition(); index++){
-            ;
-        }
-        albumNode.setIndex(index);
 
         Snackbar.make(mLayout, "앨범이 근처에 있습니다 (distance: " + distance + "m)", Snackbar.LENGTH_SHORT).show();
 
@@ -982,8 +1248,6 @@ public class MainActivity extends AppCompatActivity
         Context c = this;
 
         albumNode.setOnTapListener((v, event) -> {
-            // 디버깅용 터치하면 사라지게
-
             /* gps를 이용한 거리
             float dLatitude = (float) (markers[i].getLatitude() - mCurrentLocation.getLatitude()) * 110900f;
             float dLongitude = (float) (markers[i].getLongitude() - mCurrentLocation.getLongitude()) * 88400f;

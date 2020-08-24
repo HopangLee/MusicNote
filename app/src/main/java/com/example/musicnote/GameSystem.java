@@ -318,7 +318,7 @@ public class GameSystem extends AnchorNode{
         soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         effectSoundID = soundPool.load(mainActivity, R.raw.kick_heavy_impact_04, 1);
 
-        arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
+        //arSceneView.setOnTouchListener(this::onTouch); // 실험 -> 오 잘된다 레전드
 
 
         // Create an ARCore Anchor at the position.
@@ -484,12 +484,6 @@ public class GameSystem extends AnchorNode{
         return ret;
     }
 
-    public void onDraw(Canvas canvas){
-
-
-        arSceneView.onDrawForeground(canvas);
-    }
-
     // 해당 터치의 연속된 기록이 어떤 방향을 나타내고 있는지 => 이상하면 가장 오래된 기록 삭제
     public void checkDirection(int key){
         List<Coordinate> coordinates = touchs.get(key).points;
@@ -572,10 +566,11 @@ public class GameSystem extends AnchorNode{
 
         Ray startRay = camera.screenPointToRay(start.x, start.y);
         Ray endRay = camera.screenPointToRay(end.x, end.y);
+        boolean isCollision = false;
 
-        for(int i = 0; i < 13; i++){
-            Vector3 startPoint = startRay.getPoint(ZONEDISTANCE - 1.2f + 0.2f * i);
-            Vector3 endPoint = endRay.getPoint(ZONEDISTANCE - 1.25f + 0.3f * i);
+        for(int i = 0; i < 11; i++){
+            Vector3 startPoint = startRay.getPoint(0 + 0.1f * i * (ZONEDISTANCE + 1f));
+            Vector3 endPoint = endRay.getPoint(0 + 0.1f * i * (ZONEDISTANCE + 1f));
             Vector3 direction = Vector3.subtract(endPoint, startPoint).normalized();
             startPoint = Vector3.add(startPoint, direction.negated().scaled(0.1f));
 
@@ -585,10 +580,48 @@ public class GameSystem extends AnchorNode{
                 if(hits.get(j).getDistance() <= minDistance * 2f){
                     Node n = hits.get(j).getNode();
                     if(n instanceof GameNote){
-                        ((GameNote) n).getScore(touchs.get(key).direction);
+                        isCollision = ((GameNote) n).getScore(touchs.get(key).direction);
                     }
                 }
             }
+
+            if(isCollision) return;
+
+            Vector3 startPoint2 = Vector3.add(startRay.getPoint(0 + 0.1f * i * (ZONEDISTANCE + 1f)), camera.getLeft().scaled(0.25f));
+            Vector3 endPoint2 = Vector3.add(endRay.getPoint(0 + 0.1f * i * (ZONEDISTANCE + 1f)), camera.getLeft().scaled(0.25f));
+            Vector3 direction2 = Vector3.subtract(endPoint2, startPoint2).normalized();
+            startPoint2 = Vector3.add(startPoint2, direction2.negated().scaled(0.1f));
+
+            Ray ray2 = new Ray(startPoint2, direction2);
+            List<HitTestResult> hits2 = arSceneView.getScene().hitTestAll(ray2);
+            for(int j = 0; j < hits2.size(); j++){
+                if(hits2.get(j).getDistance() <= minDistance * 2f){
+                    Node n = hits2.get(j).getNode();
+                    if(n instanceof GameNote){
+                        isCollision = ((GameNote) n).getScore(touchs.get(key).direction);
+                    }
+                }
+            }
+
+            if(isCollision) return;
+
+            Vector3 startPoint3 = Vector3.add(startRay.getPoint(0 + 0.1f * i * (ZONEDISTANCE + 1f)), camera.getRight().scaled(0.25f));
+            Vector3 endPoint3 = Vector3.add(endRay.getPoint(0 + 0.1f * i * (ZONEDISTANCE + 1f)), camera.getRight().scaled(0.25f));
+            Vector3 direction3 = Vector3.subtract(endPoint3, startPoint3).normalized();
+            startPoint3 = Vector3.add(startPoint3, direction3.negated().scaled(0.1f));
+
+            Ray ray3 = new Ray(startPoint3, direction3);
+            List<HitTestResult> hits3 = arSceneView.getScene().hitTestAll(ray3);
+            for(int j = 0; j < hits3.size(); j++){
+                if(hits3.get(j).getDistance() <= minDistance * 2f){
+                    Node n = hits3.get(j).getNode();
+                    if(n instanceof GameNote){
+                        isCollision = ((GameNote) n).getScore(touchs.get(key).direction);
+                    }
+                }
+            }
+
+            if(isCollision) return;
         }
 
     }

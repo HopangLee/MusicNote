@@ -22,14 +22,12 @@ import androidx.annotation.Nullable;
 public class AlbumNode extends Node {
     private AnchorNode parent;
     //private ModelRenderable[] musicNotes;
-    private int[] timerArray; // 밀리세컨드 단위
     private float time = 0f;
     private int index = 0; // timerArray의 index
     private MediaPlayer mediaPlayer;
     private ArSceneView arSceneView;
 
     AlbumNode(AnchorNode parent, ModelRenderable albumModel,
-              int[] timerArray,
               MediaPlayer mediaPlayer, ArSceneView arSceneView){
         this.setRenderable(albumModel);
 
@@ -41,7 +39,6 @@ public class AlbumNode extends Node {
 */
         this.setParent(parent);
         this.parent = parent;
-        this.timerArray = timerArray;
         //this.musicNotes = musicNotes;
         this.mediaPlayer = mediaPlayer;
         this.arSceneView = arSceneView;
@@ -120,10 +117,6 @@ public class AlbumNode extends Node {
 
     public int getIndex(){
         return index;
-    }
-
-    public int getTimer(int i){
-        return timerArray[i];
     }
 
     public int getCurrentMediaPosition(){

@@ -154,11 +154,11 @@ public class GameNote extends Node{
         this.setWorldPosition(movePos);
     }
 
-    public void getScore(int direction){
+    public boolean getScore(int direction){
         // 일정 거리보다 가깝다면
         float perfectLine = gameSystem.getZONEDISTANCE();
 
-        if(this.DIRECTION != direction) return; // 드래그 한 방향이 다르면 삭제x
+        if(this.DIRECTION != direction) return false; // 드래그 한 방향이 다르면 삭제x
 
         if(ZONEDISTANCE - 1.5f <= distance && distance <= limitDistance * 1.2f) { // 일단 타격 인정 범위
             //effectSound.start();
@@ -185,9 +185,11 @@ public class GameNote extends Node{
                     this.setRenderable(gameSystem.redSlicedRenderable);
                 }
                 isSliced = true;
+                return true;
             }
             //removeNote();
         }
+        return false;
     }
 
     public void removeNote(){

@@ -33,14 +33,11 @@ public class MusicUi{
 
     private final Activity mActivity;
     private GameSystem gameSystem;
-    private Timer mTimer;
-    private TimerTask mTask;
 
     MusicUi(Activity mActivity, Context context, ProgressBar musicBar, TextView titleText, ImageView playBtn){
         this.musicBar = musicBar;
         this.titleText = titleText;
         this.playBtn = playBtn;
-        //this.album = album;
 
         for(int r : MEDIAROOT){
             mediaPlayers.add(MediaPlayer.create(context, r));
@@ -71,44 +68,33 @@ public class MusicUi{
         if(currentMediaPlayer != null) {
             //currentMediaPlayer.start();
             gameSystem.GameStart();
-            mTimer = new Timer();
-            mTask = new TimerTask() {
+            currentMediaPlayer.start();
+            Thread musicThread = new Thread(new Runnable() {
                 @Override
-                public void run() {
-                    currentMediaPlayer.start();
-                    Thread musicThread = new Thread(new Runnable() {
-                        @Override
-                        public void run() { // Thread 로 작업할 내용을 구현
-                            while(currentMediaPlayer.isPlaying()){
-                                try {
-                                    Thread.sleep(10);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-
-                                mActivity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
-                                    }
-                                });
-                            }
+                public void run() { // Thread 로 작업할 내용을 구현
+                    while(currentMediaPlayer.isPlaying()){
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-                    });
-                    musicThread.start(); // 쓰레드 시작
+
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                musicBar.setProgress(currentMediaPlayer.getCurrentPosition());
+                            }
+                        });
+                    }
                 }
-            };
-            mTimer.schedule(mTask, gameSystem.getDELAY());
-
+            });
+            musicThread.start(); // 쓰레드 시작
             playBtn.setImageResource(R.drawable.ic_media_stop);
-
-
         }
     }
 
     public void musicPause(){
         if(currentMediaPlayer != null) {
-            mTimer.cancel();
             currentMediaPlayer.pause();
             gameSystem.GamePause();
             playBtn.setImageResource(R.drawable.ic_media_play);
@@ -117,11 +103,10 @@ public class MusicUi{
 
     public void musicStop(){
         if(currentMediaPlayer != null) {
-            mTimer.cancel();
             currentMediaPlayer.pause();
             currentMediaPlayer.seekTo(0);
             gameSystem.GameStop();
-            playBtn.setImageResource(android.R.drawable.ic_media_play);
+            playBtn.setImageResource(R.drawable.ic_media_play);
             musicBar.setProgress(0);
         }
     }
